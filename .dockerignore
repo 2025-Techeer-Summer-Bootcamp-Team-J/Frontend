@@ -1,7 +1,3 @@
 node_modules
 dist
-.git
-Dockerfile.dev
-nginx.conf
 .env
-.DS_Store
