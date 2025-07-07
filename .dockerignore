@@ -1,7 +1,7 @@
 node_modules
-build
 dist
-npm-debug.log
-yarn-error.log
+.git
+Dockerfile.dev
+nginx.conf
 .env
 .DS_Store

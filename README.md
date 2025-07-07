@@ -18,47 +18,35 @@ npm install
 npm run dev
 ```
 
-### Docker를 사용한 실행
 
-#### 프로덕션 환경 실행
-```bash
-docker compose up
-```
+### 프로덕션 빌드 및 미리보기
 
-백그라운드에서 실행:
-```bash
-docker compose up -d
-```
+1. 빌드
 
-#### 서비스 중지
-```bash
-docker compose down
-```
-
-## 빌드
-
-### 로컬 빌드
 ```bash
 npm run build
 ```
 
-### Docker 빌드
+2. 빌드 결과물 미리보기
+
 ```bash
-docker compose build
+npm run preview
 ```
 
-## 접속 방법
 
-- **로컬 개발 서버**: `http://localhost:5173`
-- **Docker 실행(프로덕션)**: `http://localhost:3000`
+---
+
+## Vercel 배포 방법
+
+1. [Vercel](https://vercel.com/)에 가입 후, GitHub(또는 GitLab, Bitbucket) 저장소를 연결합니다.
+2. 프로젝트를 import하면 Vercel이 자동으로 빌드 및 배포합니다.
+   - 기본적으로 `npm install` → `npm run build` → 정적 파일 배포가 자동으로 진행됩니다.
+   - 필요시 Vercel 프로젝트 Settings에서 Build Command, Output Directory 등을 수정할 수 있습니다.
+
+---
 
 ## 주요 폴더 구조
 - src: 소스 코드
 - public: 정적 파일
-
-## Docker 파일 설명
-- `Dockerfile`: 프로덕션 빌드용 (Nginx 서빙)
-- `docker-compose.yml`: Docker Compose 설정
-- `nginx.conf`: Nginx 설정 파일
 
 ---
