@@ -3,6 +3,7 @@
 import { Routes, Route } from 'react-router-dom';
 import SkinAnalysisStep1 from './pages/DiseaseAnalysisStep1'; 
 import DiseaseAnalysisStep2Page from './pages/DiseaseAnalysisStep2';
+import AnalysisResultPage from './pages/DiseaseAnalysisStep3';
 import { GlobalStyle } from './styles/GlobalStyle';
 
 // HomePage 컴포넌트는 이제 필요 없으니 지워도 됩니다.
@@ -23,6 +24,9 @@ function App() {
         {/* 기본 주소(path="/")로 접속하면 바로 SkinAnalysisStep1 페이지를 보여줌 */}
         <Route path="/disease-analysis-step1" element={<SkinAnalysisStep1 />} />
         <Route path="/disease-analysis-step2" element={<DiseaseAnalysisStep2Page />} />
+        <Route path="/disease-analysis-step3" element={<AnalysisResultPage />} />
+
+
         {/* 
           만약 /Skin 주소를 유지하고 싶다면 그대로 두어도 괜찮습니다.
           이 경우, http://localhost:5173/ 와 http://localhost:5173/Skin 두 주소 모두
