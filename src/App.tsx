@@ -1,35 +1,36 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// src/App.tsx
+
+import { Routes, Route } from 'react-router-dom';
+import SkinAnalysisStep1 from './pages/SkinAnalysisStep1';
+import { GlobalStyle } from './styles/GlobalStyle';
+
+// HomePage 컴포넌트는 이제 필요 없으니 지워도 됩니다.
+// const HomePage = () => <h1>메인 페이지입니다.</h1>;
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <GlobalStyle />
+      <Routes>
+        {/* 
+          이전 코드: 
+          <Route path="/" element={<HomePage />} />
+          <Route path="/Skin" element={<SkinAnalysisStep1 />} />
+        */}
+
+        {/* --- 수정된 코드 --- */}
+        {/* 기본 주소(path="/")로 접속하면 바로 SkinAnalysisStep1 페이지를 보여줌 */}
+        <Route path="/" element={<SkinAnalysisStep1 />} />
+
+        {/* 
+          만약 /Skin 주소를 유지하고 싶다면 그대로 두어도 괜찮습니다.
+          이 경우, http://localhost:5173/ 와 http://localhost:5173/Skin 두 주소 모두
+          같은 페이지를 보여주게 됩니다. 
+          지금은 하나만 남겨두는 것이 깔끔합니다.
+        */}
+      </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
