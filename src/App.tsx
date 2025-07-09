@@ -1,6 +1,7 @@
 // src/App.tsx
 
 import { Routes, Route } from 'react-router-dom';
+
 import SkinAnalysisStep1 from './pages/DiseaseAnalysisStep1'; 
 import DiseaseAnalysisStep2Page from './pages/DiseaseAnalysisStep2';
 import AnalysisResultPage from './pages/DiseaseAnalysisStep3';
