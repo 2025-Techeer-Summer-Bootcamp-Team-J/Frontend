@@ -1,21 +1,27 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
 // --- Styled Components (스타일 정의) ---
 
 const PageContainer = styled.div`
-  width: 1440px;
-  height: 810px;
   background-color: white;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   padding: 3rem 4rem;
+  width: 100%;
+  flex-grow: 1;
+
+  @media (max-width: 1024px) {
+    padding: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 `;
 
 const Wrapper = styled.div`
-  max-width: 48rem; /* 내용에 맞게 조정 (원본: max-w-7xl) */
-  margin: 0 auto;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -70,6 +76,10 @@ const PageTitle = styled.h1`
   font-weight: 700;
   color: #1e293b; /* Tailwind: text-slate-800 */
   text-align: center;
+
+  @media (max-width: 768px) {
+    font-size: 1.25rem;
+  }
 `;
 
 const InputSection = styled.div`
@@ -164,11 +174,24 @@ const ButtonContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   padding-top: 1.5rem;
+
+  @media (max-width: 600px) {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 1rem;
+  }
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
   gap: 1rem;
+
+  @media (max-width: 600px) {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 1rem;
+    width: 100%;
+  }
 `;
 
 const BaseButton = styled.button`
@@ -212,6 +235,7 @@ const DURATIONS = ['오늘', '2-3일 전', '1주일 이상', '오래 전'];
 
 // --- React 컴포넌트 본문 ---
 const DiseaseAnalysisStep2Page: React.FC = () => {
+    const navigate = useNavigate();
     const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
     const [itchLevel, setItchLevel] = useState<number>(0);
     const [selectedDuration, setSelectedDuration] = useState<string | null>(null);
@@ -227,6 +251,10 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
 
     const handleDurationSelect = (duration: string) => {
         setSelectedDuration(prev => (prev === duration ? null : duration));
+    };
+
+    const handleNextButtonClick = () => {
+        navigate('/disease-analysis-step3');
     };
 
     return (
@@ -301,8 +329,8 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
                 <ButtonContainer>
                     <PreviousButton>이전</PreviousButton>
                     <ButtonGroup>
-                        <SkipButton>건너뛰기</SkipButton>
-                        <NextButton>분석 결과 보기</NextButton>
+                        <SkipButton onClick={handleNextButtonClick}>건너뛰기</SkipButton>
+                        <NextButton onClick={handleNextButtonClick}>분석 결과 보기</NextButton>
                     </ButtonGroup>
                 </ButtonContainer>
             </Wrapper>

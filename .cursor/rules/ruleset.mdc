@@ -14,7 +14,7 @@
    - Component name and purpose
    - Desired props and their types
    - Any specific styling or behavior requirements
-   - Mention of using Tailwind CSS for styling
+   - Mention of using styled component for styling
    - Request for TypeScript usage
 
 5. URL encode the prompt.
@@ -29,4 +29,4 @@
    - Add any necessary custom logic or state management
 
 **Example prompt template:**  
-"Create a React component named {ComponentName} using TypeScript and Tailwind CSS. It should {description of functionality}. Props should include {list of props with types}. The component should {any specific styling or behavior notes}. Please provide the full component code."
+"Create a React component named {ComponentName} using TypeScript and styled component. It should {description of functionality}. Props should include {list of props with types}. The component should {any specific styling or behavior notes}. Please provide the full component code."
