@@ -1,7 +1,9 @@
 // src/App.tsx
 
 import { Routes, Route } from 'react-router-dom';
-import SkinAnalysisStep1 from './pages/DiseaseAnalysisStep1';
+
+import SkinAnalysisStep1 from './pages/DiseaseAnalysisStep1'; 
+import DiseaseAnalysisStep2Page from './pages/DiseaseAnalysisStep2';
 import AnalysisResultPage from './pages/DiseaseAnalysisStep3';
 import { GlobalStyle } from './styles/GlobalStyle';
 
@@ -22,7 +24,9 @@ function App() {
         {/* --- 수정된 코드 --- */}
         {/* 기본 주소(path="/")로 접속하면 바로 SkinAnalysisStep1 페이지를 보여줌 */}
         <Route path="/disease-analysis-step1" element={<SkinAnalysisStep1 />} />
+        <Route path="/disease-analysis-step2" element={<DiseaseAnalysisStep2Page />} />
         <Route path="/disease-analysis-step3" element={<AnalysisResultPage />} />
+
 
         {/* 
           만약 /Skin 주소를 유지하고 싶다면 그대로 두어도 괜찮습니다.
