@@ -2,23 +2,29 @@ import React, { useState, useRef } from 'react';
 import styled, { css } from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faLightbulb, faTintSlash, faCamera } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
 
 // Styled-components 정의
 // ---------------------------------
 
 const PageContainer = styled.div`
-  width: 1440px;
-  height: 810px;
   background-color: white;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  padding: 3rem 4rem;
+  padding: 14.5rem 4rem;
+  width: 100%;
+  flex-grow: 1; /* 추가 */
+
+  @media (max-width: 1024px) {
+    padding: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 `;
 
 const ContentWrapper = styled.div`
-  max-width: 1280px; /* 7xl */
-  margin: 0 auto;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -32,6 +38,10 @@ const StepIndicatorContainer = styled.div`
   width: 100%;
   max-width: 32rem; /* lg */
   margin: 0 auto 3rem; /* mb-12 */
+
+  @media (max-width: 768px) {
+    margin-bottom: 2rem;
+  }
 `;
 
 const StepCircle = styled.div<{ active?: boolean }>`
@@ -66,6 +76,11 @@ const MainContent = styled.div`
   grid-template-columns: repeat(2, 1fr);
   gap: 4rem; /* gap-16 */
   flex-grow: 1;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
 `;
 
 // --- Left Panel: Guide ---
@@ -79,6 +94,10 @@ const Title = styled.h1`
   font-size: 1.5rem; /* text-2xl */
   font-weight: 700;
   color: #1e293b; /* slate-800 */
+
+  @media (max-width: 768px) {
+    font-size: 1.25rem; /* text-xl */
+  }
 `;
 
 const Subtitle = styled.p`
@@ -138,6 +157,11 @@ const UploadWrapper = styled.div`
   &:hover {
     border-color: #3b82f6; /* hover:border-blue-500 */
   }
+  
+  @media (min-width: 1024px) {
+    max-width: 36rem;
+    height: 28rem;
+  }
 `;
 
 const ImagePreview = styled.img`
@@ -187,12 +211,17 @@ const NextButton = styled.button`
       background-color: #1d4ed8; /* hover:bg-blue-700 */
     }
   }
+
+  @media (min-width: 1024px) {
+    max-width: 36rem;
+  }
 `;
 
 // React Component
 // ---------------------------------
 
 const SkinAnalysisStep1: React.FC = () => {
+    const navigate = useNavigate();
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -209,6 +238,10 @@ const SkinAnalysisStep1: React.FC = () => {
             };
             reader.readAsDataURL(file);
         }
+    };
+
+    const handleNextButtonClick = () => {
+        navigate('/disease-analysis-step2');
     };
 
     return (
@@ -263,7 +296,7 @@ const SkinAnalysisStep1: React.FC = () => {
                             onChange={handleFileChange}
                             accept="image/jpeg, image/png"
                         />
-                        <NextButton disabled={!imagePreview}>
+                        <NextButton disabled={!imagePreview} onClick={handleNextButtonClick}>
                             다음
                         </NextButton>
                     </UploaderPanel>

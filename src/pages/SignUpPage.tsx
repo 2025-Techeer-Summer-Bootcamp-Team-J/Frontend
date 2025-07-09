@@ -6,6 +6,7 @@ const PageContainer = styled.div`
   justify-content: center;
   align-items: center;
   height: 100vh;
+  padding: 1rem;
 `;
 
 const SignUpPage = () => {

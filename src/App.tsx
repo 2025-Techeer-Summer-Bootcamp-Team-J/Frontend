@@ -8,6 +8,7 @@ import { GlobalStyle } from './styles/GlobalStyle';
 import Layout from './components/Layout';
 import SignInPage from './pages/SigninPage';
 import SignUpPage from './pages/SignUpPage';
+import MainPage from './pages/MainPage';
 
 function App() {
   return (
@@ -16,7 +17,8 @@ function App() {
       <Routes>
         {/* 공통 레이아웃(헤더 등)을 사용하는 페이지 그룹 */}
         <Route element={<Layout />}>
-          <Route path="/" element={<SkinAnalysisStep1 />} />
+          <Route path="/" element={<MainPage />} />
+          <Route path="/main" element={<MainPage />} />
           <Route path="/disease-analysis-step1" element={<SkinAnalysisStep1 />} />
           <Route path="/disease-analysis-step2" element={<DiseaseAnalysisStep2Page />} />
           <Route path="/disease-analysis-step3" element={<AnalysisResultPage />} />

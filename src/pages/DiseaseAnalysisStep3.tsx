@@ -16,13 +16,20 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 // 1. 전체 페이지 레이아웃 스타일
 const PageContainer = styled.div`
-  width: 1440px;
-  height: 810px;
   background-color: white;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   padding: 3rem 4rem;
+  width: 100%;
+  flex-grow: 1;
+
+  @media (max-width: 1024px) {
+    padding: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 `;
 
 const MainContent = styled.div`
@@ -30,6 +37,11 @@ const MainContent = styled.div`
   grid-template-columns: repeat(2, 1fr);
   gap: 6rem;
   flex-grow: 1;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
 `;
 
 // 2. 단계 표시기 스타일
@@ -78,6 +90,16 @@ const ChartWrapper = styled.div`
   width: 100%;
   max-width: 28rem;
   height: 20rem;
+
+  @media (max-width: 768px) {
+    height: 16rem;
+    max-width: 100%;
+  }
+
+  @media (min-width: 1024px) {
+    max-width: 32rem;
+    height: 24rem;
+  }
 `;
 
 const LegendContainer = styled.div`
@@ -114,6 +136,11 @@ const SectionTitle = styled.h2`
   font-weight: 700;
   color: #1e293b;
   margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
 `;
 
 // 4. 오른쪽 패널 (상세정보) 스타일
@@ -156,7 +183,15 @@ const TabContent = styled.div`
 `;
 
 const ButtonGroup = styled.div` padding-top: 2rem; display: flex; flex-direction: column; gap: 0.75rem; `;
-const TwoButtonGrid = styled.div` display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; `;
+const TwoButtonGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+`;
 const StyledButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
   display: flex; align-items: center; justify-content: center; gap: 0.5rem;
   width: 100%; font-weight: 700; padding: 0.625rem 0; border-radius: 0.5rem;

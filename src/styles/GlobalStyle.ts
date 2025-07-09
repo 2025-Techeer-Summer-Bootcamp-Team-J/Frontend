@@ -14,10 +14,6 @@ export const GlobalStyle = createGlobalStyle`
     body {
         font-family: 'Noto Sans KR', sans-serif;
         background-color: #f0f2f5;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         min-height: 100vh;
-        padding: 2rem;
     }
 `;
