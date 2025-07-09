@@ -1,39 +1,30 @@
-// src/App.tsx
-
 import { Routes, Route } from 'react-router-dom';
 
+// 페이지 컴포넌트 임포트
 import SkinAnalysisStep1 from './pages/DiseaseAnalysisStep1'; 
 import DiseaseAnalysisStep2Page from './pages/DiseaseAnalysisStep2';
 import AnalysisResultPage from './pages/DiseaseAnalysisStep3';
 import { GlobalStyle } from './styles/GlobalStyle';
-
-// HomePage 컴포넌트는 이제 필요 없으니 지워도 됩니다.
-// const HomePage = () => <h1>메인 페이지입니다.</h1>;
+import Layout from './components/Layout';
+import SignInPage from './pages/SigninPage';
+import SignUpPage from './pages/SignUpPage';
 
 function App() {
   return (
     <>
       <GlobalStyle />
       <Routes>
-        {/* 
-          이전 코드: 
-          <Route path="/" element={<HomePage />} />
-          <Route path="/Skin" element={<SkinAnalysisStep1 />} />
-        */}
+        {/* 공통 레이아웃(헤더 등)을 사용하는 페이지 그룹 */}
+        <Route element={<Layout />}>
+          <Route path="/" element={<SkinAnalysisStep1 />} />
+          <Route path="/disease-analysis-step1" element={<SkinAnalysisStep1 />} />
+          <Route path="/disease-analysis-step2" element={<DiseaseAnalysisStep2Page />} />
+          <Route path="/disease-analysis-step3" element={<AnalysisResultPage />} />
+        </Route>
 
-        {/* --- 수정된 코드 --- */}
-        {/* 기본 주소(path="/")로 접속하면 바로 SkinAnalysisStep1 페이지를 보여줌 */}
-        <Route path="/disease-analysis-step1" element={<SkinAnalysisStep1 />} />
-        <Route path="/disease-analysis-step2" element={<DiseaseAnalysisStep2Page />} />
-        <Route path="/disease-analysis-step3" element={<AnalysisResultPage />} />
-
-
-        {/* 
-          만약 /Skin 주소를 유지하고 싶다면 그대로 두어도 괜찮습니다.
-          이 경우, http://localhost:5173/ 와 http://localhost:5173/Skin 두 주소 모두
-          같은 페이지를 보여주게 됩니다. 
-          지금은 하나만 남겨두는 것이 깔끔합니다.
-        */}
+        {/* 단독으로 표시되는 페이지 그룹 */}
+        <Route path="/signin" element={<SignInPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
       </Routes>
     </>
   );
