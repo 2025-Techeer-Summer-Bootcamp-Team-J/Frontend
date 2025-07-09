@@ -74,7 +74,7 @@ const GradientText = styled.span`
 
 const HeroHeading = styled.h1`
   font-size: 2.25rem; font-weight: 900; line-height: 1.2; margin-bottom: 1rem; text-align: center;
-  @media (min-width: 768px) { font-size: 2.75rem; text-align: left; }
+  @media (min-width: 768px) { font-size: 2.75rem; text-align: center; }
   @media (min-width: 1024px) { font-size: 3.25rem; }
 `;
 
