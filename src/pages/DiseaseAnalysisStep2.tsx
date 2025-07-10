@@ -1,32 +1,9 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { ContentWrapper } from '../components/Layout';
 
 // --- Styled Components (스타일 정의) ---
-
-const PageContainer = styled.div`
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  padding: 3rem 4rem;
-  width: 100%;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 2rem;
-  }
-
-  @media (max-width: 768px) {
-    padding: 1rem;
-  }
-`;
-
-const Wrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-`;
 
 const StepProgressContainer = styled.div`
   display: flex;
@@ -69,6 +46,11 @@ const MainContent = styled.div`
   flex-direction: column;
   justify-content: center;
   gap: 1.5rem; /* Tailwind: space-y-6 */
+
+  @media (max-width: 768px) {
+    flex-grow: 1; /* 모바일에서 컨텐츠 영역이 최대한 확장되도록 */
+    justify-content: flex-start;
+  }
 `;
 
 const PageTitle = styled.h1`
@@ -258,83 +240,92 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
     };
 
     return (
-        <PageContainer>
-            <Wrapper>
-                <StepProgressContainer>
-                    <StepIndicator $completed>1</StepIndicator>
-                    <StepLine />
-                    <StepIndicator $active>2</StepIndicator>
-                    <StepLine />
-                    <StepIndicator>3</StepIndicator>
-                </StepProgressContainer>
+        <ContentWrapper style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
+            {/* --- 단계 진행 표시 --- */}
+            <StepProgressContainer>
+                <StepIndicator $completed>1</StepIndicator>
+                <StepLine />
+                <StepIndicator $active>2</StepIndicator>
+                <StepLine />
+                <StepIndicator>3</StepIndicator>
+            </StepProgressContainer>
 
-                <MainContent>
-                    <PageTitle>2단계: 증상 및 정보 입력</PageTitle>
-                    
-                    <InputSection>
-                        <SectionHeading>주요 증상 (중복 선택 가능)</SectionHeading>
-                        <TagContainer>
-                            {SYMPTOMS.map(symptom => (
-                                <SymptomTag
-                                    key={symptom}
-                                    $selected={selectedSymptoms.includes(symptom)}
-                                    onClick={() => handleSymptomToggle(symptom)}
-                                >
-                                    {symptom}
-                                </SymptomTag>
-                            ))}
-                        </TagContainer>
-                    </InputSection>
-                    
-                    <InputSection>
-                        <SectionHeading>가려움 정도 (해당 시)</SectionHeading>
-                        <SliderContainer>
-                            <span>없음</span>
-                            <ItchSlider 
-                                type="range" 
-                                min="0" 
-                                max="4" 
-                                value={itchLevel}
-                                onChange={(e) => setItchLevel(Number(e.target.value))}
-                            />
-                            <span>매우 심함</span>
-                        </SliderContainer>
-                    </InputSection>
-                    
-                    <InputSection>
-                        <SectionHeading>언제부터 시작됐나요?</SectionHeading>
-                        <TagContainer>
-                            {DURATIONS.map(duration => (
-                                <SymptomTag
-                                    key={duration}
-                                    $selected={selectedDuration === duration}
-                                    onClick={() => handleDurationSelect(duration)}
-                                >
-                                    {duration}
-                                </SymptomTag>
-                            ))}
-                        </TagContainer>
-                    </InputSection>
-                    
-                    <InputSection>
-                        <SectionHeading>보조 정보</SectionHeading>
-                        <InfoTextarea
-                            value={additionalInfo}
-                            onChange={(e) => setAdditionalInfo(e.target.value)}
-                            placeholder="예: 3일 전부터 갑자기 가렵기 시작했어요. 특정 음식을 먹은 후에 더 심해지는 것 같아요."
+            {/* --- 메인 컨텐츠 --- */}
+            <MainContent>
+                <PageTitle>2단계: 증상에 대한 정보를 알려주세요</PageTitle>
+
+                {/* --- 증상 선택 --- */}
+                <InputSection>
+                    <SectionHeading>어떤 증상이 있나요? (중복 선택 가능)</SectionHeading>
+                    <TagContainer>
+                        {SYMPTOMS.map((symptom) => (
+                            <SymptomTag
+                                key={symptom}
+                                $selected={selectedSymptoms.includes(symptom)}
+                                onClick={() => handleSymptomToggle(symptom)}
+                            >
+                                {symptom}
+                            </SymptomTag>
+                        ))}
+                    </TagContainer>
+                </InputSection>
+                
+                {/* --- 가려움 정도 --- */}
+                <InputSection>
+                    <SectionHeading>가려움의 정도는 어떤가요?</SectionHeading>
+                    <SliderContainer>
+                        <span>없음</span>
+                        <ItchSlider
+                            type="range"
+                            min="0"
+                            max="10"
+                            value={itchLevel}
+                            onChange={(e) => setItchLevel(Number(e.target.value))}
                         />
-                    </InputSection>
-                </MainContent>
+                        <span>매우 심함 ({itchLevel})</span>
+                    </SliderContainer>
+                </InputSection>
+                
+                {/* --- 증상 기간 --- */}
+                <InputSection>
+                    <SectionHeading>증상이 언제부터 시작됐나요?</SectionHeading>
+                    <TagContainer>
+                        {DURATIONS.map((duration) => (
+                            <SymptomTag
+                                key={duration}
+                                $selected={selectedDuration === duration}
+                                onClick={() => handleDurationSelect(duration)}
+                            >
+                                {duration}
+                            </SymptomTag>
+                        ))}
+                    </TagContainer>
+                </InputSection>
 
+                {/* 추가 정보 */}
+                <InputSection>
+                    <SectionHeading>그 외에 다른 정보가 있다면 알려주세요.</SectionHeading>
+                    <InfoTextarea
+                        placeholder="예) 특정 음식을 먹었을 때, 특정 화장품을 사용했을 때 등"
+                        value={additionalInfo}
+                        onChange={(e) => setAdditionalInfo(e.target.value)}
+                    />
+                </InputSection>
+
+                {/* 네비게이션 버튼 */}
                 <ButtonContainer>
-                    <PreviousButton>이전</PreviousButton>
+                    <PreviousButton onClick={() => navigate('/disease-analysis-step1')}>
+                        이전 단계
+                    </PreviousButton>
                     <ButtonGroup>
                         <SkipButton onClick={handleNextButtonClick}>건너뛰기</SkipButton>
-                        <NextButton onClick={handleNextButtonClick}>분석 결과 보기</NextButton>
+                        <NextButton onClick={handleNextButtonClick}>
+                            다음 단계
+                        </NextButton>
                     </ButtonGroup>
                 </ButtonContainer>
-            </Wrapper>
-        </PageContainer>
+            </MainContent>
+        </ContentWrapper>
     );
 };
 
