@@ -12,7 +12,7 @@ const PageContainer = styled.div`
 const SignUpPage = () => {
   return (
     <PageContainer>
-      <SignUp path="/signup" routing="path" />
+      <SignUp path="/signup" routing="path" signInUrl="/signin" afterSignUpUrl="/" />
     </PageContainer>
   );
 };
