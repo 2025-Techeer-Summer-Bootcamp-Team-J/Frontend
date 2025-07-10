@@ -27,8 +27,8 @@ function App() {
         </Route>
 
         {/* 단독으로 표시되는 페이지 그룹 */}
-        <Route path="/signin" element={<SignInPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/signin/*" element={<SignInPage />} />
+        <Route path="/signup/*" element={<SignUpPage />} />
       </Routes>
     </>
   );

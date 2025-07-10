@@ -1,4 +1,4 @@
-import { SignedIn, SignedOut, UserButton, SignInButton, SignUpButton } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
 import { NavLink, Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -116,24 +116,7 @@ const NavItem = styled(NavLink)`
   }
 `;
 
-const SignInWrapper = styled.div`
-  .cl-button {
-    background-color: transparent;
-    color: #374151;
-    box-shadow: none;
-    font-weight: 600;
-    font-size: 1rem;
-    padding: 0.5rem clamp(0.75rem, 1.5vw, 1.25rem);
-
-    &:hover {
-      background-color: #f3f4f6 !important;
-      color: #1f2937 !important;
-      box-shadow: none;
-    }
-  }
-`;
-
-const SignUpButtonStyled = styled.button`
+const AuthLink = styled(NavLink)`
   background-color: #2563EB;
   color: white;
   border-radius: 0.5rem;
@@ -144,6 +127,7 @@ const SignUpButtonStyled = styled.button`
   cursor: pointer;
   border: none;
   transition: background-color 0.2s;
+  text-decoration: none;
 
   &:hover {
     background-color: #1d4ed8;
@@ -186,12 +170,7 @@ function Layout() {
           <HeaderSection>
             <NavLinks>
               <SignedOut>
-                <SignInWrapper>
-                  <SignInButton />
-                </SignInWrapper>
-                <SignUpButton>
-                  <SignUpButtonStyled>Sign Up</SignUpButtonStyled>
-                </SignUpButton>
+                <AuthLink to="/signin">로그인</AuthLink>
               </SignedOut>
               <SignedIn>
                 <UserButton afterSignOutUrl="/" />

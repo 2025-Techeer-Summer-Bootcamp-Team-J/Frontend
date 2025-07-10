@@ -20,15 +20,7 @@ ChartJS.register(
 
 // Styled Components
 
-const PageWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-`;
 
-const Main = styled.main`
-  flex-grow: 1;
-`;
 
 const CustomContainer = styled.div`
   padding-left: 3rem;
@@ -236,17 +228,18 @@ const StatusBadge = styled.span<{ status: '개선' | '유지' | '악화' }>`
     if (status === '유지') return '#facc15'; // yellow-400
     if (status === '악화') return '#f87171'; // red-400
     return '#9ca3af'; // gray-400
-  }};
+  }}
+`;
 
 const Footer = styled.footer`
   padding-top: 5rem; /* 80px */
   padding-bottom: 5rem; /* 80px */
   background-color: white;
-  text-align: center; /
+  text-align: center;
 `;
 
 const CopyrightWrapper = styled.div`
-  margin-top: 3rem; /
+  margin-top: 3rem;
   padding-top: 10rem; 
   color: #6b7280;
   font-size: 0.875rem;
@@ -571,70 +564,59 @@ const MainPage: React.FC = () => {
                         </p>
                     </GlassmorphismCard>
                 </Grid>
+                <Grid md_cols="2" gap="2rem" style={{marginTop: '2rem'}}>
+                    <GlassmorphismCard>
+                        <h3 className="text-2xl font-bold mb-4 flex items-center"><FaSun className="text-orange-400 mr-3" />오늘의 자외선 지수</h3>
+                        <div className="text-center my-6">
+                            <p className="text-7xl font-bold text-orange-500 my-2">7</p>
+                            <p className="text-xl font-semibold text-orange-600">높음 (부천시)</p>
+                        </div>
+                        <div className="bg-orange-50/50 border-l-4 border-orange-400 p-4 text-orange-800 rounded-md">
+                            <p className="font-bold">외출 시 주의!</p>
+                            <p>햇볕이 강한 시간대에는 외출을 자제하고, 긴 소매 옷과 자외선 차단제를 꼭 사용하세요.</p>
+                        </div>
+                    </GlassmorphismCard>
+                    <GlassmorphismCard>
+                        <h3 className="text-2xl font-bold mb-4 flex items-center"><FaLightbulb className="text-green-500 mr-3" />이주의 관리 팁</h3>
+                        <div className="space-y-4">
+                            <div className="bg-white/30 p-4 rounded-lg border border-white/20">
+                                <h4 className="font-semibold text-lg">수분 부족형 지성, 클렌징이 중요!</h4>
+                                <p className="text-gray-600 text-sm mt-1">약산성 클렌저를 사용하여 유분은 제거하되 수분은 남기는 것이 핵심입니다.</p>
+                            </div>
+                            <div className="bg-white/30 p-4 rounded-lg border border-white/20">
+                                <h4 className="font-semibold text-lg">보습, 가볍지만 확실하게</h4>
+                                <p className="text-gray-600 text-sm mt-1">오일프리 타입의 수분 크림이나 젤 타입의 제품을 사용하여 속건조를 해결해주세요.</p>
+                            </div>
+                        </div>
+                    </GlassmorphismCard>
+                </Grid>
             </ContentWrapper>
         </Section>
+            
+        {/* Footer */}
+        <Footer>
+            <CustomContainer className="text-center">
+                <p className="text-2xl font-bold md:text-3xl"><NotoSansBlack>지금 바로 BlueScope과 함께 건강한 피부 변화를 시작하세요.</NotoSansBlack></p>
+                <div style={{ marginTop: '2rem' }}>
+                <NeumorphicButton onClick={() => navigate('/disease-analysis-step1')}>
+                        AI 진단 시작하기
+                </NeumorphicButton>
+                </div>
+                </CustomContainer>
+                <CopyrightWrapper>
+                    <ShortDivider />
+                    <CopyrightText>
+                    <p>© 2024 BlueScope. All Rights Reserved.</p>
+                    </CopyrightText>
+                </CopyrightWrapper>
+        </Footer>
+
         {showScrollTop && (
             <ScrollToTopButton onClick={scrollToTop}>
                 <FaArrowUp />
             </ScrollToTopButton>
         )}
-      </>
-
-                        <Grid md_cols="2" gap="2rem">
-                            <GlassmorphismCard>
-                                <h3 className="text-2xl font-bold mb-4 flex items-center"><FaSun className="text-orange-400 mr-3" />오늘의 자외선 지수</h3>
-                                <div className="text-center my-6">
-                                    <p className="text-7xl font-bold text-orange-500 my-2">7</p>
-                                    <p className="text-xl font-semibold text-orange-600">높음 (부천시)</p>
-                                </div>
-                                <div className="bg-orange-50/50 border-l-4 border-orange-400 p-4 text-orange-800 rounded-md">
-                                    <p className="font-bold">외출 시 주의!</p>
-                                    <p>햇볕이 강한 시간대에는 외출을 자제하고, 긴 소매 옷과 자외선 차단제를 꼭 사용하세요.</p>
-                                </div>
-                            </GlassmorphismCard>
-                            <GlassmorphismCard>
-                                <h3 className="text-2xl font-bold mb-4 flex items-center"><FaLightbulb className="text-green-500 mr-3" />이주의 관리 팁</h3>
-                                <div className="space-y-4">
-                                    <div className="bg-white/30 p-4 rounded-lg border border-white/20">
-                                        <h4 className="font-semibold text-lg">수분 부족형 지성, 클렌징이 중요!</h4>
-                                        <p className="text-gray-600 text-sm mt-1">약산성 클렌저를 사용하여 유분은 제거하되 수분은 남기는 것이 핵심입니다.</p>
-                                    </div>
-                                    <div className="bg-white/30 p-4 rounded-lg border border-white/20">
-                                        <h4 className="font-semibold text-lg">보습, 가볍지만 확실하게</h4>
-                                        <p className="text-gray-600 text-sm mt-1">오일프리 타입의 수분 크림이나 젤 타입의 제품을 사용하여 속건조를 해결해주세요.</p>
-                                    </div>
-                                </div>
-                            </GlassmorphismCard>
-                        </Grid>
-                    </CustomContainer>
-                </Section>
-            </Main>
-            
-            {/* Footer */}
-            <Footer>
-                <CustomContainer className="text-center">
-                   <p className="text-2xl font-bold md:text-3xl"><NotoSansBlack>지금 바로 BlueScope과 함께 건강한 피부 변화를 시작하세요.</NotoSansBlack></p>
-                   <div style={{ marginTop: '2rem' }}>
-                    <NeumorphicButton onClick={() => navigate('/disease-analysis-step1')}>
-                          AI 진단 시작하기
-                    </NeumorphicButton>
-                   </div>
-                   </CustomContainer>
-                    <CopyrightWrapper>
-                      <ShortDivider />
-                      <CopyrightText>
-                        <p>© 2024 BlueScope. All Rights Reserved.</p>
-                      </CopyrightText>
-                    </CopyrightWrapper>
-            </Footer>
-
-            {showScrollTop && (
-                <ScrollToTopButton onClick={scrollToTop}>
-                    <FaArrowUp />
-                </ScrollToTopButton>
-            )}
-        </PageWrapper>
-
+    </>
     );
 };
 
