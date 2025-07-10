@@ -5,7 +5,8 @@ import styled, { css } from 'styled-components';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, type TooltipItem } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faRedo, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faRedo, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { ContentWrapper } from '../components/Layout';
 
 // Chart.js에 필요한 요소들을 등록합니다.
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -15,23 +16,6 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 // ----------------------------------------------------------------
 
 // 1. 전체 페이지 레이아웃 스타일
-const PageContainer = styled.div`
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  padding: 3rem 4rem;
-  width: 100%;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 2rem;
-  }
-
-  @media (max-width: 768px) {
-    padding: 1rem;
-  }
-`;
-
 const MainContent = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -240,7 +224,7 @@ const AnalysisResultPage = () => {
   };
 
   return (
-    <PageContainer>
+    <ContentWrapper style={{ paddingTop: '3rem', paddingBottom: '3rem' }}>
       {/* 1. 단계 표시기 */}
       <StepContainer>
         <StepItem status="completed">1</StepItem>
@@ -251,7 +235,7 @@ const AnalysisResultPage = () => {
       </StepContainer>
 
       <MainContent>
-        {/* 2. 왼쪽 패널 (차트) */}
+        {/* 왼쪽: 차트 패널 */}
         <ChartPanel>
           <SectionTitle>예상 질환 통계</SectionTitle>
           <ChartWrapper>
@@ -270,59 +254,68 @@ const AnalysisResultPage = () => {
           </LegendContainer>
         </ChartPanel>
 
-        {/* 3. 오른쪽 패널 (상세정보) */}
+        {/* 오른쪽: 상세정보 패널 */}
         <DetailsPanelContainer>
-          <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-            <SectionTitle style={{ marginBottom: '1.5rem' }}>상세 정보 (가장 확률 높은 질환 기준)</SectionTitle>
-            <DetailsBox>
-              <TabNav>
-                <TabButton isActive={activeTab === 'precautions'} onClick={() => setActiveTab('precautions')}>
-                  주의사항
-                </TabButton>
-                <TabButton isActive={activeTab === 'management'} onClick={() => setActiveTab('management')}>
-                  관리법
-                </TabButton>
-              </TabNav>
-              <TabContentContainer>
-                {activeTab === 'precautions' && (
-                  <TabContent>
-                    <h3>아토피 피부염 주의사항</h3>
-                    <ul>
-                      <li>피부를 긁거나 문지르는 등 물리적 자극을 최소화하세요.</li>
-                      <li>뜨거운 물 목욕, 잦은 사우나는 피부를 더 건조하게 만들 수 있으니 피하세요.</li>
-                      <li>스트레스는 증상을 악화시킬 수 있으니 충분한 휴식과 수면이 중요합니다.</li>
-                    </ul>
-                  </TabContent>
-                )}
-                {activeTab === 'management' && (
-                  <TabContent>
-                    <h3>아토피 피부염 관리법</h3>
-                    <ul>
-                      <li><strong>보습:</strong> 하루 2회 이상, 목욕 후 3분 이내에 전신에 보습제를 충분히 발라주세요.</li>
-                      <li><strong>청결:</strong> 미지근한 물로 10분 이내에 짧게 샤워하고, 약산성 클렌저를 사용하세요.</li>
-                      <li><strong>환경:</strong> 실내 온도 18-21℃, 습도 40-50%를 유지하여 쾌적한 환경을 만드세요.</li>
-                    </ul>
-                  </TabContent>
-                )}
-              </TabContentContainer>
-            </DetailsBox>
-          </div>
+          <SectionTitle>AI 진단 결과</SectionTitle>
+          <DetailsBox>
+            <TabNav>
+              <TabButton
+                isActive={activeTab === 'precautions'}
+                onClick={() => setActiveTab('precautions')}
+              >
+                상세 정보 및 주의사항
+              </TabButton>
+              <TabButton
+                isActive={activeTab === 'solutions'}
+                onClick={() => setActiveTab('solutions')}
+              >
+                추천 솔루션
+              </TabButton>
+            </TabNav>
+
+            <TabContentContainer>
+              {activeTab === 'precautions' && (
+                <TabContent>
+                  <h3>
+                    <strong>'아토피 피부염'</strong>일 가능성이 높습니다. (<strong>55%</strong>)
+                  </h3>
+                  <ul>
+                    <li><strong>주요 증상:</strong> 피부 건조, 심한 가려움, 붉은 반점, 진물 등이 특징입니다.</li>
+                    <li><strong>악화 요인:</strong> 스트레스, 특정 음식, 건조한 환경, 부적절한 피부 관리 등에 의해 악화될 수 있습니다.</li>
+                    <li><strong>주의사항:</strong> 절대로 긁지 마세요. 피부 장벽이 손상되어 2차 감염의 위험이 있습니다.</li>
+                    <li><strong>관리 팁:</strong> 순하고 보습력이 강한 제품을 사용하여 피부 장벽을 강화하고, 미지근한 물로 짧게 샤워하는 것이 좋습니다.</li>
+                  </ul>
+                </TabContent>
+              )}
+              {activeTab === 'solutions' && (
+                <TabContent>
+                  <h3>추천 성분 및 제품 타입</h3>
+                  <ul>
+                    <li><strong>추천 성분:</strong> 세라마이드, 판테놀, 히알루론산 등 피부 장벽 강화 및 보습에 도움을 주는 성분</li>
+                    <li><strong>피해야 할 성분:</strong> 인공 향료, 알코올, 과도한 화학적 각질 제거 성분</li>
+                    <li><strong>생활 습관:</strong> 실내 습도를 40-60%로 유지하고, 면 소재의 부드러운 옷을 착용하세요.</li>
+                  </ul>
+                </TabContent>
+              )}
+            </TabContentContainer>
+          </DetailsBox>
           <ButtonGroup>
+            <StyledButton variant="primary" onClick={() => window.alert('나의 케어 플랜에 추가되었습니다!')}>
+              나의 케어 플랜에 추가
+            </StyledButton>
             <TwoButtonGrid>
-              <StyledButton>
-                <FontAwesomeIcon icon={faArrowLeft} /><span>이전</span>
+              <StyledButton onClick={() => window.location.reload()}>
+                <FontAwesomeIcon icon={faRedo} /> 다시 분석하기
               </StyledButton>
-              <StyledButton variant="secondary">
-                <FontAwesomeIcon icon={faRedo} /><span>다시 분석</span>
+              <StyledButton variant="secondary" onClick={handleDownloadReport}>
+                <FontAwesomeIcon icon={faDownload} />
+                결과 리포트 다운로드
               </StyledButton>
             </TwoButtonGrid>
-            <StyledButton variant="primary" onClick={handleDownloadReport}>
-              <FontAwesomeIcon icon={faDownload} /><span>리포트 내려받기</span>
-            </StyledButton>
           </ButtonGroup>
         </DetailsPanelContainer>
       </MainContent>
-    </PageContainer>
+    </ContentWrapper>
   );
 };
 

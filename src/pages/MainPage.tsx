@@ -12,12 +12,14 @@ import {
   Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler, ArcElement
 } from 'chart.js';
 import { Doughnut, Line } from 'react-chartjs-2';
+import { ContentWrapper } from '../components/Layout';
 
 ChartJS.register(
   CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Title, Tooltip, Legend, Filler
 );
 
 // Styled Components
+
 const PageWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -155,17 +157,6 @@ const GlassmorphismCard = styled.div`
   &:hover { transform: translateY(-5px); box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15); }
 `;
 
-const GlassmorphismDarkCard = styled(GlassmorphismCard)`
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-  padding: 1.5rem;
-
-  &:hover {
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
-  }
-`;
-
 const ScrollToTopButton = styled.button`
   position: fixed; bottom: 2rem; right: 2rem; background-color: #2563eb; color: white;
   border: none; border-radius: 50%; width: 3rem; height: 3rem; font-size: 1.5rem;
@@ -173,6 +164,79 @@ const ScrollToTopButton = styled.button`
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); transition: all 0.3s ease;
   &:hover { background-color: #1d4ed8; transform: translateY(-3px); }
 `;
+
+
+const DashboardWrapper = styled.div`
+  background-color: #1f2937;
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  color: #e5e7eb;
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+`;
+
+const DashboardGrid = styled.div`
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2.5rem;
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const ChartContainer = styled.div`
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+  }
+`;
+
+const HistoryContainer = styled.div`
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+  }
+`;
+
+const HistoryList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const HistoryItem = styled.li`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  
+  .info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+`;
+
+const StatusBadge = styled.span<{ status: '개선' | '유지' | '악화' }>`
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: #1f2937;
+  background-color: ${({ status }) => {
+    if (status === '개선') return '#4ade80'; // green-400
+    if (status === '유지') return '#facc15'; // yellow-400
+    if (status === '악화') return '#f87171'; // red-400
+    return '#9ca3af'; // gray-400
+  }};
 
 const Footer = styled.footer`
   padding-top: 5rem; /* 80px */
@@ -201,6 +265,7 @@ const CopyrightText = styled.p`
   display: inline-block;
   color: #6b7280;
   font-size: 0.875rem;
+
 `;
 
 
@@ -277,185 +342,244 @@ const MainPage: React.FC = () => {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        setMagnifierState(prev => ({
-            ...prev,
+        if (x < 0 || x > rect.width || y < 0 || y > rect.height) {
+            handleMagnifierLeave();
+            return;
+        }
+
+        const imgWidth = img.width;
+        const imgHeight = img.height;
+        const bgSize = `${imgWidth * zoom}px ${imgHeight * zoom}px`;
+        const bgPosX = `-${x * zoom - 150 / 2}px`;
+        const bgPosY = `-${y * zoom - 150 / 2}px`;
+
+        setMagnifierState({
             visible: true,
             x,
             y,
-            bgSize: `${img.width * zoom}px ${img.height * zoom}px`,
-            bgPos: `-${(x * zoom) - 75}px -${(y * zoom) - 75}px`
-        }));
+            bgSize: bgSize,
+            bgPos: `${bgPosX} ${bgPosY}`
+        });
     };
 
     const handleMagnifierLeave = () => {
-        setMagnifierState(prev => ({ ...prev, visible: false }));
+        setMagnifierState(prevState => ({ ...prevState, visible: false }));
     };
 
     useEffect(() => {
         const checkScrollTop = () => {
-            if (!showScrollTop && window.pageYOffset > 400) setShowScrollTop(true);
-            else if (showScrollTop && window.pageYOffset <= 400) setShowScrollTop(false);
+            if (!showScrollTop && window.pageYOffset > 400) {
+                setShowScrollTop(true);
+            } else if (showScrollTop && window.pageYOffset <= 400) {
+                setShowScrollTop(false);
+            }
         };
+
         window.addEventListener('scroll', checkScrollTop);
         return () => window.removeEventListener('scroll', checkScrollTop);
     }, [showScrollTop]);
 
     return (
-        <PageWrapper>
-            <Main>
-                <Section bg="#eff6ff">
-                    <CustomContainer>
-                        <Grid lg_cols="2" gap="4rem" align="center">
-                            <div>
-                                <HeroHeading>
-                                    <GradientText>AI 피부 분석</GradientText>으로<br />
-                                    <NotoSansBlack>가장 정확한 솔루션</NotoSansBlack>을<br />
-                                    경험해보세요
-                                </HeroHeading>
-                                <HeroSubheading>
-                                    이미지 위에 마우스를 올려 AI가 분석하는 것처럼 피부를 확대하여 확인해보세요.
-                                </HeroSubheading>
-                                <NeumorphicButton onClick={() => navigate('/disease-analysis-step1')}>
-                                    <FaCamera style={{ marginRight: '1rem' }} />
-                                    AI 정밀 분석 시작하기
-                                </NeumorphicButton>
-                            </div>
-                            <MagnifyContainer 
-                                ref={magnifyContainerRef} 
-                                onMouseMove={handleMagnifierMove}
-                                onMouseLeave={handleMagnifierLeave}
-                            >
-                                <MagnifierImage 
-                                    ref={magnifyImageRef}
-                                    src={main_image}
-                                    alt="피부 분석이 필요한 얼굴 이미지" 
-                                />
-                                <MagnifierLens 
-                                    visible={magnifierState.visible}
-                                    x={magnifierState.x}
-                                    y={magnifierState.y}
-                                    bgImage={main_image}
-                                    bgSize={magnifierState.bgSize}
-                                    bgPos={magnifierState.bgPos}
-                                />
-                            </MagnifyContainer>
-                        </Grid>
-                    </CustomContainer>
-                </Section>
-                
-                {/* Diagnosis Section */}
-                {/* ❗ FIX: Added full content for this section, now using FaCommentMedical */}
-                <Section id="diagnosis">
-                  <CustomContainer>
-                    <div className="text-center mb-12 md:mb-16">
-                      <SectionHeading><NotoSansBlack>AI 피부 질환 진단</NotoSansBlack></SectionHeading>
-                      <SectionSubheading>사진을 올리면 AI가 분석하고, 상세한 리포트를 제공합니다.</SectionSubheading>
+      <>
+        <Section bg="#eff6ff">
+            <ContentWrapper>
+                <Grid lg_cols="2" gap="4rem" align="center">
+                    <div>
+                        <HeroHeading>
+                            <NotoSansBlack>AI 피부 전문가,</NotoSansBlack>
+                            <br />
+                            <NotoSansBlack><GradientText>BlueScope</GradientText></NotoSansBlack> <br />
+                            <NotoSansBlack>당신의 피부 건강을 책임집니다</NotoSansBlack>
+                        </HeroHeading>
+                        <HeroSubheading>
+                            BlueScope의 AI 진단으로 피부 고민의 원인을 정확히 파악하고, 가장 효과적인 관리법을 찾아보세요. 이제 집에서 간편하게 전문적인 피부 분석을 경험할 수 있습니다.
+                        </HeroSubheading>
+                        <NeumorphicButton onClick={() => navigate('/disease-analysis-step1')}>
+                            <FaCamera style={{ marginRight: '0.75rem' }} />
+                            AI 피부 진단 시작하기
+                        </NeumorphicButton>
                     </div>
-                    <div className="max-w-5xl mx-auto bg-gray-50 p-4 sm:p-8 rounded-2xl shadow-xl border border-gray-200">
-                        <Grid lg_cols="2" gap="2rem" align="start">
-                            {/* 왼쪽: 이미지 및 예측 */}
-                            <div className="space-y-6">
-                                <h3 className="text-xl font-bold text-gray-800 mb-3">치료 전/후 예측</h3>
-                                <Grid cols="2" gap="1rem">
-                                    <div className="bg-white p-4 rounded-xl border">
-                                        <p className="font-semibold mb-2 text-gray-600">현재 상태</p>
-                                        <img src="https://images.unsplash.com/photo-1580619586944-9937b3834791?q=80&w=800&auto=format&fit=crop" alt="치료 전 피부" className="rounded-lg w-full aspect-square object-cover" />
-                                        <div className="mt-3 text-sm font-semibold text-blue-600">이미지 품질: 92점</div>
-                                    </div>
-                                    <div className="bg-white p-4 rounded-xl border">
-                                        <p className="font-semibold mb-2 text-gray-600">치료 후 예상</p>
-                                        <img src="https://images.unsplash.com/photo-1596305589444-a81870a1202c?q=80&w=800&auto=format&fit=crop" alt="치료 후 예측 이미지" className="rounded-lg w-full aspect-square object-cover" />
-                                        <div className="mt-3 text-sm font-semibold text-gray-500">3주 후 예상 모습</div>
-                                    </div>
-                                </Grid>
-                            </div>
-                            {/* 오른쪽: 분석 리포트 */}
-                            <div className="bg-white p-6 rounded-lg shadow-inner space-y-4 border">
-                                <h3 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2">AI 진단 리포트</h3>
-                                <div className="space-y-4">
-                                    <div className="flex justify-between items-center"><span className="font-semibold text-gray-600">의심 질환</span><span className="font-bold text-blue-600 text-lg">아토피 피부염</span></div>
-                                    <div className="flex justify-between items-center"><span className="font-semibold text-gray-600">확률</span><span className="font-semibold">87%</span></div>
-                                    <div className="flex justify-between items-center"><span className="font-semibold text-gray-600">심각도</span><div className="w-full bg-gray-200 rounded-full h-2.5 ml-4"><div className="bg-orange-400 h-2.5 rounded-full" style={{width: '65%'}}></div></div></div>
-                                    <div className="flex justify-between items-center"><span className="font-semibold text-gray-600">예상 치료 기간</span><span className="font-semibold">3-4주</span></div>
-                                </div>
-                                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                                    <h4 className="font-bold text-blue-800 flex items-center"><FaCommentMedical className="mr-2" />AI 소견 및 주의사항</h4>
-                                    <p className="text-sm text-blue-700 mt-2">건조함과 가려움을 동반하는 피부염으로 보입니다. 보습제를 충분히 사용하고, 전문의와 상담하여 정확한 진단 및 치료를 받는 것을 권장합니다.</p>
-                                </div>
-                                <button className="w-full bg-gray-800 text-white font-bold py-3 rounded-lg hover:bg-gray-900 transition">상세 리포트 보기</button>
-                            </div>
-                        </Grid>
-                    </div>
-                  </CustomContainer>
-                </Section>
-                
-                {/* Analysis Section */}
-                <Section id="analysis" bg="#eff6ff">
-                    <CustomContainer>
-                        <div className="text-center mb-12 md:mb-16">
-                           <SectionHeading><NotoSansBlack>나의 피부 유형 바로 알기</NotoSansBlack></SectionHeading>
-                           <SectionSubheading>AI가 당신의 피부 타입을 분석하고, 유형별 특징과 통계를 제공합니다.</SectionSubheading>
+                    <MagnifyContainer 
+                        ref={magnifyContainerRef}
+                        onMouseMove={handleMagnifierMove}
+                        onMouseLeave={handleMagnifierLeave}
+                    >
+                        <MagnifierImage ref={magnifyImageRef} src={main_image} alt="피부 상태" />
+                        <MagnifierLens 
+                            visible={magnifierState.visible}
+                            x={magnifierState.x}
+                            y={magnifierState.y}
+                            bgImage={main_image}
+                            bgSize={magnifierState.bgSize}
+                            bgPos={magnifierState.bgPos}
+                        />
+                    </MagnifyContainer>
+                </Grid>
+            </ContentWrapper>
+        </Section>
+        
+        <Section id="care">
+            <ContentWrapper>
+                <SectionHeading>
+                    <NotoSansBlack>BlueScope AI</NotoSansBlack>가 제공하는
+                    <br />
+                    <GradientText>핵심 기능 3가지</GradientText>
+                </SectionHeading>
+                <SectionSubheading>
+                    피부 분석부터 맞춤형 솔루션, 그리고 지속적인 관리까지. BlueScope AI는 당신의 피부 건강을 위한 모든 것을 제공합니다.
+                </SectionSubheading>
+                <Grid md_cols="3" gap="2rem">
+                    <GlassmorphismCard>
+                        <FaCamera size={36} className="text-blue-600 mb-4" />
+                        <h3 className="text-xl font-bold mb-2">AI 피부 분석</h3>
+                        <p className="text-gray-600">
+                            사진 한 장으로 피부 나이, 주요 고민(여드름, 모공, 주름 등)을 정밀하게 분석합니다. 시간과 장소에 구애받지 않고 전문가 수준의 진단을 받아보세요.
+                        </p>
+                    </GlassmorphismCard>
+                    <GlassmorphismCard>
+                        <FaCommentMedical size={36} className="text-blue-600 mb-4" />
+                        <h3 className="text-xl font-bold mb-2">맞춤형 솔루션 제안</h3>
+                        <p className="text-gray-600">
+                            분석 결과를 바탕으로 당신의 피부 타입과 고민에 가장 적합한 성분, 제품, 생활 습관을 추천해 드립니다. 더 이상 추측에 의존하지 마세요.
+                        </p>
+                    </GlassmorphismCard>
+                    <GlassmorphismCard>
+                        <FaCalendarAlt size={36} className="text-blue-600 mb-4" />
+                        <h3 className="text-xl font-bold mb-2">피부 상태 트래킹</h3>
+                        <p className="text-gray-600">
+                            일일, 주간, 월간 단위로 피부 변화를 기록하고 시각적인 리포트를 통해 개선 과정을 한눈에 확인하세요. 꾸준한 관리가 아름다운 피부의 비결입니다.
+                        </p>
+                    </GlassmorphismCard>
+                </Grid>
+            </ContentWrapper>
+        </Section>
+        
+        <Section id="analysis" bg="#eff6ff">
+            <ContentWrapper>
+                <SectionHeading><NotoSansBlack>나의 피부 유형 바로 알기</NotoSansBlack></SectionHeading>
+                <SectionSubheading>AI가 당신의 피부 타입을 분석하고, 유형별 특징과 통계를 제공합니다.</SectionSubheading>
+                <Grid lg_cols="3" gap="2rem" align="stretch">
+                    <GlassmorphismCard className="text-center">
+                        <h3 className="text-2xl font-bold mb-4">피부 유형 진단 결과</h3>
+                        <div className="my-4">
+                            <div className="inline-block bg-blue-100/50 border border-blue-200/50 text-blue-800 text-2xl font-bold px-6 py-4 rounded-xl">수분 부족형 지성</div>
                         </div>
-                        <Grid lg_cols="3" gap="2rem" align="stretch">
-                            <GlassmorphismCard className="text-center">
-                                <h3 className="text-2xl font-bold mb-4">피부 유형 진단 결과</h3>
-                                <div className="my-4">
-                                    <div className="inline-block bg-blue-100/50 border border-blue-200/50 text-blue-800 text-2xl font-bold px-6 py-4 rounded-xl">수분 부족형 지성</div>
-                                </div>
-                                <p className="text-gray-600 max-w-md mx-auto">
-                                    겉은 번들거리지만 속은 건조한 타입입니다. 유수분 밸런스를 맞추는 것이 중요합니다.
-                                </p>
-                            </GlassmorphismCard>
-                            <GlassmorphismCard>
-                                <h3 className="text-2xl font-bold mb-4">주의가 필요한 피부 질환</h3>
-                                <ul className="space-y-3 mt-6">
-                                    <li className="flex items-center bg-white/30 border border-white/20 p-3 rounded-lg"><FaExclamationTriangle className="text-red-500 mr-3" /><span className="font-semibold">여드름 및 뾰루지</span></li>
-                                    <li className="flex items-center bg-white/30 border border-white/20 p-3 rounded-lg"><FaExclamationTriangle className="text-orange-500 mr-3" /><span className="font-semibold">지루성 피부염</span></li>
-                                    <li className="flex items-center bg-white/30 border border-white/20 p-3 rounded-lg"><FaExclamationTriangle className="text-yellow-500 mr-3" /><span className="font-semibold">모낭염</span></li>
-                                </ul>
-                            </GlassmorphismCard>
-                            <GlassmorphismCard>
-                                <h3 className="text-2xl font-bold mb-4">20대 여성 통계</h3>
-                                <p className="text-sm text-gray-500 mb-4">나와 같은 그룹의 피부 고민</p>
-                                <Doughnut data={skinTypeChartData} options={skinTypeChartOptions} />
-                            </GlassmorphismCard>
-                        </Grid>
-                    </CustomContainer>
-                </Section>
+                        <p className="text-gray-600 max-w-md mx-auto">
+                            겉은 번들거리지만 속은 건조한 타입입니다. 유수분 밸런스를 맞추는 것이 중요합니다.
+                        </p>
+                    </GlassmorphismCard>
+                    <GlassmorphismCard>
+                        <h3 className="text-2xl font-bold mb-4">주의가 필요한 피부 질환</h3>
+                        <ul className="space-y-3 mt-6">
+                            <li className="flex items-center bg-white/30 border border-white/20 p-3 rounded-lg"><FaExclamationTriangle className="text-red-500 mr-3" /><span className="font-semibold">여드름 및 뾰루지</span></li>
+                            <li className="flex items-center bg-white/30 border border-white/20 p-3 rounded-lg"><FaExclamationTriangle className="text-orange-500 mr-3" /><span className="font-semibold">지루성 피부염</span></li>
+                            <li className="flex items-center bg-white/30 border border-white/20 p-3 rounded-lg"><FaExclamationTriangle className="text-yellow-500 mr-3" /><span className="font-semibold">모낭염</span></li>
+                        </ul>
+                    </GlassmorphismCard>
+                    <GlassmorphismCard>
+                        <h3 className="text-2xl font-bold mb-4">20대 여성 통계</h3>
+                        <p className="text-sm text-gray-500 mb-4">나와 같은 그룹의 피부 고민</p>
+                        <Doughnut data={skinTypeChartData} options={skinTypeChartOptions} />
+                    </GlassmorphismCard>
+                </Grid>
+            </ContentWrapper>
+        </Section>
+        
+        <Section id="dashboard">
+            <ContentWrapper>
+                <SectionHeading>
+                    <NotoSansBlack>개인 맞춤형 대시보드</NotoSansBlack>
+                </SectionHeading>
+                <SectionSubheading>
+                    나의 피부 상태 변화를 기록하고, 한눈에 추적하세요.
+                </SectionSubheading>
+                <DashboardWrapper>
+                    <DashboardGrid>
+                        <ChartContainer>
+                            <h3>피부 상태 점수 변화 (최근 4주)</h3>
+                            <Line data={skinScoreChartData} options={skinScoreChartOptions} />
+                        </ChartContainer>
+                        <HistoryContainer>
+                            <h3>최근 진단 기록</h3>
+                            <HistoryList>
+                                <HistoryItem>
+                                    <div className="info">
+                                        <FaCalendarAlt />
+                                        <span>7월 4일</span>
+                                        <span>아토피</span>
+                                    </div>
+                                    <StatusBadge status="개선">개선</StatusBadge>
+                                </HistoryItem>
+                                <HistoryItem>
+                                    <div className="info">
+                                        <FaCalendarAlt />
+                                        <span>6월 28일</span>
+                                        <span>아토피</span>
+                                    </div>
+                                    <StatusBadge status="유지">유지</StatusBadge>
+                                </HistoryItem>
+                                <HistoryItem>
+                                    <div className="info">
+                                        <FaCalendarAlt />
+                                        <span>6월 21일</span>
+                                        <span>접촉성 피부염</span>
+                                    </div>
+                                    <StatusBadge status="악화">악화</StatusBadge>
+                                </HistoryItem>
+                            </HistoryList>
+                        </HistoryContainer>
+                    </DashboardGrid>
+                </DashboardWrapper>
+            </ContentWrapper>
+        </Section>
+        
+        <Section bg="#eff6ff">
+            <ContentWrapper>
+                <SectionHeading>
+                    오늘의 <GradientText>맞춤 케어 솔루션</GradientText>
+                </SectionHeading>
+                <SectionSubheading>
+                    현재 날씨와 내 피부 상태를 종합하여 AI가 제안하는 최적의 케어 방법을 확인해보세요.
+                </SectionSubheading>
+                <Grid md_cols="3" gap="2rem">
+                    <GlassmorphismCard>
+                        <div className="flex items-center mb-3">
+                            <FaSun size={24} className="text-yellow-500 mr-3" />
+                            <h3 className="text-xl font-bold">자외선 차단</h3>
+                        </div>
+                        <p className="text-gray-600">
+                            오늘은 자외선 지수가 <strong className="text-red-500">높음</strong> 단계입니다. 외출 30분 전 SPF 50+, PA+++ 이상의 자외선 차단제를 꼼꼼히 발라주세요.
+                        </p>
+                    </GlassmorphismCard>
+                    <GlassmorphismCard>
+                        <div className="flex items-center mb-3">
+                            <FaLightbulb size={24} className="text-blue-500 mr-3" />
+                            <h3 className="text-xl font-bold">추천 성분</h3>
+                        </div>
+                        <p className="text-gray-600">
+                            최근 분석 결과 <strong className="text-blue-600">과다 피지</strong>가 우려됩니다. 살리실산(BHA) 또는 나이아신아마이드가 함유된 제품으로 피지를 조절해주세요.
+                        </p>
+                    </GlassmorphismCard>
+                    <GlassmorphismCard>
+                        <div className="flex items-center mb-3">
+                            <FaExclamationTriangle size={24} className="text-gray-700 mr-3" />
+                            <h3 className="text-xl font-bold">주의사항</h3>
+                        </div>
 
-                {/* Dashboard Section */}
-                <Section id="dashboard">
-                    <CustomContainer>
-                        <div className="text-center mb-12 md:mb-16">
-                           <SectionHeading><NotoSansBlack>개인 맞춤형 대시보드</NotoSansBlack></SectionHeading>
-                           <SectionSubheading>나의 피부 변화를 기록하고, 한눈에 추적하세요.</SectionSubheading>
-                        </div>
-                        <div className="max-w-1xl mx-auto bg-gray-800 text-white p-4 sm:p-8 rounded-2xl shadow-2xl">
-                            <Grid lg_cols="2" gap="2rem">
-                                <GlassmorphismDarkCard>
-                                    <h4 className="font-bold mb-4 text-gray-300">피부 상태 점수 변화 (최근 4주)</h4>
-                                    <Line data={skinScoreChartData} options={skinScoreChartOptions} />
-                                </GlassmorphismDarkCard>
-                                <GlassmorphismDarkCard>
-                                    <h4 className="font-bold mb-4 text-gray-300">최근 진단 기록</h4>
-                                    <ul className="space-y-3">
-                                        <li className="flex justify-between items-center bg-white/5 p-3 rounded-md"><span><FaCalendarAlt className="inline mr-2" />7월 4일</span><span className="font-semibold">아토피</span><span className="text-green-400 font-bold">개선</span></li>
-                                        <li className="flex justify-between items-center bg-white/5 p-3 rounded-md"><span><FaCalendarAlt className="inline mr-2" />6월 28일</span><span className="font-semibold">아토피</span><span className="text-yellow-400 font-bold">유지</span></li>
-                                        <li className="flex justify-between items-center bg-white/5 p-3 rounded-md"><span><FaCalendarAlt className="inline mr-2" />6월 21일</span><span className="font-semibold">접촉성 피부염</span><span className="text-red-400 font-bold">악화</span></li>
-                                    </ul>
-                                </GlassmorphismDarkCard>
-                            </Grid>
-                        </div>
-                    </CustomContainer>
-                </Section>
-               
-                {/* Care Section */}
-                <Section id="care" bg="#eff6ff">
-                     <CustomContainer>
-                        <div className="text-center mb-12 md:mb-16">
-                           <SectionHeading><NotoSansBlack>오늘의 맞춤 케어</NotoSansBlack></SectionHeading>
-                           <SectionSubheading>자외선 지수와 전문가 팁으로 매일 피부를 보호하세요.</SectionSubheading>
-                        </div>
+                        <p className="text-gray-600">
+                            피부 장벽이 약해져 있으니, 오늘은 스크럽이나 필링 제품 사용은 피하고 충분한 보습에 집중하는 것이 좋습니다.
+                        </p>
+                    </GlassmorphismCard>
+                </Grid>
+            </ContentWrapper>
+        </Section>
+        {showScrollTop && (
+            <ScrollToTopButton onClick={scrollToTop}>
+                <FaArrowUp />
+            </ScrollToTopButton>
+        )}
+      </>
+
                         <Grid md_cols="2" gap="2rem">
                             <GlassmorphismCard>
                                 <h3 className="text-2xl font-bold mb-4 flex items-center"><FaSun className="text-orange-400 mr-3" />오늘의 자외선 지수</h3>
@@ -510,6 +634,7 @@ const MainPage: React.FC = () => {
                 </ScrollToTopButton>
             )}
         </PageWrapper>
+
     );
 };
 

@@ -3,33 +3,10 @@ import styled, { css } from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faLightbulb, faTintSlash, faCamera } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
+import { ContentWrapper } from '../components/Layout';
 
 // Styled-components 정의
 // ---------------------------------
-
-const PageContainer = styled.div`
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  padding: 14.5rem 4rem;
-  width: 100%;
-  flex-grow: 1; /* 추가 */
-
-  @media (max-width: 1024px) {
-    padding: 2rem;
-  }
-
-  @media (max-width: 768px) {
-    padding: 1rem;
-  }
-`;
-
-const ContentWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-`;
 
 // --- Step Indicator ---
 const StepIndicatorContainer = styled.div`
@@ -245,64 +222,64 @@ const SkinAnalysisStep1: React.FC = () => {
     };
 
     return (
-        <PageContainer>
-            <ContentWrapper>
-                {/* Step Indicator */}
-                <StepIndicatorContainer>
-                    <StepCircle active>1</StepCircle>
-                    <StepLine />
-                    <StepCircle>2</StepCircle>
-                    <StepLine />
-                    <StepCircle>3</StepCircle>
-                </StepIndicatorContainer>
+        <ContentWrapper style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
+            {/* Step Indicator */}
+            <StepIndicatorContainer>
+                <StepCircle active>1</StepCircle>
+                <StepLine />
+                <StepCircle>2</StepCircle>
+                <StepLine />
+                <StepCircle>3</StepCircle>
+            </StepIndicatorContainer>
 
-                {/* Main Content */}
-                <MainContent>
-                    {/* Left Panel: Guide */}
-                    <GuidePanel>
-                        <Title>1단계: 피부 사진 업로드</Title>
-                        <Subtitle>정확한 분석을 위해 아래 가이드를 확인해주세요.</Subtitle>
-                        <GuideList>
-                            <GuideItem>
-                                <GuideIcon><FontAwesomeIcon icon={faEye} size="lg" /></GuideIcon>
-                                <p>안경을 벗고, 머리카락이 병변 부위를 가리지 않게 하세요.</p>
-                            </GuideItem>
-                            <GuideItem>
-                                <GuideIcon><FontAwesomeIcon icon={faLightbulb} size="lg" /></GuideIcon>
-                                <p>그림자 없는 밝은 조명 아래에서 선명하게 촬영하세요.</p>
-                            </GuideItem>
-                            <GuideItem>
-                                <GuideIcon><FontAwesomeIcon icon={faTintSlash} size="lg" /></GuideIcon>
-                                <p>화장기 없는 맨 얼굴 상태에서 가장 정확한 분석이 가능합니다.</p>
-                            </GuideItem>
-                        </GuideList>
-                    </GuidePanel>
+            {/* Main Content */}
+            <MainContent>
+                {/* Left Panel */}
+                <GuidePanel>
+                    <div>
+                        <Title>AI 피부 분석을 위해 사진을 업로드해주세요</Title>
+                        <Subtitle>정확한 분석을 위해 가이드라인을 따라주세요.</Subtitle>
+                    </div>
+                    <GuideList>
+                        <GuideItem>
+                            <GuideIcon><FontAwesomeIcon icon={faEye} size="lg" /></GuideIcon>
+                            <span>정면을 응시하고, 얼굴 전체가 잘 나오도록 촬영해주세요.</span>
+                        </GuideItem>
+                        <GuideItem>
+                            <GuideIcon><FontAwesomeIcon icon={faLightbulb} size="lg" /></GuideIcon>
+                            <span>밝고 균일한 조명 아래에서 촬영하면 분석 정확도가 올라갑니다.</span>
+                        </GuideItem>
+                        <GuideItem>
+                            <GuideIcon><FontAwesomeIcon icon={faTintSlash} size="lg" /></GuideIcon>
+                            <span>화장이나 액세서리는 모두 제거한 상태의 민낯 사진을 업로드해주세요.</span>
+                        </GuideItem>
+                    </GuideList>
+                </GuidePanel>
 
-                    {/* Right Panel: Uploader */}
-                    <UploaderPanel>
-                        <UploadWrapper onClick={handleUploadWrapperClick}>
-                            {imagePreview ? (
-                                <ImagePreview src={imagePreview} alt="Uploaded preview" />
-                            ) : (
-                                <UploadPrompt>
-                                    <FontAwesomeIcon icon={faCamera} size="3x" />
-                                    <PromptText>클릭하여 사진 업로드</PromptText>
-                                </UploadPrompt>
-                            )}
-                        </UploadWrapper>
+                {/* Right Panel */}
+                <UploaderPanel>
+                    <UploadWrapper onClick={handleUploadWrapperClick}>
+                        {imagePreview ? (
+                            <ImagePreview src={imagePreview} alt="Uploaded skin" />
+                        ) : (
+                            <UploadPrompt>
+                                <FontAwesomeIcon icon={faCamera} size="3x" />
+                                <PromptText>여기를 클릭하여 사진을 업로드하세요</PromptText>
+                            </UploadPrompt>
+                        )}
                         <HiddenFileInput
                             type="file"
+                            accept="image/*"
                             ref={fileInputRef}
                             onChange={handleFileChange}
-                            accept="image/jpeg, image/png"
                         />
-                        <NextButton disabled={!imagePreview} onClick={handleNextButtonClick}>
-                            다음
-                        </NextButton>
-                    </UploaderPanel>
-                </MainContent>
-            </ContentWrapper>
-        </PageContainer>
+                    </UploadWrapper>
+                    <NextButton onClick={handleNextButtonClick} disabled={!imagePreview}>
+                        다음 단계로
+                    </NextButton>
+                </UploaderPanel>
+            </MainContent>
+        </ContentWrapper>
     );
 };
 
