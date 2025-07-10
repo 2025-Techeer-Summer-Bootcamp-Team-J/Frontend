@@ -32,6 +32,10 @@ const CustomContainer = styled.div`
   padding-left: 3rem;
   padding-right: 3rem;
   width: 100%;
+  max-width: 1280px; /* 콘텐츠 최대 너비 설정 */
+  margin-left: auto;   /* 수평 중앙 정렬 */
+  margin-right: auto;  /* 수평 중앙 정렬 */
+  
   @media (max-width: 768px) {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
@@ -174,7 +178,31 @@ const Footer = styled.footer`
   padding-top: 5rem; /* 80px */
   padding-bottom: 5rem; /* 80px */
   background-color: white;
+  text-align: center; /
 `;
+
+const CopyrightWrapper = styled.div`
+  margin-top: 3rem; /
+  padding-top: 10rem; 
+  color: #6b7280;
+  font-size: 0.875rem;
+`;
+
+const ShortDivider = styled.div`
+  width: 95%;             /* 선의 너비 (페이지 너비의 30%) */
+  max-width: 3000px;       /* 선의 최대 너비 고정 */
+  height: 1px;            /* 선의 두께 */
+  background-color: #e5e7eb; /* 선의 색상 */
+  margin: 0 auto;         /* 선을 수평 중앙 정렬 */
+  margin-bottom: 2rem;    /* 선과 아래 텍스트의 간격 */
+`;
+
+const CopyrightText = styled.p`
+  display: inline-block;
+  color: #6b7280;
+  font-size: 0.875rem;
+`;
+
 
 // Chart configurations =======================================================
 const skinTypeChartData = {
@@ -461,16 +489,19 @@ const MainPage: React.FC = () => {
             {/* Footer */}
             <Footer>
                 <CustomContainer className="text-center">
-                   <p className="text-2xl font-bold md:text-3xl"><NotoSansBlack>지금 바로 BlueScope과 함께<br/>건강한 피부 변화를 시작하세요.</NotoSansBlack></p>
-                   <div className="mt-8 flex justify-center">
+                   <p className="text-2xl font-bold md:text-3xl"><NotoSansBlack>지금 바로 BlueScope과 함께 건강한 피부 변화를 시작하세요.</NotoSansBlack></p>
+                   <div style={{ marginTop: '2rem' }}>
                     <NeumorphicButton onClick={() => navigate('/disease-analysis-step1')}>
                           AI 진단 시작하기
                     </NeumorphicButton>
                    </div>
-                    <div className="mt-16 pt-8 border-t border-gray-200 text-gray-500 text-sm">
+                   </CustomContainer>
+                    <CopyrightWrapper>
+                      <ShortDivider />
+                      <CopyrightText>
                         <p>© 2024 BlueScope. All Rights Reserved.</p>
-                    </div>
-                </CustomContainer>
+                      </CopyrightText>
+                    </CopyrightWrapper>
             </Footer>
 
             {showScrollTop && (
