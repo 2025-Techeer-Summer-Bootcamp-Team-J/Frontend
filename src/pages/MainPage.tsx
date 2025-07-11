@@ -1,7 +1,7 @@
 // src/pages/MainPage.tsx
 
 import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import main_image from '../assets/mainpage_image.jpeg';
 import {
@@ -20,6 +20,11 @@ ChartJS.register(
 
 // Styled Components
 
+const GlobalStyle = createGlobalStyle`
+  html {
+    font-size: 75%;
+  }
+`;
 
 
 const CustomContainer = styled.div`
@@ -133,6 +138,8 @@ const SectionSubheading = styled.p`
 
 const NeumorphicButton = styled.button`
   background-color: #ffffff; color: #2563eb; padding: 1rem 2rem; border-radius: 16px;
+  border: none;
+  outline: none;
   box-shadow: 8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff;
   transition: all 0.3s ease-in-out; font-weight: bold; font-size: 1.125rem;
   display: inline-flex; align-items: center; justify-content: center;
@@ -238,29 +245,218 @@ const Footer = styled.footer`
   text-align: center;
 `;
 
-const CopyrightWrapper = styled.div`
-  margin-top: 3rem;
-  padding-top: 10rem; 
-  color: #6b7280;
-  font-size: 0.875rem;
+const UvIndexCard = styled.div`
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 2rem;
+  transition: all 0.3s ease-in-out;
+
+  /* --- [추가] Flexbox 속성 --- */
+  display: flex;
+  flex-direction: column; 
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(31, 38, 135, 0.4);
+  }
+    display: flex;
+  flex-direction: column;
+  /* --- [추가] 자식 요소들(제목, 팁 컨테이너)을 위아래로 분산시킴 --- */
+  justify-content: space-between;
 `;
 
-const ShortDivider = styled.div`
-  width: 95%;             /* 선의 너비 (페이지 너비의 30%) */
-  max-width: 3000px;       /* 선의 최대 너비 고정 */
-  height: 1px;            /* 선의 두께 */
-  background-color: #e5e7eb; /* 선의 색상 */
-  margin: 0 auto;         /* 선을 수평 중앙 정렬 */
-  margin-bottom: 2rem;    /* 선과 아래 텍스트의 간격 */
+const CardTitle = styled.h3`
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
 `;
 
-const CopyrightText = styled.p`
-  display: inline-block;
-  color: #6b7280;
-  font-size: 0.875rem;
-
+const UvIndexDisplay = styled.div`
+  text-align: center;
+  margin: 1.5rem 0;
 `;
 
+const UvIndexNumber = styled.p`
+  font-size: 4.5rem;
+  font-weight: 700;
+  color: #f97316;
+  margin: 0.5rem 0;
+`;
+
+const UvIndexText = styled.p`
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ea580c;
+`;
+
+const UvInfoBox = styled.div`
+  background-color: rgba(254, 249, 231, 0.5);
+  border-left: 4px solid #f97316;
+  padding: 1rem;
+  color: #9a3412;
+  border-radius: 0.375rem;
+  p:first-child {
+    font-weight: 700;
+  }
+`;
+
+const TipsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* 두 팁 카드 사이의 간격만 정의 */
+`;
+
+const TipCard = styled.div`
+  background: rgba(255, 255, 255, 0.3);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  h4 {
+    font-weight: 600;
+    font-size: 1.125rem;
+  }
+  p {
+    color: #4b5563;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+`;
+
+const PredictionWrapper = styled.div`
+  background-color: white;
+  padding: 2rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e5e7eb;
+
+  @media (min-width: 1024px) {
+    padding: 2.5rem;
+  }
+`;
+
+const ImageCard = styled.div`
+  background-color: #f9fafb;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+  height: 100%; /* 부모 그리드 셀의 높이를 100% 채움 */
+  display: flex; /* 내부 콘텐츠 정렬을 위해 Flexbox 사용 */
+  flex-direction: column; /* 아이템을 위에서 아래로 정렬 */
+
+
+  img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 0.5rem;
+  }
+
+  p {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #4b5563;
+  }
+
+  .image-quality {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #2563eb;
+  }
+  .prediction-text {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6b7280;
+  }
+`;
+
+const ReportCard = styled.div`
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const ReportItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .label {
+    font-weight: 600;
+    color: #4b5563;
+  }
+  .value {
+    font-weight: 600;
+  }
+  .value-disease {
+    font-weight: 700;
+    color: #2563eb;
+    font-size: 1.125rem;
+  }
+`;
+
+const SeverityBar = styled.div`
+  width: 100%;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  height: 0.625rem;
+  margin-left: 1rem;
+`;
+
+const SeverityBarInner = styled.div`
+  background-color: #f97316;
+  height: 100%;
+  border-radius: 9999px;
+`;
+
+const AIOpinionBox = styled.div`
+  background-color: #eff6ff;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #bfdbfe;
+  margin-top: 1rem;
+
+  h4 {
+    font-weight: 700;
+    color: #1e40af;
+    display: flex;
+    align-items: center;
+  }
+
+  p {
+    font-size: 0.875rem;
+    color: #1d4ed8;
+    margin-top: 0.5rem;
+  }
+`;
+
+const DetailButton = styled.button`
+  width: 100%;
+  background-color: #1f2937;
+  color: white;
+  font-weight: 700;
+  padding: 0.75rem 0;
+  margin-top: 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s ease-in-out;
+
+  &:hover {
+    background-color: #111827;
+  }
+`;
 
 // Chart configurations =======================================================
 const skinTypeChartData = {
@@ -374,6 +570,8 @@ const MainPage: React.FC = () => {
 
     return (
       <>
+        <GlobalStyle />
+
         <Section bg="#eff6ff">
             <ContentWrapper>
                 <Grid lg_cols="2" gap="4rem" align="center">
@@ -444,6 +642,65 @@ const MainPage: React.FC = () => {
                         </p>
                     </GlassmorphismCard>
                 </Grid>
+            </ContentWrapper>
+        </Section>
+
+        <Section id="prediction">
+            <ContentWrapper>
+                <SectionHeading>
+                    <NotoSansBlack>AI 피부 질환 진단</NotoSansBlack>
+                </SectionHeading>
+                <SectionSubheading>
+                    사진을 올리면 AI가 분석하고, 상세한 리포트를 제공합니다.
+                </SectionSubheading>
+                <PredictionWrapper>
+                    <Grid lg_cols="2" gap="2rem" align="start">
+                        {/* 왼쪽: 이미지 및 예측 */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            <h3 className="text-xl font-bold text-gray-800">치료 전/후 예측</h3>
+                            <Grid cols="2" gap="1rem">
+                                <ImageCard>
+                                    <p>현재 상태</p>
+                                    <img src="https://images.unsplash.com/photo-1580619586944-9937b3834791?q=80&w=800&auto=format&fit=crop" alt="치료 전 피부" />
+                                    <div className="image-quality">이미지 품질: 92점</div>
+                                </ImageCard>
+                                <ImageCard>
+                                    <p>치료 후 예상</p>
+                                    <img src="https://images.unsplash.com/photo-1596305589444-a81870a1202c?q=80&w=800&auto=format&fit=crop" alt="치료 후 예측" />
+                                    <div className="prediction-text">3주 후 예상 모습</div>
+                                </ImageCard>
+                            </Grid>
+                        </div>
+
+                        {/* 오른쪽: 분석 리포트 */}
+                        <ReportCard>
+                            <h3 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2">AI 진단 리포트</h3>
+                            <ReportItem>
+                                <span className="label">의심 질환</span>
+                                <span className="value-disease">아토피 피부염</span>
+                            </ReportItem>
+                            <ReportItem>
+                                <span className="label">확률</span>
+                                <span className="value">87%</span>
+                            </ReportItem>
+                            <ReportItem>
+                                <span className="label">심각도</span>
+                                <SeverityBar>
+                                    <SeverityBarInner style={{ width: '65%' }} />
+                                </SeverityBar>
+                            </ReportItem>
+                            <ReportItem>
+                                <span className="label">예상 치료 기간</span>
+                                <span className="value">3-4주</span>
+                            </ReportItem>
+                            <AIOpinionBox>
+                                <h4><FaCommentMedical style={{ marginRight: '0.5rem' }} />AI 소견 및 주의사항</h4>
+                                <p>건조함과 가려움을 동반하는 피부염으로 보입니다. 보습제를 충분히 사용하고, 전문의와 상담하여 정확한 진단 및 치료를 받는 것을 권장합니다.</p>
+                            </AIOpinionBox>
+                            <DetailButton>상세 리포트 보기</DetailButton>
+                        </ReportCard>
+                    </Grid>
+                </PredictionWrapper>
             </ContentWrapper>
         </Section>
         
@@ -526,72 +783,51 @@ const MainPage: React.FC = () => {
             </ContentWrapper>
         </Section>
         
-        <Section bg="#eff6ff">
-            <ContentWrapper>
-                <SectionHeading>
-                    오늘의 <GradientText>맞춤 케어 솔루션</GradientText>
-                </SectionHeading>
-                <SectionSubheading>
-                    현재 날씨와 내 피부 상태를 종합하여 AI가 제안하는 최적의 케어 방법을 확인해보세요.
-                </SectionSubheading>
-                <Grid md_cols="3" gap="2rem">
-                    <GlassmorphismCard>
-                        <div className="flex items-center mb-3">
-                            <FaSun size={24} className="text-yellow-500 mr-3" />
-                            <h3 className="text-xl font-bold">자외선 차단</h3>
-                        </div>
-                        <p className="text-gray-600">
-                            오늘은 자외선 지수가 <strong className="text-red-500">높음</strong> 단계입니다. 외출 30분 전 SPF 50+, PA+++ 이상의 자외선 차단제를 꼼꼼히 발라주세요.
-                        </p>
-                    </GlassmorphismCard>
-                    <GlassmorphismCard>
-                        <div className="flex items-center mb-3">
-                            <FaLightbulb size={24} className="text-blue-500 mr-3" />
-                            <h3 className="text-xl font-bold">추천 성분</h3>
-                        </div>
-                        <p className="text-gray-600">
-                            최근 분석 결과 <strong className="text-blue-600">과다 피지</strong>가 우려됩니다. 살리실산(BHA) 또는 나이아신아마이드가 함유된 제품으로 피지를 조절해주세요.
-                        </p>
-                    </GlassmorphismCard>
-                    <GlassmorphismCard>
-                        <div className="flex items-center mb-3">
-                            <FaExclamationTriangle size={24} className="text-gray-700 mr-3" />
-                            <h3 className="text-xl font-bold">주의사항</h3>
-                        </div>
+        <Section id="care" bg="#eff6ff">
+    <ContentWrapper>
+        <SectionHeading>
+            <NotoSansBlack>오늘의 맞춤 케어</NotoSansBlack>
+        </SectionHeading>
+        <SectionSubheading>
+            자외선 지수와 전문가 팁으로 매일 피부를 보호하세요.
+        </SectionSubheading>
+        <Grid md_cols="2" gap="2rem" align="stretch">
+            {/* 자외선 지수 카드와 관리 팁 카드 */}
+            <UvIndexCard>
+                <CardTitle>
+                    <FaSun style={{ color: '#fb923c', marginRight: '0.75rem' }} />
+                    오늘의 자외선 지수
+                </CardTitle>
+                <UvIndexDisplay>
+                    <UvIndexNumber>7</UvIndexNumber>
+                    <UvIndexText>높음 (부천시)</UvIndexText>
+                </UvIndexDisplay>
+                <UvInfoBox>
+                    <p>외출 시 주의!</p>
+                    <p>햇볕이 강한 시간대에는 외출을 자제하고, 긴 소매 옷과 자외선 차단제를 꼭 사용하세요.</p>
+                </UvInfoBox>
+            </UvIndexCard>
 
-                        <p className="text-gray-600">
-                            피부 장벽이 약해져 있으니, 오늘은 스크럽이나 필링 제품 사용은 피하고 충분한 보습에 집중하는 것이 좋습니다.
-                        </p>
-                    </GlassmorphismCard>
-                </Grid>
-                <Grid md_cols="2" gap="2rem" style={{marginTop: '2rem'}}>
-                    <GlassmorphismCard>
-                        <h3 className="text-2xl font-bold mb-4 flex items-center"><FaSun className="text-orange-400 mr-3" />오늘의 자외선 지수</h3>
-                        <div className="text-center my-6">
-                            <p className="text-7xl font-bold text-orange-500 my-2">7</p>
-                            <p className="text-xl font-semibold text-orange-600">높음 (부천시)</p>
-                        </div>
-                        <div className="bg-orange-50/50 border-l-4 border-orange-400 p-4 text-orange-800 rounded-md">
-                            <p className="font-bold">외출 시 주의!</p>
-                            <p>햇볕이 강한 시간대에는 외출을 자제하고, 긴 소매 옷과 자외선 차단제를 꼭 사용하세요.</p>
-                        </div>
-                    </GlassmorphismCard>
-                    <GlassmorphismCard>
-                        <h3 className="text-2xl font-bold mb-4 flex items-center"><FaLightbulb className="text-green-500 mr-3" />이주의 관리 팁</h3>
-                        <div className="space-y-4">
-                            <div className="bg-white/30 p-4 rounded-lg border border-white/20">
-                                <h4 className="font-semibold text-lg">수분 부족형 지성, 클렌징이 중요!</h4>
-                                <p className="text-gray-600 text-sm mt-1">약산성 클렌저를 사용하여 유분은 제거하되 수분은 남기는 것이 핵심입니다.</p>
-                            </div>
-                            <div className="bg-white/30 p-4 rounded-lg border border-white/20">
-                                <h4 className="font-semibold text-lg">보습, 가볍지만 확실하게</h4>
-                                <p className="text-gray-600 text-sm mt-1">오일프리 타입의 수분 크림이나 젤 타입의 제품을 사용하여 속건조를 해결해주세요.</p>
-                            </div>
-                        </div>
-                    </GlassmorphismCard>
-                </Grid>
-            </ContentWrapper>
-        </Section>
+            {/* 관리 팁 카드 */}
+            <UvIndexCard>
+                <CardTitle>
+                    <FaLightbulb style={{ color: '#22c55e', marginRight: '0.75rem' }} />
+                    이주의 관리 팁
+                </CardTitle>
+                <TipsContainer>
+                    <TipCard>
+                        <h4>수분 부족형 지성, 클렌징이 중요!</h4>
+                        <p>약산성 클렌저를 사용하여 유분은 제거하되 수분은 남기는 것이 핵심입니다. 과도한 세안은 오히려 피부를 더 건조하게 만들 수 있습니다.</p>
+                    </TipCard>
+                    <TipCard>
+                        <h4>보습, 가볍지만 확실하게</h4>
+                        <p>오일프리 타입의 수분 크림이나 젤 타입의 제품을 사용하여 속건조를 해결해주세요.</p>
+                    </TipCard>
+                </TipsContainer>
+            </UvIndexCard>
+        </Grid>
+    </ContentWrapper>
+</Section>
             
         {/* Footer */}
         <Footer>
@@ -603,12 +839,6 @@ const MainPage: React.FC = () => {
                 </NeumorphicButton>
                 </div>
                 </CustomContainer>
-                <CopyrightWrapper>
-                    <ShortDivider />
-                    <CopyrightText>
-                    <p>© 2024 BlueScope. All Rights Reserved.</p>
-                    </CopyrightText>
-                </CopyrightWrapper>
         </Footer>
 
         {showScrollTop && (
