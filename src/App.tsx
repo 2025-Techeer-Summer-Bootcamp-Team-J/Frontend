@@ -10,6 +10,7 @@ import SignInPage from './pages/SigninPage';
 import SignUpPage from './pages/SignUpPage';
 import MainPage from './pages/MainPage';
 import TodaysCare from './pages/TodaysCare';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/disease-analysis-step2" element={<DiseaseAnalysisStep2Page />} />
           <Route path="/disease-analysis-step3" element={<AnalysisResultPage />} />
           <Route path="/todays-care" element={<TodaysCare />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Route>
 
         {/* 단독으로 표시되는 페이지 그룹 */}
