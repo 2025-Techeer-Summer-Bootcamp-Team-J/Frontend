@@ -77,7 +77,7 @@ const GradientText = styled.span`
 
 const HeroHeading = styled.h1`
   font-size: 2.25rem; font-weight: 900; line-height: 1.2; margin-bottom: 1rem; text-align: center;
-  @media (min-width: 768px) { font-size: 2.75rem; text-align: center; }
+  @media (min-width: 768px) { font-size: 2.75rem; text-align: left; }
   @media (min-width: 1024px) { font-size: 3.25rem; }
 `;
 
@@ -148,10 +148,13 @@ const NeumorphicButton = styled.button`
 `;
 
 const GlassmorphismCard = styled.div`
+  min-width: 0;
   background: rgba(255, 255, 255, 0.4); border-radius: 16px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3);
   padding: 2rem; transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
   @media (max-width: 768px) { padding: 1.5rem; }
   &:hover { transform: translateY(-5px); box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15); }
 `;
@@ -184,6 +187,7 @@ const DashboardGrid = styled.div`
 `;
 
 const ChartContainer = styled.div`
+  min-width: 0;
   h3 {
     font-size: 1.125rem;
     font-weight: 700;
@@ -192,6 +196,7 @@ const ChartContainer = styled.div`
 `;
 
 const HistoryContainer = styled.div`
+  min-width: 0;
   h3 {
     font-size: 1.125rem;
     font-weight: 700;
@@ -263,10 +268,7 @@ const UvIndexCard = styled.div`
     transform: translateY(-5px);
     box-shadow: 0 12px 40px rgba(31, 38, 135, 0.4);
   }
-    display: flex;
-  flex-direction: column;
-  /* --- [추가] 자식 요소들(제목, 팁 컨테이너)을 위아래로 분산시킴 --- */
-  justify-content: space-between;
+justify-content: space-between;
 `;
 
 const CardTitle = styled.h3`
@@ -456,6 +458,28 @@ const DetailButton = styled.button`
   &:hover {
     background-color: #111827;
   }
+`;
+
+const DiseaseListItem = styled.li`
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.3); /* bg-white/30 */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* border-white/20 */
+  padding: 0.75rem; /* p-3 */
+  border-radius: 0.5rem; /* rounded-lg */
+
+  .fa-icon { /* 아이콘 스타일링을 위한 클래스 */
+    margin-right: 0.75rem; /* mr-3 */
+  }
+
+  span {
+    font-weight: 600; /* font-semibold */
+  }
+`;
+
+const IconWrapper = styled.i<{ color: string }>`
+  margin-right: 0.75rem;
+  color: ${({ color }) => color};
 `;
 
 // Chart configurations =======================================================
@@ -705,35 +729,83 @@ const MainPage: React.FC = () => {
         </Section>
         
         <Section id="analysis" bg="#eff6ff">
-            <ContentWrapper>
-                <SectionHeading><NotoSansBlack>나의 피부 유형 바로 알기</NotoSansBlack></SectionHeading>
-                <SectionSubheading>AI가 당신의 피부 타입을 분석하고, 유형별 특징과 통계를 제공합니다.</SectionSubheading>
-                <Grid lg_cols="3" gap="2rem" align="stretch">
-                    <GlassmorphismCard className="text-center">
-                        <h3 className="text-2xl font-bold mb-4">피부 유형 진단 결과</h3>
-                        <div className="my-4">
-                            <div className="inline-block bg-blue-100/50 border border-blue-200/50 text-blue-800 text-2xl font-bold px-6 py-4 rounded-xl">수분 부족형 지성</div>
-                        </div>
-                        <p className="text-gray-600 max-w-md mx-auto">
-                            겉은 번들거리지만 속은 건조한 타입입니다. 유수분 밸런스를 맞추는 것이 중요합니다.
-                        </p>
-                    </GlassmorphismCard>
-                    <GlassmorphismCard>
-                        <h3 className="text-2xl font-bold mb-4">주의가 필요한 피부 질환</h3>
-                        <ul className="space-y-3 mt-6">
-                            <li className="flex items-center bg-white/30 border border-white/20 p-3 rounded-lg"><FaExclamationTriangle className="text-red-500 mr-3" /><span className="font-semibold">여드름 및 뾰루지</span></li>
-                            <li className="flex items-center bg-white/30 border border-white/20 p-3 rounded-lg"><FaExclamationTriangle className="text-orange-500 mr-3" /><span className="font-semibold">지루성 피부염</span></li>
-                            <li className="flex items-center bg-white/30 border border-white/20 p-3 rounded-lg"><FaExclamationTriangle className="text-yellow-500 mr-3" /><span className="font-semibold">모낭염</span></li>
-                        </ul>
-                    </GlassmorphismCard>
-                    <GlassmorphismCard>
-                        <h3 className="text-2xl font-bold mb-4">20대 여성 통계</h3>
-                        <p className="text-sm text-gray-500 mb-4">나와 같은 그룹의 피부 고민</p>
-                        <Doughnut data={skinTypeChartData} options={skinTypeChartOptions} />
-                    </GlassmorphismCard>
-                </Grid>
-            </ContentWrapper>
-        </Section>
+    <ContentWrapper>
+        <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            <SectionHeading>
+                <NotoSansBlack>나의 피부 유형 바로 알기</NotoSansBlack>
+            </SectionHeading>
+            <SectionSubheading>
+                AI가 당신의 피부 타입을 분석하고, 유형별 특징과 통계를 제공합니다.
+            </SectionSubheading>
+        </div>
+
+        {/* 기존 Grid 컴포넌트를 그대로 사용하되, align="stretch"를 추가합니다. */}
+        <Grid lg_cols="3" gap="2rem" align="stretch">
+            {/* 1. 피부 유형 진단 결과 카드 */}
+            <GlassmorphismCard style={{ textAlign: 'center', padding: '2rem', justifyContent: 'space-between' }}>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem' }}>
+                    피부 유형 진단 결과
+                </h3>
+                <div style={{ margin: '1rem 0' }}>
+                    <div style={{ 
+                        display: 'inline-block',
+                        background: 'rgba(219, 234, 254, 0.5)', /* bg-blue-100/50 */
+                        border: '1px solid rgba(191, 219, 254, 0.5)', /* border-blue-200/50 */
+                        color: '#1e40af', /* text-blue-800 */
+                        fontSize: '1.5rem',
+                        fontWeight: '700',
+                        padding: '1rem 1.5rem',
+                        borderRadius: '0.75rem'
+                    }}>
+                        수분 부족형 지성
+                    </div>
+                </div>
+                <p style={{ color: '#4b5563', maxWidth: '28rem', margin: '0 auto' }}>
+                    겉은 번들거리지만 속은 건조한 타입입니다. 유수분 밸런스를 맞추는 것이 중요합니다.
+                </p>
+            </GlassmorphismCard>
+
+            {/* 2. 주의가 필요한 피부 질환 카드 */}
+            <GlassmorphismCard style={{ padding: '2rem' }}>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem' }}>
+                    주의가 필요한 피부 질환
+                </h3>
+                <ul style={{ listStyle: 'none', padding: 0, marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <DiseaseListItem>
+                        {/* 1-3 선택사항을 적용 안 한 경우 */}
+                        <FaExclamationTriangle className="fa-icon" style={{ color: '#ef4444' }}/>
+                        <span>여드름 및 뾰루지</span>
+                    </DiseaseListItem>
+                    <DiseaseListItem>
+                        {/* 1-3 선택사항을 적용한 경우 */}
+                        <IconWrapper as={FaExclamationTriangle} color="#f97316" /> 
+                        <span>지루성 피부염</span>
+                    </DiseaseListItem>
+                    <DiseaseListItem>
+                        <IconWrapper as={FaExclamationTriangle} color="#eab308" />
+                        <span>모낭염</span>
+                    </DiseaseListItem>
+                </ul>
+            </GlassmorphismCard>
+
+            {/* 3. 20대 여성 통계 카드 */}
+            <GlassmorphismCard style={{ padding: '2rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem' }}>
+                    20대 여성 통계
+                </h3>
+                <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
+                    나와 같은 그룹의 피부 고민
+                </p>
+              </div>
+              <div style={{ flexGrow: 1, position: 'relative' }}>
+                {/* 기존 Doughnut 차트 코드를 그대로 사용합니다. */}
+                <Doughnut data={skinTypeChartData} options={skinTypeChartOptions} />
+              </div>
+            </GlassmorphismCard>
+        </Grid>
+    </ContentWrapper>
+</Section>
         
         <Section id="dashboard">
             <ContentWrapper>
