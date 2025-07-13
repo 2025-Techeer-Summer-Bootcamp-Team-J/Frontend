@@ -2,43 +2,18 @@ import React from 'react';
 import styled, { css, createGlobalStyle } from 'styled-components';
 import { Line } from 'react-chartjs-2';
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-  ChartData,
-  ChartOptions
+  Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
+  Title, Tooltip, Legend, Filler, type ChartData, type ChartOptions
 } from 'chart.js';
 
 // Chart.js 모듈 등록
 ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
+  CategoryScale, LinearScale, PointElement, LineElement,
+  Title, Tooltip, Legend, Filler
 );
 
 // --- SVG 아이콘 컴포넌트들 ---
-const BellIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-  </svg>
-);
 
-const UserIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-  </svg>
-);
 
 const InfoIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -109,7 +84,8 @@ const Dashboard = () => {
             y: {
                 beginAtZero: true,
                 max: 100,
-                grid: { color: '#e5e7eb', borderDash: [5, 5] },
+                border: { dash: [5, 5] },
+                grid: { color: '#e5e7eb' },
                 ticks: { color: '#6b7280', font: { size: 12, family: "'Inter', sans-serif" } },
             },
             x: {
@@ -123,32 +99,7 @@ const Dashboard = () => {
         <>
             <GlobalFontStyle />
             <BodyContainer>
-                {/* 상단 네비게이션 바 */}
-                <Header>
-                    <HeaderContent>
-                        <HeaderLeft>
-                            <Logo>BlueScope</Logo>
-                            <Nav>
-                                <NavLink href="#">AI 진단</NavLink>
-                                <NavLink href="#">피부 분석</NavLink>
-                                <NavLink href="#" className="active">대시보드</NavLink>
-                                <NavLink href="#">오늘의 케어</NavLink>
-                            </Nav>
-                        </HeaderLeft>
-                        <HeaderRight>
-                            <IconButton>
-                                <BellIcon />
-                            </IconButton>
-                            <Divider />
-                            <IconButton>
-                                <UserIconWrapper>
-                                    <UserIcon />
-                                </UserIconWrapper>
-                            </IconButton>
-                        </HeaderRight>
-                    </HeaderContent>
-                </Header>
-
+                
                 {/* 메인 컨텐츠 */}
                 <Main>
                     <PageTitle>
@@ -293,104 +244,6 @@ const Sidebar = styled.div`
   @media (min-width: 1024px) {
     gap: 2rem;
   }
-`;
-
-// 헤더
-const Header = styled.header`
-  background-color: #fff;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  position: sticky;
-  top: 0;
-  z-index: 50;
-`;
-
-const HeaderContent = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 4rem; /* 64px */
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 1rem;
-`;
-
-const HeaderLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 2rem; /* 32px */
-`;
-
-const Logo = styled.h1`
-  font-size: 1.5rem; /* 24px */
-  font-weight: 700;
-  color: #2563eb;
-  margin: 0;
-`;
-
-const Nav = styled.nav`
-  display: none;
-  @media (min-width: 768px) {
-    display: flex;
-    gap: 1.5rem; /* 24px */
-  }
-`;
-
-const NavLink = styled.a`
-  color: #6b7280;
-  font-weight: 500;
-  text-decoration: none;
-  transition: color 0.2s;
-  padding-bottom: 0.25rem;
-
-  &:hover {
-    color: #2563eb;
-  }
-
-  &.active {
-    color: #2563eb;
-    font-weight: 700;
-    border-bottom: 2px solid #2563eb;
-  }
-`;
-
-const HeaderRight = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const IconButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 9999px;
-  color: #9ca3af;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &:hover {
-    background-color: #f3f4f6;
-    color: #4b5563;
-  }
-`;
-
-const Divider = styled.div`
-  width: 1px;
-  height: 1.5rem; /* 24px */
-  background-color: #e5e7eb;
-`;
-
-const UserIconWrapper = styled.span`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem; /* 32px */
-  height: 2rem; /* 32px */
-  background-color: #d1d5db;
-  border-radius: 9999px;
-  color: #fff;
 `;
 
 // 공통 카드 컴포넌트
