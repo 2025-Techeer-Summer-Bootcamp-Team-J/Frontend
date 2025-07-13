@@ -1,0 +1,538 @@
+import React from 'react';
+import styled, { css, createGlobalStyle } from 'styled-components';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+  ChartData,
+  ChartOptions
+} from 'chart.js';
+
+// Chart.js 모듈 등록
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
+
+// --- SVG 아이콘 컴포넌트들 ---
+const BellIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+  </svg>
+);
+
+const UserIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+  </svg>
+);
+
+const InfoIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+);
+
+const WarningIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+  </svg>
+);
+
+
+// --- 데이터 정의 ---
+type DiagnosisStatus = '개선' | '유지' | '악화';
+const recentDiagnosesData: { id: number; name: string; date: string; status: DiagnosisStatus }[] = [
+  { id: 1, name: '아토피 피부염', date: '7월 4일', status: '개선' },
+  { id: 2, name: '지루성 피부염', date: '6월 28일', status: '유지' },
+  { id: 3, name: '접촉성 피부염', date: '6월 21일', status: '악화' },
+];
+
+
+// --- 메인 대시보드 컴포넌트 ---
+const Dashboard = () => {
+    // 차트 데이터 및 옵션
+    const chartLabels = ['29일 전', '27일 전', '25일 전', '23일 전', '21일 전', '19일 전', '17일 전', '15일 전', '13일 전', '11일 전', '9일 전', '7일 전', '5일 전', '3일 전', '1일 전'];
+    
+    const chartData: ChartData<'line'> = {
+        labels: chartLabels,
+        datasets: [{
+            label: '피부 점수',
+            data: [70, 72, 75, 74, 78, 80, 79, 82, 85, 84, 88, 87, 90, 89, 92],
+            fill: true,
+            backgroundColor: (context) => {
+                const ctx = context.chart.ctx;
+                const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                gradient.addColorStop(0, 'rgba(79, 115, 229, 0.4)');
+                gradient.addColorStop(1, 'rgba(79, 115, 229, 0)');
+                return gradient;
+            },
+            borderColor: '#4F73E5',
+            borderWidth: 3,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            tension: 0.4,
+        }]
+    };
+
+    const chartOptions: ChartOptions<'line'> = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                enabled: true,
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: '#ffffff',
+                bodyColor: '#ffffff',
+                padding: 10,
+                displayColors: false,
+                callbacks: {
+                    label: (context) => `점수: ${context.parsed.y}`,
+                },
+            },
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                grid: { color: '#e5e7eb', borderDash: [5, 5] },
+                ticks: { color: '#6b7280', font: { size: 12, family: "'Inter', sans-serif" } },
+            },
+            x: {
+                grid: { display: false },
+                ticks: { color: '#6b7280', font: { size: 12, family: "'Inter', sans-serif" } },
+            },
+        },
+    };
+
+    return (
+        <>
+            <GlobalFontStyle />
+            <BodyContainer>
+                {/* 상단 네비게이션 바 */}
+                <Header>
+                    <HeaderContent>
+                        <HeaderLeft>
+                            <Logo>BlueScope</Logo>
+                            <Nav>
+                                <NavLink href="#">AI 진단</NavLink>
+                                <NavLink href="#">피부 분석</NavLink>
+                                <NavLink href="#" className="active">대시보드</NavLink>
+                                <NavLink href="#">오늘의 케어</NavLink>
+                            </Nav>
+                        </HeaderLeft>
+                        <HeaderRight>
+                            <IconButton>
+                                <BellIcon />
+                            </IconButton>
+                            <Divider />
+                            <IconButton>
+                                <UserIconWrapper>
+                                    <UserIcon />
+                                </UserIconWrapper>
+                            </IconButton>
+                        </HeaderRight>
+                    </HeaderContent>
+                </Header>
+
+                {/* 메인 컨텐츠 */}
+                <Main>
+                    <PageTitle>
+                        <h2>개인 맞춤형 대시보드</h2>
+                        <p>김메이커님의 피부 상태 변화를 기록하고, 한눈에 추적하세요.</p>
+                    </PageTitle>
+
+                    <DashboardGrid>
+                        {/* 왼쪽 영역 */}
+                        <MainContent>
+                            {/* 피부 점수 차트 */}
+                            <Card>
+                                <CardTitle>피부 상태 점수 변화 (최근 30일)</CardTitle>
+                                <ChartContainer>
+                                    <Line options={chartOptions} data={chartData} />
+                                </ChartContainer>
+                            </Card>
+
+                            {/* 최근 진단 기록 */}
+                            <Card>
+                                <CardTitle>최근 진단 기록</CardTitle>
+                                <ListContainer>
+                                    {recentDiagnosesData.map(item => (
+                                        <ListItem key={item.id}>
+                                            <div>
+                                                <p className="font-semibold text-gray-700">{item.name}</p>
+                                                <p className="text-sm text-gray-500">{item.date}</p>
+                                            </div>
+                                            <StatusBadge status={item.status}>{item.status}</StatusBadge>
+                                        </ListItem>
+                                    ))}
+                                </ListContainer>
+                            </Card>
+                        </MainContent>
+
+                        {/* 오른쪽 사이드바 */}
+                        <Sidebar>
+                            {/* 내 피부 프로필 */}
+                            <Card>
+                                <CardTitle>내 피부 프로필</CardTitle>
+                                <ProfileContent>
+                                    <div>
+                                        <ProfileLabel>피부 타입</ProfileLabel>
+                                        <ProfileValue>민감성 수부지</ProfileValue>
+                                    </div>
+                                    <div>
+                                        <ProfileLabel>주요 고민 부위</ProfileLabel>
+                                        <TagContainer>
+                                            <Tag color="blue">아토피</Tag>
+                                            <Tag color="red">지루성 피부염</Tag>
+                                        </TagContainer>
+                                    </div>
+                                    <div>
+                                        <ProfileLabel style={{ marginBottom: '0.5rem' }}>주의사항 및 관리 팁</ProfileLabel>
+                                        <TipList>
+                                            <li>세라마이드 성분 보습제 사용 권장</li>
+                                            <li>약산성 클렌저로 부드럽게 세안</li>
+                                            <li>자외선 차단제 필수 사용</li>
+                                        </TipList>
+                                    </div>
+                                </ProfileContent>
+                            </Card>
+
+                            {/* 피부 지식 */}
+                            <Card>
+                                <CardTitle>피부 지식</CardTitle>
+                                <KnowledgeContainer>
+                                    <InfoBox color="blue">
+                                        <InfoTitle><InfoIcon /> 보습의 골든타임</InfoTitle>
+                                        <InfoText>샤워 후 3분 안에 보습제를 발라주면 피부 수분 손실을 효과적으로 막을 수 있어요.</InfoText>
+                                    </InfoBox>
+                                    <InfoBox color="yellow">
+                                        <InfoTitle><WarningIcon /> 자외선 차단제의 진실</InfoTitle>
+                                        <InfoText>흐린 날에도 자외선은 존재해요. 날씨와 상관없이 자외선 차단제를 사용하는 습관이 중요합니다.</InfoText>
+                                    </InfoBox>
+                                </KnowledgeContainer>
+                            </Card>
+                        </Sidebar>
+                    </DashboardGrid>
+                </Main>
+            </BodyContainer>
+        </>
+    );
+};
+
+export default Dashboard;
+
+// --- Styled-Components 정의 ---
+
+// 전역 스타일
+const GlobalFontStyle = createGlobalStyle`
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+  }
+`;
+
+// 레이아웃
+const BodyContainer = styled.div`
+  min-height: 100vh;
+`;
+
+const Main = styled.main`
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  @media (min-width: 640px) {
+    padding: 1.5rem;
+  }
+  @media (min-width: 1024px) {
+    padding: 2rem;
+  }
+`;
+
+const DashboardGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+`;
+
+const MainContent = styled.div`
+  grid-column: span 1 / span 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  @media (min-width: 1024px) {
+    grid-column: span 2 / span 2;
+    gap: 2rem;
+  }
+`;
+
+const Sidebar = styled.div`
+  grid-column: span 1 / span 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  @media (min-width: 1024px) {
+    gap: 2rem;
+  }
+`;
+
+// 헤더
+const Header = styled.header`
+  background-color: #fff;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+`;
+
+const HeaderContent = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 4rem; /* 64px */
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+`;
+
+const HeaderLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 2rem; /* 32px */
+`;
+
+const Logo = styled.h1`
+  font-size: 1.5rem; /* 24px */
+  font-weight: 700;
+  color: #2563eb;
+  margin: 0;
+`;
+
+const Nav = styled.nav`
+  display: none;
+  @media (min-width: 768px) {
+    display: flex;
+    gap: 1.5rem; /* 24px */
+  }
+`;
+
+const NavLink = styled.a`
+  color: #6b7280;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s;
+  padding-bottom: 0.25rem;
+
+  &:hover {
+    color: #2563eb;
+  }
+
+  &.active {
+    color: #2563eb;
+    font-weight: 700;
+    border-bottom: 2px solid #2563eb;
+  }
+`;
+
+const HeaderRight = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
+
+const IconButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 9999px;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: #f3f4f6;
+    color: #4b5563;
+  }
+`;
+
+const Divider = styled.div`
+  width: 1px;
+  height: 1.5rem; /* 24px */
+  background-color: #e5e7eb;
+`;
+
+const UserIconWrapper = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem; /* 32px */
+  height: 2rem; /* 32px */
+  background-color: #d1d5db;
+  border-radius: 9999px;
+  color: #fff;
+`;
+
+// 공통 카드 컴포넌트
+const Card = styled.div`
+  background-color: #fff;
+  padding: 1.5rem; /* 24px */
+  border-radius: 0.75rem; /* 12px */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+`;
+
+const CardTitle = styled.h3`
+  font-size: 1.25rem; /* 20px */
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 1rem 0;
+`;
+
+// 페이지 타이틀
+const PageTitle = styled.div`
+  margin-bottom: 2rem;
+  h2 {
+    font-size: 1.875rem; /* 30px */
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+  }
+  p {
+    color: #6b7280;
+    margin-top: 0.25rem;
+  }
+`;
+
+// 차트
+const ChartContainer = styled.div`
+  height: 20rem; /* 320px */
+`;
+
+// 최근 진단 기록
+const ListContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const ListItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+
+  p { margin: 0; }
+  .font-semibold { font-weight: 600; }
+  .text-gray-700 { color: #374151; }
+  .text-sm { font-size: 0.875rem; }
+  .text-gray-500 { color: #6b7280; }
+`;
+
+const statusStyles = {
+  개선: css` background-color: #d1fae5; color: #065f46; `,
+  유지: css` background-color: #fef3c7; color: #92400e; `,
+  악화: css` background-color: #fee2e2; color: #991b1b; `,
+};
+
+const StatusBadge = styled.span<{ status: DiagnosisStatus }>`
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  ${({ status }) => statusStyles[status]}
+`;
+
+// 내 피부 프로필
+const ProfileContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+const ProfileLabel = styled.p`
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+`;
+
+const ProfileValue = styled.p`
+  font-weight: 600;
+  color: #2563eb;
+  margin: 0;
+`;
+
+const TagContainer = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+`;
+
+const Tag = styled.span<{ color: 'blue' | 'red' }>`
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  background-color: ${({ color }) => (color === 'blue' ? '#dbeafe' : '#fee2e2')};
+  color: ${({ color }) => (color === 'blue' ? '#1e40af' : '#991b1b')};
+`;
+
+const TipList = styled.ul`
+  list-style-type: disc;
+  list-style-position: inside;
+  font-size: 0.875rem;
+  color: #4b5563;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+`;
+
+// 피부 지식
+const KnowledgeContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const InfoBox = styled.div<{ color: 'blue' | 'yellow' }>`
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: ${({ color }) => (color === 'blue' ? '#eff6ff' : '#fefce8')};
+  h4, p { color: ${({ color }) => (color === 'blue' ? '#1d4ed8' : '#a16207')}; }
+`;
+
+const InfoTitle = styled.h4`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  margin: 0;
+`;
+
+const InfoText = styled.p`
+  font-size: 0.875rem;
+  margin: 0.5rem 0 0 0;
+`;
