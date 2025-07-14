@@ -37,7 +37,7 @@ const StepContainer = styled.div`
   margin: 0 auto 2.5rem;
 `;
 
-const StepItem = styled.div<{ status: 'completed' | 'active' }>`
+const StepItem = styled.div<{ $status: 'completed' | 'active' }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -47,8 +47,8 @@ const StepItem = styled.div<{ status: 'completed' | 'active' }>`
   border: 2px solid #e2e8f0;
   color: #94a3b8;
   font-weight: 700;
-  ${({ status }) =>
-    (status === 'completed' || status === 'active') &&
+  ${({ $status }) =>
+    ($status === 'completed' || $status === 'active') &&
     css`
       border-color: #3b82f6;
       background-color: #3b82f6;
@@ -147,7 +147,7 @@ const TabNav = styled.nav`
   border-top-right-radius: 1rem;
 `;
 
-const TabButton = styled.button<{ isActive: boolean }>`
+const TabButton = styled.button<{ $isActive: boolean }>`
   padding: 0.75rem 1.5rem;
   font-weight: 600;
   color: #64748b;
@@ -156,7 +156,7 @@ const TabButton = styled.button<{ isActive: boolean }>`
   cursor: pointer;
   border-bottom: 3px solid transparent;
   transition: all 0.2s ease;
-  ${({ isActive }) => isActive && css` color: #2563eb; border-bottom-color: #2563eb; `}
+  ${({ $isActive }) => $isActive && css` color: #2563eb; border-bottom-color: #2563eb; `}
 `;
 
 const TabContentContainer = styled.div` padding: 2rem; flex-grow: 1; `;
@@ -176,12 +176,12 @@ const TwoButtonGrid = styled.div`
     grid-template-columns: 1fr;
   }
 `;
-const StyledButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
+const StyledButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   display: flex; align-items: center; justify-content: center; gap: 0.5rem;
   width: 100%; font-weight: 700; padding: 0.625rem 0; border-radius: 0.5rem;
   font-size: 1rem; border: none; cursor: pointer; transition: background-color 0.2s ease;
-  ${({ variant }) => {
-    switch (variant) {
+  ${({ $variant }) => {
+    switch ($variant) {
       case 'primary': return css` background-color: #2563eb; color: white; &:hover { background-color: #1d4ed8; }`;
       case 'secondary': return css` background-color: #475569; color: white; &:hover { background-color: #334155; }`;
       default: return css` background-color: #e2e8f0; color: #334155; &:hover { background-color: #cbd5e1; }`;
@@ -227,11 +227,11 @@ const AnalysisResultPage = () => {
     <ContentWrapper style={{ paddingTop: '3rem', paddingBottom: '3rem' }}>
       {/* 1. 단계 표시기 */}
       <StepContainer>
-        <StepItem status="completed">1</StepItem>
+        <StepItem $status="completed">1</StepItem>
         <StepLine />
-        <StepItem status="completed">2</StepItem>
+        <StepItem $status="completed">2</StepItem>
         <StepLine />
-        <StepItem status="active">3</StepItem>
+        <StepItem $status="active">3</StepItem>
       </StepContainer>
 
       <MainContent>
@@ -260,13 +260,13 @@ const AnalysisResultPage = () => {
           <DetailsBox>
             <TabNav>
               <TabButton
-                isActive={activeTab === 'precautions'}
+                $isActive={activeTab === 'precautions'}
                 onClick={() => setActiveTab('precautions')}
               >
                 상세 정보 및 주의사항
               </TabButton>
               <TabButton
-                isActive={activeTab === 'solutions'}
+                $isActive={activeTab === 'solutions'}
                 onClick={() => setActiveTab('solutions')}
               >
                 추천 솔루션
@@ -300,14 +300,14 @@ const AnalysisResultPage = () => {
             </TabContentContainer>
           </DetailsBox>
           <ButtonGroup>
-            <StyledButton variant="primary" onClick={() => window.alert('나의 케어 플랜에 추가되었습니다!')}>
+            <StyledButton $variant="primary" onClick={() => window.alert('나의 케어 플랜에 추가되었습니다!')}>
               나의 케어 플랜에 추가
             </StyledButton>
             <TwoButtonGrid>
               <StyledButton onClick={() => window.location.reload()}>
                 <FontAwesomeIcon icon={faRedo} /> 다시 분석하기
               </StyledButton>
-              <StyledButton variant="secondary" onClick={handleDownloadReport}>
+              <StyledButton $variant="secondary" onClick={handleDownloadReport}>
                 <FontAwesomeIcon icon={faDownload} />
                 결과 리포트 다운로드
               </StyledButton>

@@ -151,15 +151,15 @@ const TabsContainer = styled.div`
   &::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 0.625rem; }
 `;
 
-const TabButton = styled.button<{ active: boolean }>`
+const TabButton = styled.button<{ $active: boolean }>`
   padding: 0.75rem 1.5rem;
   border: none;
   background-color: transparent;
-  color: ${props => props.active ? '#0891B2' : '#64748B'};
-  font-weight: ${props => props.active ? '600' : '500'};
+  color: ${props => props.$active ? '#0891B2' : '#64748B'};
+  font-weight: ${props => props.$active ? '600' : '500'};
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s;
-  border-bottom: 0.1875rem solid ${props => props.active ? '#0891B2' : 'transparent'};
+  border-bottom: 0.1875rem solid ${props => props.$active ? '#0891B2' : 'transparent'};
   flex-shrink: 0;
   white-space: nowrap;
   font-size: clamp(0.9rem, 1.8vw, 1.3rem); /* 폰트 크기 명시 */
@@ -255,7 +255,7 @@ function TodaysCare() {
               {Object.keys(careData).map(level => (
                 <TabButton
                   key={level}
-                  active={activeTab === level}
+                  $active={activeTab === level}
                   onClick={() => setActiveTab(level)}
                 >
                   {level}
