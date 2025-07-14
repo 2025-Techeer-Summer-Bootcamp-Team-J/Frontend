@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import main_image from '../assets/mainpage_image.jpeg';
+import after_treatment_image from '../assets/after_treatment.png';
+import before_treatment_image from '../assets/before_treatment.png';
 import {
   FaCamera, FaCommentMedical, FaExclamationTriangle, FaCalendarAlt,
   FaSun, FaLightbulb, FaArrowUp
@@ -351,13 +353,16 @@ const ImageCard = styled.div`
   height: 100%; /* 부모 그리드 셀의 높이를 100% 채움 */
   display: flex; /* 내부 콘텐츠 정렬을 위해 Flexbox 사용 */
   flex-direction: column; /* 아이템을 위에서 아래로 정렬 */
+  justify-content: space-evenly;
 
 
   img {
     width: 100%;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 3 / 4;
     object-fit: cover;
     border-radius: 0.5rem;
+    margin-top: 0;
+    margin-bottom: 0;
   }
 
   p {
@@ -451,7 +456,7 @@ const DetailButton = styled.button`
   color: white;
   font-weight: 700;
   padding: 0.75rem 0;
-  margin-top: 1rem;
+  margin-top: auto;
   border-radius: 0.5rem;
   transition: background-color 0.2s ease-in-out;
 
@@ -678,20 +683,25 @@ const MainPage: React.FC = () => {
                     사진을 올리면 AI가 분석하고, 상세한 리포트를 제공합니다.
                 </SectionSubheading>
                 <PredictionWrapper>
-                    <Grid lg_cols="2" gap="2rem" align="start">
+                    <Grid lg_cols="2" gap="2rem" align="stretch">
                         {/* 왼쪽: 이미지 및 예측 */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                             <h3 className="text-xl font-bold text-gray-800">치료 전/후 예측</h3>
-                            <Grid cols="2" gap="1rem">
+                            <Grid cols="2" gap="1rem" style={{ flexGrow: 1 }}>
                                 <ImageCard>
                                     <p>현재 상태</p>
-                                    <img src="https://images.unsplash.com/photo-1580619586944-9937b3834791?q=80&w=800&auto=format&fit=crop" alt="치료 전 피부" />
-                                    <div className="image-quality">이미지 품질: 92점</div>
+                                    <img src={before_treatment_image} alt="치료 전 피부" />
+                                    <div>
+                                        <div className="image-quality">이미지 품질: 92점</div>
+                                    </div>
+
                                 </ImageCard>
                                 <ImageCard>
                                     <p>치료 후 예상</p>
-                                    <img src="https://images.unsplash.com/photo-1596305589444-a81870a1202c?q=80&w=800&auto=format&fit=crop" alt="치료 후 예측" />
-                                    <div className="prediction-text">3주 후 예상 모습</div>
+                                     <img src={after_treatment_image} alt="치료 후 예측" />
+                                     <div>
+                                       <div className="prediction-text">3주 후 예상 모습</div>
+                                    </div>
                                 </ImageCard>
                             </Grid>
                         </div>
