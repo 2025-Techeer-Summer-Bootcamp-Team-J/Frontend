@@ -1,5 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import styled, { createGlobalStyle, keyframes } from 'styled-components';
+import { analyzeSkinType } from '../services/skintypeApi';
+import type { SkinTypeAnalysisResponse } from '../services/types';
+import { AxiosError } from 'axios';
 
 // --- 1. 타입 정의 ---
 interface SkinResult {
@@ -9,6 +12,59 @@ interface SkinResult {
     features: string[];
     care: string[];
 }
+
+// API 응답을 UI용 SkinResult로 변환하는 함수
+const convertApiResponseToSkinResult = (response: SkinTypeAnalysisResponse): SkinResult => {
+    // 피부 타입별 기본 정보 (실제로는 별도 API나 데이터베이스에서 가져와야 함)
+    const skinTypeInfo = {
+        1: {
+            name: "지성 피부",
+            description: "유분 분비가 활발하여 번들거림이 있지만 수분 보유력이 좋은 피부 타입입니다.",
+            characteristics: ["T존 유분 과다", "모공이 뚜렷함", "여드름 발생 가능성 높음", "화장이 잘 지워짐"],
+            care: ["유분 조절 토너 사용", "주 2-3회 딥클렌징", "수분 크림보다 젤 타입 제품 사용", "자외선 차단제 필수"]
+        },
+        2: {
+            name: "중성 피부",
+            description: "유분과 수분의 균형이 잘 맞는 이상적인 피부 타입으로, 트러블이 적고 탄력이 좋습니다.",
+            characteristics: ["적당한 유분과 수분", "모공이 작고 깔끔함", "트러블이 적음", "탄력이 좋음"],
+            care: ["기본적인 세안과 보습", "주 1-2회 각질 제거", "계절에 맞는 보습 제품 사용", "꾸준한 자외선 차단"]
+        },
+        3: {
+            name: "건성 피부",
+            description: "유분과 수분이 부족하여 당김과 각질이 생기기 쉬운 피부 타입입니다.",
+            characteristics: ["피부 당김 현상", "각질 발생", "모공이 작음", "주름 생기기 쉬움"],
+            care: ["풍부한 보습 크림 사용", "각질 제거는 주 1회", "오일 제품 활용", "수분 공급 집중 관리"]
+        },
+        4: {
+            name: "복합성 피부",
+            description: "T존은 지성, U존은 건성의 특징을 보이는 가장 흔한 피부 타입입니다.",
+            characteristics: ["T존 유분 과다", "U존 건조함", "부위별 다른 관리 필요", "계절 변화에 민감"],
+            care: ["부위별 맞춤 관리", "T존은 유분 조절, U존은 보습", "순한 세안제 사용", "부분별 다른 제품 사용"]
+        },
+        5: {
+            name: "민감성 피부",
+            description: "외부 자극에 쉽게 반응하여 붉어지거나 트러블이 생기기 쉬운 피부 타입입니다.",
+            characteristics: ["쉽게 붉어짐", "자극에 민감", "알레르기 반응 가능", "얇고 예민한 피부"],
+            care: ["무향, 무색소 제품 사용", "패치 테스트 필수", "순한 세안제 사용", "자극적인 성분 피하기"]
+        }
+    };
+
+    const skinTypeCode = response.data.skin_type_code;
+    const defaultInfo = skinTypeInfo[skinTypeCode as keyof typeof skinTypeInfo] || {
+        name: response.data.skin_type_name,
+        description: `${response.data.skin_type_name}으로 분석되었습니다.`,
+        characteristics: ["개인별 특성에 따라 다를 수 있습니다."],
+        care: ["전문가와 상담하여 맞춤 관리를 받으시기 바랍니다."]
+    };
+
+    return {
+        title: defaultInfo.name,
+        subtitle: response.data.skin_type_name,
+        description: defaultInfo.description,
+        features: defaultInfo.characteristics,
+        care: defaultInfo.care
+    };
+};
 
 // --- 2. 글로벌 스타일 및 테마 ---
 const theme = {
@@ -188,6 +244,40 @@ const PreviewImage = styled.img`
     left: 0;
 `;
 
+const AnalysisStartButton = styled.button`
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-top: 2rem;
+    padding: 1.25rem 2.5rem;
+    background-color: ${theme.primaryColor};
+    color: white;
+    border: none;
+    border-radius: 0.625rem;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.3s;
+    box-shadow: 0 0.25rem 1rem rgba(0, 82, 255, 0.2);
+    
+    &:hover {
+        background-color: ${theme.darkPrimaryColor};
+        transform: translateY(-2px);
+        box-shadow: 0 0.375rem 1.25rem rgba(0, 82, 255, 0.3);
+    }
+    
+    &:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    i {
+        font-size: 1.2em;
+    }
+`;
+
 const ScannerAnimation = styled.div<{ $imageUrl?: string }>`
     width: 9.375rem;
     height: 9.375rem;
@@ -330,54 +420,110 @@ const RestartButton = styled.a`
     }
 `;
 
-// --- 5. 데이터 ---
-const MOCK_RESULTS: SkinResult[] = [
-    { title: '지성 피부', subtitle: '유분은 많지만, 잘 관리하면 건강한 피부', description: '피지 분비가 활발하여 얼굴 전체적으로 유분이 많고 번들거리는 타입입니다. 모공이 넓고 블랙헤드나 뾰루지 같은 트러블이 생기기 쉽지만, 유분 덕분에 피부 장벽이 튼튼하고 주름이 늦게 생기는 장점도 있습니다.', features: ['세안 후 얼마 지나지 않아 번들거림', '넓은 모공과 블랙헤드', '메이크업이 쉽게 지워지고 다크닝 발생', '뾰루지, 여드름 등 트러블 발생 빈도가 높음'], care: ['꼼꼼한 이중 세안으로 모공 속 노폐물 제거', '유분 조절 기능이 있는 가벼운 수분 제품 사용', '주 1~2회 각질 및 피지 제거', '오일프리(Oil-Free) 제품 위주로 사용'] },
-    { title: '건성 피부', subtitle: '수분과 유분이 모두 부족한 상태', description: '세안 후 피부가 심하게 당기고, 각질이 쉽게 일어나며 피부결이 거칠게 느껴지는 타입입니다. 유수분 부족으로 피부 장벽이 약해 외부 자극에 민감하게 반응할 수 있으며, 잔주름이 생기기 쉽습니다.', features: ['세안 후 심한 속당김과 건조함', '피부결이 거칠고 각질이 잘 일어남', '잔주름이 쉽게 생김', '윤기가 없고 푸석푸석해 보임'], care: ['약산성 클렌저로 부드럽게 세안', '보습력이 강한 스킨케어 제품 사용 (세라마이드, 히알루론산)', '페이스 오일이나 보습 크림으로 마무리', '가습기 사용으로 실내 습도 유지'] },
-    { title: '복합성 피부', subtitle: '부위별로 다른 피부 특성을 가진 타입', description: '이마, 코, 턱으로 이어지는 T존은 피지 분비가 많아 번들거리지만, 양 볼과 눈가의 U존은 건조한 특징을 동시에 가진 피부 타입입니다. 부위별로 다른 관리가 필요하여 가장 까다로울 수 있습니다.', features: ['T존(이마, 코)은 번들거리고 U존(볼)은 건조함', 'T존에만 모공이 넓고 블랙헤드가 있음', '계절에 따라 피부 상태 변화가 큼', '부위별로 다른 트러블 발생'], care: ['T존과 U존에 다른 제품을 사용하는 부위별 케어', '전체적으로는 유수분 밸런스를 맞춰주는 제품 선택', 'T존에는 가벼운 제품, U존에는 보습력이 좋은 제품 사용', '주기적인 각질 관리로 피부결 정돈'] },
-];
 
-const getMockResult = (): SkinResult => {
-    return MOCK_RESULTS[Math.floor(Math.random() * MOCK_RESULTS.length)];
-};
+
+
 
 
 // --- 6. React 컴포넌트 ---
 const SkinAnalysis: React.FC = () => {
-    type Section = 'upload' | 'analyzing' | 'result';
+    type Section = 'upload' | 'analyzing' | 'result' | 'error';
     const [currentSection, setCurrentSection] = useState<Section>('upload');
     const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+    const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     const [analysisStatus, setAnalysisStatus] = useState<string>('초기화 중...');
     const [resultData, setResultData] = useState<SkinResult | null>(null);
+    const [hasAnalyzed, setHasAnalyzed] = useState<boolean>(false);
+    const [analysisError, setAnalysisError] = useState<string | null>(null);
+    const [isImageUploaded, setIsImageUploaded] = useState<boolean>(false);
 
     const uploadSectionRef = useRef<HTMLElement>(null);
     const analyzingSectionRef = useRef<HTMLElement>(null);
     const resultSectionRef = useRef<HTMLElement>(null);
+    const errorSectionRef = useRef<HTMLElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // 임시 사용자 ID (실제로는 로그인 상태에서 가져와야 함)
+    const userId = 1;
+
+    // API로 피부 분석 요청
+    const performSkinAnalysis = useCallback(async (imageFile: File) => {
+        try {
+            setAnalysisError(null);
+            console.log('피부 분석 시작:', { userId, imageFile: imageFile.name, size: imageFile.size });
+            
+            // 피부 타입 분석 API 호출
+            const analysisResponse = await analyzeSkinType(userId, { image: imageFile });
+            console.log('분석 응답:', analysisResponse);
+            
+            // 새로운 API 응답 구조에 맞게 결과 처리
+            const skinResult = convertApiResponseToSkinResult(analysisResponse);
+            console.log('최종 결과 데이터:', skinResult);
+            
+            setResultData(skinResult);
+            setHasAnalyzed(true);
+            setCurrentSection('result');
+        } catch (error) {
+            console.error('피부 분석 실패:', error);
+            let errorMessage = '분석 중 오류가 발생했습니다.';
+            
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            } else if (error && typeof error === 'object' && 'response' in error) {
+                // Axios 에러인 경우
+                const axiosError = error as AxiosError<{ error?: string }>;
+                if (axiosError.response?.data?.error) {
+                    errorMessage = axiosError.response.data.error;
+                } else if (axiosError.response?.status === 404) {
+                    errorMessage = 'API 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.';
+                } else if (axiosError.response?.status && axiosError.response.status >= 500) {
+                    errorMessage = '서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+                } else if (axiosError.code === 'NETWORK_ERROR' || axiosError.code === 'ECONNREFUSED') {
+                    errorMessage = '네트워크 연결에 문제가 있습니다. 인터넷 연결을 확인해주세요.';
+                }
+            }
+            
+            setAnalysisError(errorMessage);
+            setCurrentSection('error');
+        }
+    }, [userId]);
 
     const handleUploadAreaClick = useCallback(() => {
         // 이미 분석을 시작했으면 다시 업로드 창을 열지 않음
-        if (currentSection !== 'upload') return;
+        if (currentSection !== 'upload' || hasAnalyzed) return;
         fileInputRef.current?.click();
-    }, [currentSection]);
+    }, [currentSection, hasAnalyzed]);
 
     const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (file) {
+        if (file && !hasAnalyzed) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const imageUrl = e.target?.result as string;
                 setUploadedImageUrl(imageUrl);
-                setCurrentSection('analyzing');
+                setUploadedFile(file);
+                setIsImageUploaded(true);
+                // 자동으로 analyzing 섹션으로 이동하지 않음
             };
             reader.readAsDataURL(file);
         }
-    }, []);
+    }, [hasAnalyzed]);
+
+    // 분석 시작 버튼 클릭 핸들러
+    const handleStartAnalysis = useCallback(() => {
+        if (uploadedFile && !hasAnalyzed) {
+            setCurrentSection('analyzing');
+        }
+    }, [uploadedFile, hasAnalyzed]);
     
     const handleRestart = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
         setUploadedImageUrl(null);
+        setUploadedFile(null);
         setResultData(null);
+        setHasAnalyzed(false);
+        setAnalysisError(null);
+        setIsImageUploaded(false);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
@@ -404,20 +550,24 @@ const SkinAnalysis: React.FC = () => {
                 }
             }, 1000);
 
+            // API 호출 (1회만 실행되도록 hasAnalyzed 체크)
             analysisTimer = setTimeout(() => {
-                setResultData(getMockResult());
-                setCurrentSection('result');
+                if (uploadedFile && !hasAnalyzed) {
+                    performSkinAnalysis(uploadedFile);
+                }
             }, statuses.length * 1000);
 
         } else if (currentSection === 'result') {
             resultSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else if (currentSection === 'error') {
+            errorSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
         
         return () => {
             clearTimeout(analysisTimer);
             clearInterval(statusInterval);
         };
-    }, [currentSection]);
+    }, [currentSection, uploadedFile, hasAnalyzed, performSkinAnalysis]);
     
     return (
         <PageWrapper>
@@ -446,6 +596,14 @@ const SkinAnalysis: React.FC = () => {
                             <input type="file" ref={fileInputRef} onChange={handleFileUpload} style={{ display: 'none' }} accept="image/*" disabled={currentSection !== 'upload'} />
                         </UploadArea>
                     </ContentBox>
+                    
+                    {/* 사진 업로드 후 분석 시작 버튼 표시 */}
+                    {isImageUploaded && currentSection === 'upload' && (
+                        <AnalysisStartButton onClick={handleStartAnalysis}>
+                            <i className="fas fa-brain" />
+                            AI 피부 분석 시작하기
+                        </AnalysisStartButton>
+                    )}
                 </PageSection>
 
                 {/* 섹션 2: 분석 중 (업로드 이후에 보임) */}
@@ -491,6 +649,27 @@ const SkinAnalysis: React.FC = () => {
                                 </ResultList>
                             </ResultCard>
                         </ResultGrid>
+
+                        <RestartButton href="#upload" onClick={handleRestart}>
+                           <i className="fas fa-redo" /> 처음부터 다시 진단하기
+                        </RestartButton>
+                    </PageSection>
+                )}
+
+                {/* 섹션 4: 에러 (분석 실패 시 보임) */}
+                {currentSection === 'error' && (
+                    <PageSection ref={errorSectionRef} $isFadedIn={true}>
+                        <ResultHeader>
+                            <MainTitle style={{ color: '#ff4757' }}>분석 중 오류가 발생했습니다</MainTitle>
+                            <MainSubtitle> 조건에 맞는 사진을 확인하고 다시 시도해주세요.</MainSubtitle>
+                        </ResultHeader>
+                        
+                        <ResultCard>
+                            <ResultDescription style={{ color: '#ff4757', textAlign: 'center' }}>
+                                <i className="fas fa-exclamation-triangle" style={{ fontSize: '3rem', marginBottom: '1rem', display: 'block' }} />
+                                {analysisError || '분석 중 알 수 없는 오류가 발생했습니다.'}
+                            </ResultDescription>
+                        </ResultCard>
 
                         <RestartButton href="#upload" onClick={handleRestart}>
                            <i className="fas fa-redo" /> 처음부터 다시 진단하기

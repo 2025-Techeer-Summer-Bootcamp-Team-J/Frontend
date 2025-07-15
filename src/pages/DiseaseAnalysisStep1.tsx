@@ -21,7 +21,7 @@ const StepIndicatorContainer = styled.div`
   }
 `;
 
-const StepCircle = styled.div<{ active?: boolean }>`
+const StepCircle = styled.div<{ $active?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -33,7 +33,7 @@ const StepCircle = styled.div<{ active?: boolean }>`
   font-weight: 700;
   
   ${(props) =>
-    props.active &&
+    props.$active &&
     css`
       border-color: #3b82f6;
       background-color: #3b82f6;
@@ -200,6 +200,7 @@ const NextButton = styled.button`
 const SkinAnalysisStep1: React.FC = () => {
     const navigate = useNavigate();
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleUploadWrapperClick = () => {
@@ -209,6 +210,10 @@ const SkinAnalysisStep1: React.FC = () => {
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
+            // 파일 객체 저장
+            setSelectedFile(file);
+            
+            // 미리보기 이미지 설정
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreview(reader.result as string);
@@ -218,14 +223,17 @@ const SkinAnalysisStep1: React.FC = () => {
     };
 
     const handleNextButtonClick = () => {
-        navigate('/disease-analysis-step2');
+        // 이미지 파일을 state로 전달
+        navigate('/disease-analysis-step2', {
+            state: { uploadedImage: selectedFile }
+        });
     };
 
     return (
         <ContentWrapper style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
             {/* Step Indicator */}
             <StepIndicatorContainer>
-                <StepCircle active>1</StepCircle>
+                <StepCircle $active>1</StepCircle>
                 <StepLine />
                 <StepCircle>2</StepCircle>
                 <StepLine />

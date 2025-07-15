@@ -162,7 +162,7 @@ function Layout() {
           <HeaderSection>
             <Nav>
               <NavItem to="/disease-analysis-step1">AI 진단</NavItem>
-              <NavItem to="/#care">상세 분석</NavItem>
+              <NavItem to="/skin-analysis">상세 분석</NavItem>
               <NavItem to="/dashboard">대시보드</NavItem>
               <NavItem to="/todays-care">오늘의 케어</NavItem>
             </Nav>
