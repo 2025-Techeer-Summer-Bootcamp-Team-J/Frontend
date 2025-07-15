@@ -1,6 +1,6 @@
 // src/pages/AnalysisResultPage.jsx
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, type TooltipItem } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
