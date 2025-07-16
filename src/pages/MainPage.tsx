@@ -54,7 +54,7 @@ const Section = styled.section<{ bg?: string }>`
   }
 `;
 
-const Grid = styled.div<{
+export const Grid = styled.div<{
   cols?: string; sm_cols?: string; md_cols?: string; lg_cols?: string; gap?: string; align?: string;
 }>`
   display: grid;
@@ -371,11 +371,14 @@ const NewLegendContainer = styled.div`
   width: 100%;
   max-width: 28rem;
   margin-top: 2.5rem;
+
   display: flex;
   flex-direction: column;
   gap: 1rem;
 `;
+
 const NewLegendItem = styled.div`
+
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -384,13 +387,16 @@ const NewLegendItem = styled.div`
   transition: background-color 0.2s ease;
   &:hover { background-color: #f1f5f9; }
 `;
+
 const NewLegendColorBox = styled.span<{ color: string }>`
   width: 1rem;
   height: 1rem;
+
   border-radius: 9999px;
   background-color: ${props => props.color};
   margin-right: 0.75rem;
 `;
+
 const FullReportCard = styled.div`
   border: 1px solid #e2e8f0;
   border-radius: 1rem;
@@ -414,17 +420,20 @@ const FullTabButton = styled.button<{ $isActive: boolean }>`
   white-space: nowrap;
   transition: all 0.2s ease;
 
+
   /* 활성/비활성 상태에 따른 동적 스타일 */
   color: ${props => (props.$isActive ? '#2563eb' : '#64748b')};
   
   /* 활성 탭에만 파란색 밑줄을 표시하고, 나머지는 투명하게 처리합니다. */
   border-bottom: 3px solid ${props => (props.$isActive ? '#2563eb' : 'transparent')};
 
+
   /* 마우스 오버 효과 */
   &:hover {
     color: #2563eb;
   }
 `;
+
 const FullTabContentContainer = styled.div`
   padding: 1.5rem 2rem;
   min-height: 300px;
@@ -435,6 +444,7 @@ const FullActionsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+
   width: 100%;
 `;
 const ActionButton = styled.button<{ primary?: boolean; fullWidth?: boolean }>`
