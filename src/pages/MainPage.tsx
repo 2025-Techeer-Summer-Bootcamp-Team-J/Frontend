@@ -4,14 +4,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import main_image from '../assets/mainpage_image.jpeg';
-import after_treatment_image from '../assets/after_treatment.png';
-import before_treatment_image from '../assets/before_treatment.png';
 import {
   FaCamera, FaCommentMedical, FaExclamationTriangle, FaCalendarAlt,
-  FaSun, FaLightbulb, FaArrowUp
+  FaSun, FaLightbulb, FaArrowUp, FaArrowLeft, FaRedo, FaDownload
 } from 'react-icons/fa';
 import {
-  Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler, ArcElement
+  Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler, ArcElement, type TooltipItem
 } from 'chart.js';
 import { Doughnut, Line } from 'react-chartjs-2';
 import { ContentWrapper } from '../components/Layout';
@@ -332,136 +330,150 @@ const TipCard = styled.div`
   }
 `;
 
-const PredictionWrapper = styled.div`
-  background-color: white;
-  padding: 2rem;
-  border-radius: 1.5rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  border: 1px solid #e5e7eb;
-
+const DiagnosisSectionWrapper = styled.div`
+  background-color: #ffffff;
+  padding: 4rem 0;
+  @media (min-width: 768px) { padding: 6rem 0; }
+`;
+const DiagnosisGrid = styled.main`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
   @media (min-width: 1024px) {
-    padding: 2.5rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6rem;
+    align-items: start;
   }
 `;
-
-const ImageCard = styled.div`
-  background-color: #f9fafb;
-  padding: 1rem;
-  border-radius: 0.75rem;
-  border: 1px solid #e5e7eb;
-  text-align: center;
-  height: 100%; /* 부모 그리드 셀의 높이를 100% 채움 */
-  display: flex; /* 내부 콘텐츠 정렬을 위해 Flexbox 사용 */
-  flex-direction: column; /* 아이템을 위에서 아래로 정렬 */
-  justify-content: space-evenly;
-
-
-  img {
-    width: 100%;
-    aspect-ratio: 3 / 4;
-    object-fit: cover;
-    border-radius: 0.5rem;
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
-  p {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #4b5563;
-  }
-
-  .image-quality {
-    margin-top: 0.75rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #2563eb;
-  }
-  .prediction-text {
-    margin-top: 0.75rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #6b7280;
-  }
+const LeftPanel = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  .section-title { font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 2rem; }
 `;
+const RightPanel = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+`;
+const NewChartWrapper = styled.div`
+  width: 100%;
+  max-width: 28rem;
+  height: 20rem;
+  border: none;
+  background-color: transparent;
+`;
+const NewLegendContainer = styled.div`
+  width: 100%;
+  max-width: 28rem;
+  margin-top: 2.5rem;
 
-export const ReportCard = styled.div`
-  background-color: white;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
-  border: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
   gap: 1rem;
 `;
 
-export const ReportItem = styled.div`
+const NewLegendItem = styled.div`
+
   display: flex;
-  justify-content: space-between;
   align-items: center;
-
-  .label {
-    font-weight: 600;
-    color: #4b5563;
-  }
-  .value {
-    font-weight: 600;
-  }
-  .value-disease {
-    font-weight: 700;
-    color: #2563eb;
-    font-size: 1.125rem;
-  }
-`;
-
-export const SeverityBar = styled.div`
-  width: 100%;
-  background-color: #e5e7eb;
-  border-radius: 9999px;
-  height: 0.625rem;
-  margin-left: 1rem;
-`;
-
-export const SeverityBarInner = styled.div`
-  background-color: #f97316;
-  height: 100%;
-  border-radius: 9999px;
-`;
-
-export const AIOpinionBox = styled.div`
-  background-color: #eff6ff;
-  padding: 1rem;
+  justify-content: space-between;
+  padding: 0.5rem;
   border-radius: 0.5rem;
-  border: 1px solid #bfdbfe;
-  margin-top: 1rem;
-
-  h4 {
-    font-weight: 700;
-    color: #1e40af;
-    display: flex;
-    align-items: center;
-  }
-
-  p {
-    font-size: 0.875rem;
-    color: #1d4ed8;
-    margin-top: 0.5rem;
-  }
+  transition: background-color 0.2s ease;
+  &:hover { background-color: #f1f5f9; }
 `;
 
-export const DetailButton = styled.button`
-  width: 100%;
-  background-color: #1f2937;
-  color: white;
-  font-weight: 700;
-  padding: 0.75rem 0;
-  margin-top: auto;
-  border-radius: 0.5rem;
-  transition: background-color 0.2s ease-in-out;
+const NewLegendColorBox = styled.span<{ color: string }>`
+  width: 1rem;
+  height: 1rem;
 
+  border-radius: 9999px;
+  background-color: ${props => props.color};
+  margin-right: 0.75rem;
+`;
+
+const FullReportCard = styled.div`
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
+const FullTabNav = styled.nav`
+  display: flex;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 1rem;
+  overflow-x: auto;
+`;
+const FullTabButton = styled.button<{ $isActive: boolean }>`
+  /* 기본 스타일 */
+  background-color: transparent; /* 배경색을 투명하게 만듭니다. */
+  border: none;                /* 모든 테두리를 제거합니다. */
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+
+
+  /* 활성/비활성 상태에 따른 동적 스타일 */
+  color: ${props => (props.$isActive ? '#2563eb' : '#64748b')};
+  
+  /* 활성 탭에만 파란색 밑줄을 표시하고, 나머지는 투명하게 처리합니다. */
+  border-bottom: 3px solid ${props => (props.$isActive ? '#2563eb' : 'transparent')};
+
+
+  /* 마우스 오버 효과 */
   &:hover {
-    background-color: #111827;
+    color: #2563eb;
+  }
+`;
+
+const FullTabContentContainer = styled.div`
+  padding: 1.5rem 2rem;
+  min-height: 300px;
+  overflow-y: auto;
+`;
+const FullActionsContainer = styled.div`
+  padding-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  width: 100%;
+`;
+const ActionButton = styled.button<{ primary?: boolean; fullWidth?: boolean }>`
+  background-color: ${props => props.primary ? '#2563eb' : '#e2e8f0'};
+  color: ${props => props.primary ? 'white' : '#334155'};
+  font-weight: 700;
+  padding: 0.625rem 0;
+  border-radius: 0.5rem;
+  border: none;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: ${props => props.fullWidth ? '100%' : 'auto'};
+  &:hover { background-color: ${props => props.primary ? '#1d4ed8' : '#cbd5e1'}; }
+`;
+const FullContentBlock = styled.div`
+  h3 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.75rem; }
+  ul { list-style-position: inside; list-style-type: disc; display: flex; flex-direction: column; gap: 0.75rem; color: #334155; line-height: 1.7; }
+`;
+
+const ReportContainer = styled.div`
+  background-color: white;
+  padding: 2.5rem;
+  border-radius: 1.5rem; /* 24px, 부드러운 모서리 */
+  box-shadow: 0 10px 25px 10px rgba(0, 0, 0, 0.07), 0 8px 10px -6px rgba(0, 0, 0, 0.07);
+  
+  @media (max-width: 768px) {
+    padding: 1.5rem;
   }
 `;
 
@@ -485,6 +497,23 @@ const DiseaseListItem = styled.li`
 const IconWrapper = styled.i<{ color: string }>`
   margin-right: 0.75rem;
   color: ${({ color }) => color};
+`;
+
+const SectionDivider = styled.div`
+  /* 구분선의 높이와 위아래 여백 설정 */
+  height: 2px;
+  margin: 4rem auto; /* 위아래로 4rem(64px)의 여백을 줌 */
+  
+  /* 구분선 최대 너비 설정 */
+  width: 100%;
+  max-width: 60rem; /* 768px */
+
+  /* 그라데이션 효과 */
+  background: linear-gradient(to right, transparent, #9fc8fdff, transparent);
+  
+  @media (min-width: 768px) {
+    margin: 6rem auto; /* PC에서는 여백을 더 넓게 */
+  }
 `;
 
 // Chart configurations =======================================================
@@ -597,6 +626,66 @@ const MainPage: React.FC = () => {
         return () => window.removeEventListener('scroll', checkScrollTop);
     }, [showScrollTop]);
 
+    const diagnosisChartData = {
+    labels: ['아토피 피부염', '접촉성 피부염', '지루성 피부염', '기타'],
+    datasets: [{
+        data: [87, 8, 3, 2],
+        backgroundColor: ['#2563eb', '#60a5fa', '#93c5fd', '#dbeafe'],
+        borderColor: 'white',
+        borderWidth: 0,
+    }]
+};
+const diagnosisChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false, // 👈 이 옵션을 false로 설정하는 것이 핵심입니다.
+    devicePixelRatio: window.devicePixelRatio > 1 ? window.devicePixelRatio : 2,
+    cutout: '60%',
+    plugins: {
+        legend: { display: false },
+        tooltip: {
+            callbacks: {
+                label: (context: TooltipItem<'doughnut'>) => `${context.label}: ${context.parsed}%`
+            }
+        }
+    }
+};
+type TabType = 'summary' | 'description' | 'precautions' | 'management';
+const [activeTab, setActiveTab] = useState<TabType>('summary');
+const handleDownloadReport = () => { /* 다운로드 로직 */ };
+const tabContent: Record<TabType, React.ReactNode> = {
+    summary: (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
+                 <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '1rem', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 600, color: '#475569' }}>의심 질환</span>
+                    <span style={{ fontWeight: 700, color: '#2563eb', fontSize: '1.125rem', textAlign: 'right' }}>아토피 피부염</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '1rem', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 600, color: '#475569' }}>확률</span>
+                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '1.125rem', textAlign: 'right' }}>87%</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '1rem', alignItems: 'center' }}>
+                     <span style={{ fontWeight: 600, color: '#475569' }}>심각도</span>
+                     <div style={{ width: '100%', backgroundColor: '#e2e8f0', borderRadius: '9999px', height: '0.625rem' }}>
+                        <div style={{ backgroundColor: '#f97316', height: '100%', borderRadius: '9999px', width: '75%' }} />
+                     </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '1rem', alignItems: 'center' }}>
+                     <span style={{ fontWeight: 600, color: '#475569' }}>예상 치료 기간</span>
+                     <span style={{ fontWeight: 700, color: '#1e293b', textAlign: 'right' }}>3-4주</span>
+                </div>
+            </div>
+            <div style={{ backgroundColor: '#eff6ff', borderLeft: '4px solid #3b82f6', color: '#1e3a8a', padding: '1rem', borderRadius: '0.5rem' }}>
+                <p style={{ fontWeight: 700, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaCommentMedical /> AI 소견 및 주의사항</p>
+                <p style={{ fontSize: '0.875rem', lineHeight: 1.6 }}>건조함과 가려움을 동반하는 피부염으로 보입니다. 보습제를 충분히 사용하고, 전문의와 상담하여 정확한 진단 및 치료를 받는 것을 권장합니다.</p>
+            </div>
+        </div>
+    ),
+    description: ( <FullContentBlock><h3>상세 설명 내용...</h3></FullContentBlock> ),
+    precautions: ( <FullContentBlock><h3>주의사항 내용...</h3></FullContentBlock> ),
+    management: ( <FullContentBlock><h3>관리법 내용...</h3></FullContentBlock> )
+};
+
     return (
       <>
         <GlobalStyle />
@@ -674,69 +763,64 @@ const MainPage: React.FC = () => {
             </ContentWrapper>
         </Section>
 
-        <Section id="prediction">
-            <ContentWrapper>
-                <SectionHeading>
-                    <NotoSansBlack>AI 피부 질환 진단</NotoSansBlack>
-                </SectionHeading>
-                <SectionSubheading>
-                    사진을 올리면 AI가 분석하고, 상세한 리포트를 제공합니다.
-                </SectionSubheading>
-                <PredictionWrapper>
-                    <Grid lg_cols="2" gap="2rem" align="stretch">
-                        {/* 왼쪽: 이미지 및 예측 */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                            <h3 className="text-xl font-bold text-gray-800">치료 전/후 예측</h3>
-                            <Grid cols="2" gap="1rem" style={{ flexGrow: 1 }}>
-                                <ImageCard>
-                                    <p>현재 상태</p>
-                                    <img src={before_treatment_image} alt="치료 전 피부" />
-                                    <div>
-                                        <div className="image-quality">이미지 품질: 92점</div>
-                                    </div>
+        <SectionDivider />
 
-                                </ImageCard>
-                                <ImageCard>
-                                    <p>치료 후 예상</p>
-                                     <img src={after_treatment_image} alt="치료 후 예측" />
-                                     <div>
-                                       <div className="prediction-text">3주 후 예상 모습</div>
-                                    </div>
-                                </ImageCard>
-                            </Grid>
-                        </div>
+        <DiagnosisSectionWrapper id="diagnosis-result">
+    <ContentWrapper>
+        <SectionHeading>
+            <NotoSansBlack>AI 피부 질환 진단</NotoSansBlack>
+        </SectionHeading>
+        <SectionSubheading>
+             사진 한 장으로 AI가 질환을 예측하고, 상세한 리포트를 제공합니다.
+        </SectionSubheading>
+        <ReportContainer>
+        <DiagnosisGrid>
+            {/* 왼쪽 패널 */}
+            <LeftPanel>
+                <h2 className="section-title">예상 질환 통계</h2>
+                <NewChartWrapper>
+                    <Doughnut data={diagnosisChartData} options={diagnosisChartOptions} />
+                </NewChartWrapper>
+                <NewLegendContainer>
+                    {diagnosisChartData.labels.map((label, index) => (
+                        <NewLegendItem key={label}>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <NewLegendColorBox color={diagnosisChartData.datasets[0].backgroundColor[index]} />
+                                <span style={{ color: '#334155' }}>{label}</span>
+                            </div>
+                            <span style={{ fontWeight: 'bold', color: '#1e293b' }}>{diagnosisChartData.datasets[0].data[index]}%</span>
+                        </NewLegendItem>
+                    ))}
+                </NewLegendContainer>
+            </LeftPanel>
 
-                        {/* 오른쪽: 분석 리포트 */}
-                        <ReportCard>
-                            <h3 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2">AI 진단 리포트</h3>
-                            <ReportItem>
-                                <span className="label">의심 질환</span>
-                                <span className="value-disease">아토피 피부염</span>
-                            </ReportItem>
-                            <ReportItem>
-                                <span className="label">확률</span>
-                                <span className="value">87%</span>
-                            </ReportItem>
-                            <ReportItem>
-                                <span className="label">심각도</span>
-                                <SeverityBar>
-                                    <SeverityBarInner style={{ width: '65%' }} />
-                                </SeverityBar>
-                            </ReportItem>
-                            <ReportItem>
-                                <span className="label">예상 치료 기간</span>
-                                <span className="value">3-4주</span>
-                            </ReportItem>
-                            <AIOpinionBox>
-                                <h4><FaCommentMedical style={{ marginRight: '0.5rem' }} />AI 소견 및 주의사항</h4>
-                                <p>건조함과 가려움을 동반하는 피부염으로 보입니다. 보습제를 충분히 사용하고, 전문의와 상담하여 정확한 진단 및 치료를 받는 것을 권장합니다.</p>
-                            </AIOpinionBox>
-                            <DetailButton>상세 리포트 보기</DetailButton>
-                        </ReportCard>
-                    </Grid>
-                </PredictionWrapper>
-            </ContentWrapper>
-        </Section>
+            {/* 오른쪽 패널 */}
+            <RightPanel>
+                <FullReportCard>
+                    <FullTabNav>
+                        <FullTabButton onClick={() => setActiveTab('summary')} $isActive={activeTab === 'summary'}>요약</FullTabButton>
+                        <FullTabButton onClick={() => setActiveTab('description')} $isActive={activeTab === 'description'}>상세 설명</FullTabButton>
+                        <FullTabButton onClick={() => setActiveTab('precautions')} $isActive={activeTab === 'precautions'}>주의사항</FullTabButton>
+                        <FullTabButton onClick={() => setActiveTab('management')} $isActive={activeTab === 'management'}>관리법</FullTabButton>
+                    </FullTabNav>
+                    <FullTabContentContainer>
+                        {tabContent[activeTab]}
+                    </FullTabContentContainer>
+                </FullReportCard>
+                <FullActionsContainer>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                        <ActionButton><FaArrowLeft /><span>이전</span></ActionButton>
+                        <ActionButton><FaRedo /><span>다시 분석</span></ActionButton>
+                    </div>
+                    <ActionButton primary fullWidth onClick={handleDownloadReport}>
+                        <FaDownload /><span>리포트 내려받기</span>
+                    </ActionButton>
+                </FullActionsContainer>
+            </RightPanel>
+        </DiagnosisGrid>
+      </ReportContainer> 
+    </ContentWrapper>
+</DiagnosisSectionWrapper>
         
         <Section id="analysis" bg="#eff6ff">
     <ContentWrapper>
@@ -933,3 +1017,97 @@ const MainPage: React.FC = () => {
 };
 
 export default MainPage;
+
+// Export components needed by DiseaseAnalysisStep3
+export const ReportCard = styled.div`
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background-color: white;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+`;
+
+export const ReportItem = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f1f5f9;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  .label {
+    font-weight: 600;
+    color: #475569;
+  }
+  
+  .value {
+    font-weight: 700;
+    color: #1e293b;
+    text-align: right;
+  }
+  
+  .value-disease {
+    font-weight: 700;
+    color: #2563eb;
+    font-size: 1.125rem;
+    text-align: right;
+  }
+`;
+
+export const AIOpinionBox = styled.div`
+  background-color: #eff6ff;
+  border-left: 4px solid #3b82f6;
+  color: #1e3a8a;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  
+  h4 {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  p {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+`;
+
+export const DetailButton = styled.button`
+  background-color: #2563eb;
+  color: white;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  margin-top: 1rem;
+  
+  &:hover {
+    background-color: #1d4ed8;
+  }
+`;
+
+export const SeverityBar = styled.div`
+  width: 100%;
+  background-color: #e2e8f0;
+  border-radius: 9999px;
+  height: 0.625rem;
+  overflow: hidden;
+`;
+
+export const SeverityBarInner = styled.div`
+  background-color: #f97316;
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+`;
