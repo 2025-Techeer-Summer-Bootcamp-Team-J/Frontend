@@ -1016,6 +1016,7 @@ const tabContent: Record<TabType, React.ReactNode> = {
     );
 };
 
+
 export default MainPage;
 
 // Export components needed by DiseaseAnalysisStep3
@@ -1112,4 +1113,5 @@ export const SeverityBarInner = styled.div`
   transition: width 0.3s ease;
 
 `;
+
 
