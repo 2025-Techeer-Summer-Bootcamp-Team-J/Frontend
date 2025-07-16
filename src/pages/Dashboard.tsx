@@ -5,6 +5,8 @@ import {
   Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
   Title, Tooltip, Legend, Filler, type ChartData, type ChartOptions
 } from 'chart.js';
+import { useUser, useClerk } from "@clerk/clerk-react";
+import { useState, useEffect } from 'react';
 
 // Chart.js 모듈 등록
 ChartJS.register(
@@ -13,8 +15,6 @@ ChartJS.register(
 );
 
 // --- SVG 아이콘 컴포넌트들 ---
-
-
 const InfoIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -27,7 +27,6 @@ const WarningIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-
 // --- 데이터 정의 ---
 type DiagnosisStatus = '개선' | '유지' | '악화';
 const recentDiagnosesData: { id: number; name: string; date: string; status: DiagnosisStatus }[] = [
@@ -36,9 +35,56 @@ const recentDiagnosesData: { id: number; name: string; date: string; status: Dia
   { id: 3, name: '접촉성 피부염', date: '6월 21일', status: '악화' },
 ];
 
-
 // --- 메인 대시보드 컴포넌트 ---
 const Dashboard = () => {
+    const { user } = useUser();
+    const clerk = useClerk();
+    // Clerk 기본 정보
+    let name = (user?.fullName ?? `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()) || '미입력';
+    if (name.startsWith('/') && name.includes(' ')) {
+        name = name.substring(name.indexOf(' ') + 1);
+    }
+    const email = user?.primaryEmailAddress?.emailAddress ?? '미입력';
+    const gender = user?.unsafeMetadata?.gender as string || '';
+    const birthdate = user?.unsafeMetadata?.birthdate as string || '';
+
+    // 추가 정보 입력 상태
+    const [inputGender, setInputGender] = useState(gender);
+    const [inputBirthdate, setInputBirthdate] = useState(birthdate);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+
+    useEffect(() => {
+        setInputGender(gender);
+        setInputBirthdate(birthdate);
+    }, [gender, birthdate]);
+
+    const handleSave = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSaving(true);
+      setError('');
+      setSuccess('');
+      try {
+        await user?.update({
+          unsafeMetadata: {
+            gender: inputGender,
+            birthdate: inputBirthdate,
+          },
+        });
+        if (user && user.lastSignInAt) {
+          await clerk.setActive({ session: user.lastSignInAt.toString() });
+        }
+        setSuccess('성공적으로 저장되었습니다.');
+        setTimeout(() => setSuccess(''), 3000);
+      } catch (err) {
+        setError('저장에 실패했습니다. ' + (err instanceof Error ? err.message : JSON.stringify(err)));
+        console.error('Clerk 저장 에러:', err);
+      } finally {
+        setSaving(false);
+      }
+    };
+    
     // 차트 데이터 및 옵션
     const chartLabels = ['29일 전', '27일 전', '25일 전', '23일 전', '21일 전', '19일 전', '17일 전', '15일 전', '13일 전', '11일 전', '9일 전', '7일 전', '5일 전', '3일 전', '1일 전'];
     
@@ -99,17 +145,45 @@ const Dashboard = () => {
         <>
             <GlobalFontStyle />
             <BodyContainer>
-                
-                {/* 메인 컨텐츠 */}
                 <Main>
                     <PageTitle>
                         <h2>개인 맞춤형 대시보드</h2>
-                        <p>김메이커님의 피부 상태 변화를 기록하고, 한눈에 추적하세요.</p>
+                        <p>{name}님의 피부 상태 변화를 기록하고, 한눈에 추적하세요.</p>
                     </PageTitle>
 
                     <DashboardGrid>
                         {/* 왼쪽 영역 */}
                         <MainContent>
+                            {/* 성별/생년월일 미입력 시 추가 입력 폼 */}
+                            {(!gender || !birthdate) && user && (
+                                <InfoFormCard as="form" onSubmit={handleSave}>
+                                    <CardTitle>추가 정보 입력</CardTitle>
+                                    <p style={{ marginTop: '-0.5rem', marginBottom: '1rem', fontSize: '0.875rem', color: '#6b7280' }}>
+                                        맞춤형 분석을 위해 성별과 생년월일을 입력해주세요.
+                                    </p>
+                                    <FormContent>
+                                        <FormRow>
+                                            <label>성별:</label>
+                                            <select value={inputGender} onChange={e => setInputGender(e.target.value)} required={!gender}>
+                                                <option value="">선택</option>
+                                                <option value="남성">남성</option>
+                                                <option value="여성">여성</option>
+                                                <option value="기타">기타</option>
+                                            </select>
+                                        </FormRow>
+                                        <FormRow>
+                                            <label>생년월일:</label>
+                                            <input type="date" value={inputBirthdate} onChange={e => setInputBirthdate(e.target.value)} required={!birthdate} />
+                                        </FormRow>
+                                    </FormContent>
+                                    <button type="submit" disabled={saving}>
+                                        {saving ? '저장 중...' : '저장'}
+                                    </button>
+                                    {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
+                                    {success && <div style={{ color: 'green', marginTop: 8 }}>{success}</div>}
+                                </InfoFormCard>
+                            )}
+
                             {/* 피부 점수 차트 */}
                             <Card>
                                 <CardTitle>피부 상태 점수 변화 (최근 30일)</CardTitle>
@@ -137,10 +211,27 @@ const Dashboard = () => {
 
                         {/* 오른쪽 사이드바 */}
                         <Sidebar>
-                            {/* 내 피부 프로필 */}
+                            {/* 내 정보 */}
                             <Card>
-                                <CardTitle>내 피부 프로필</CardTitle>
+                                <CardTitle>내 정보</CardTitle>
                                 <ProfileContent>
+                                    <div>
+                                        <ProfileLabel>이름</ProfileLabel>
+                                        <ProfileValue>{name}</ProfileValue>
+                                    </div>
+                                    <div>
+                                        <ProfileLabel>이메일</ProfileLabel>
+                                        <ProfileValue>{email}</ProfileValue>
+                                    </div>
+                                    <div>
+                                        <ProfileLabel>성별</ProfileLabel>
+                                        <ProfileValue>{gender || '미입력'}</ProfileValue>
+                                    </div>
+                                    <div>
+                                        <ProfileLabel>생년월일</ProfileLabel>
+                                        <ProfileValue>{birthdate || '미입력'}</ProfileValue>
+                                    </div>
+                                    <hr style={{ border: 'none', borderTop: '1px solid #e5e7eb', margin: '0.5rem 0' }} />
                                     <div>
                                         <ProfileLabel>피부 타입</ProfileLabel>
                                         <ProfileValue>민감성 수부지</ProfileValue>
@@ -246,26 +337,67 @@ const Sidebar = styled.div`
   }
 `;
 
-// 공통 카드 컴포넌트
 const Card = styled.div`
   background-color: #fff;
-  padding: 1.5rem; /* 24px */
-  border-radius: 0.75rem; /* 12px */
+  padding: 1.5rem;
+  border-radius: 0.75rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
 `;
 
+const InfoFormCard = styled(Card)`
+  background-color: #fffbe7;
+  border: 1px solid #fde68a;
+
+  button {
+    padding: 0.5rem 1.2rem;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    &:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+  }
+`;
+
+const FormContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+`;
+
+const FormRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  label {
+    font-weight: 500;
+    color: #374151;
+  }
+
+  select, input {
+    padding: 0.375rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    flex-grow: 1;
+  }
+`;
+
 const CardTitle = styled.h3`
-  font-size: 1.25rem; /* 20px */
+  font-size: 1.25rem;
   font-weight: 600;
   color: #1f2937;
   margin: 0 0 1rem 0;
 `;
 
-// 페이지 타이틀
 const PageTitle = styled.div`
   margin-bottom: 2rem;
   h2 {
-    font-size: 1.875rem; /* 30px */
+    font-size: 1.875rem;
     font-weight: 700;
     color: #1f2937;
     margin: 0;
@@ -276,12 +408,10 @@ const PageTitle = styled.div`
   }
 `;
 
-// 차트
 const ChartContainer = styled.div`
-  height: 20rem; /* 320px */
+  height: 20rem;
 `;
 
-// 최근 진단 기록
 const ListContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -295,7 +425,6 @@ const ListItem = styled.div`
   padding: 1rem;
   background-color: #f9fafb;
   border-radius: 0.5rem;
-
   p { margin: 0; }
   .font-semibold { font-weight: 600; }
   .text-gray-700 { color: #374151; }
@@ -317,7 +446,6 @@ const StatusBadge = styled.span<{ status: DiagnosisStatus }>`
   ${({ status }) => statusStyles[status]}
 `;
 
-// 내 피부 프로필
 const ProfileContent = styled.div`
   display: flex;
   flex-direction: column;
@@ -332,7 +460,7 @@ const ProfileLabel = styled.p`
 
 const ProfileValue = styled.p`
   font-weight: 600;
-  color: #2563eb;
+  color: #1f2937; /* Updated for better readability */
   margin: 0;
 `;
 
@@ -363,7 +491,6 @@ const TipList = styled.ul`
   gap: 0.25rem;
 `;
 
-// 피부 지식
 const KnowledgeContainer = styled.div`
   display: flex;
   flex-direction: column;
