@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { ContentWrapper } from '../components/Layout';
+import { getUVIndex } from '../services/uv_indexApi';
+import type { UVIndexResponse } from '../services/types';
 
 // --- 타입 정의 (기존과 동일) --- //
 interface Tip {
@@ -215,11 +217,70 @@ const careData: CareData = {
     '위험': { index: 11, color: '#8B5CF6', summary: { title: '위험 수준! 외출은 절대 금물입니다', description: '짧은 시간의 노출에도 피부가 심각한 화상을 입을 수 있습니다. 반드시 실내에 머무르세요.'}, tips: [ { icon: '🚨', title: '외출 금지 수준', description: '햇볕에 몇 분만 노출되어도 화상을 입을 수 있습니다. 외출을 절대적으로 피하세요.' }, { icon: '🛡️', title: '완벽한 차단', description: '부득이하게 외출 시, 자외선 차단 의류, 모자, 선글라스 등 모든 수단을 동원하세요.' }, { icon: '❄️', title: '쿨링 및 진정', description: '실내에서도 시원하게 유지하고, 피부 온도를 낮추는 데 신경 써야 합니다.' } ]}
 };
 
-// --- 컴포넌트 (기존과 동일) --- //
+// UV 지수에 따른 케어 레벨 결정 함수
+const getCareLevelFromUVIndex = (uvIndex: number): string => {
+  if (uvIndex <= 2) return '낮음';
+  if (uvIndex <= 5) return '보통';
+  if (uvIndex <= 7) return '높음';
+  if (uvIndex <= 10) return '매우 높음';
+  return '위험';
+};
+
+// --- 컴포넌트 --- //
 function TodaysCare() {
-  const [activeTab, setActiveTab] = useState<string>('높음');
+  const [activeTab, setActiveTab] = useState<string>('보통');
+  const [uvData, setUvData] = useState<UVIndexResponse | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 페이지 로드 시 UV 지수 API 호출
+  useEffect(() => {
+    const fetchUVIndex = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await getUVIndex();
+        setUvData(data);
+        
+        // UV 지수에 따라 적절한 탭 설정
+        const uvIndex = parseInt(data.today);
+        const careLevel = getCareLevelFromUVIndex(uvIndex);
+        setActiveTab(careLevel);
+      } catch (err) {
+        console.error('UV 지수를 불러오는데 실패했습니다:', err);
+        setError('UV 지수를 불러오는데 실패했습니다.');
+        // 에러 발생 시 기본값 유지
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUVIndex();
+  }, []);
+
   const currentUvData = careData[activeTab];
-  //... 이하 렌더링 코드는 기존과 동일
+  const currentUVIndex = uvData ? parseInt(uvData.today) : currentUvData.index;
+  // 로딩 중일 때
+  if (isLoading) {
+    return (
+      <>
+        <ContentWrapper>
+          <Header>
+            <h1>오늘의 맞춤 케어</h1>
+            <p>현재 자외선 지수를 확인하고, 내 피부를 위한 팁을 알아보세요.</p>
+          </Header>
+        </ContentWrapper>
+        <UvInfoBox>
+          <UvInfoInnerWrapper>
+            <div style={{ textAlign: 'center', padding: '2rem' }}>
+              <p>자외선 지수를 불러오는 중...</p>
+            </div>
+          </UvInfoInnerWrapper>
+        </UvInfoBox>
+      </>
+    );
+  }
+
   return (
     <>
       <ContentWrapper>
@@ -235,11 +296,12 @@ function TodaysCare() {
             <UvIndexDisplay>
               <UvIndexVisual bgColor={currentUvData.color}>
                 <span>UV 지수</span>
-                <span>{currentUvData.index}</span>
+                <span>{currentUVIndex}</span>
               </UvIndexVisual>
               <UvIndexText>
-                <p>현재 위치</p>
+                <p>{uvData?.location || '현재 위치'}</p>
                 <h2>{activeTab}</h2>
+                {error && <p style={{ color: '#EF4444', fontSize: '0.875rem' }}>{error}</p>}
               </UvIndexText>
             </UvIndexDisplay>
             <UvSummary>
