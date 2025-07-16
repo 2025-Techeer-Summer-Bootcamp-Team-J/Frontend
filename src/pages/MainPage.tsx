@@ -1110,4 +1110,6 @@ export const SeverityBarInner = styled.div`
   height: 100%;
   border-radius: 9999px;
   transition: width 0.3s ease;
+
 `;
+
