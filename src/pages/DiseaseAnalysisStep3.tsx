@@ -7,6 +7,9 @@ import { Doughnut } from 'react-chartjs-2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { ContentWrapper } from '../components/Layout';
+import { FaCommentMedical } from 'react-icons/fa';
+import { Grid, ReportCard, ReportItem, AIOpinionBox, DetailButton, SeverityBar, SeverityBarInner } from './MainPage';
+
 
 // Chart.js에 필요한 요소들을 등록합니다.
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -260,20 +263,74 @@ const AnalysisResultPage = () => {
           <DetailsBox>
             <TabNav>
               <TabButton
+                $isActive={activeTab === 'summary'}
+                onClick={() => setActiveTab('summary')}
+              >
+                요약
+              </TabButton>
+              <TabButton
+                $isActive={activeTab === 'description'}
+                onClick={() => setActiveTab('description')}
+              >
+                상세 설명
+              </TabButton>
+              <TabButton
                 $isActive={activeTab === 'precautions'}
                 onClick={() => setActiveTab('precautions')}
               >
-                상세 정보 및 주의사항
+                주의사항
               </TabButton>
               <TabButton
-                $isActive={activeTab === 'solutions'}
-                onClick={() => setActiveTab('solutions')}
+                $isActive={activeTab === 'management method'}
+                onClick={() => setActiveTab('management method')}
               >
-                추천 솔루션
+                관리법
               </TabButton>
             </TabNav>
 
             <TabContentContainer>
+              {activeTab === 'summary' && (
+                <TabContent>
+                    <Grid lg_cols="1" gap="2rem" align="stretch">
+                      <ReportCard>
+                        <h3 className="text-xl font-bold text-gray-800 border-b border-gray-200 pb-2">AI 진단 리포트</h3>
+                        <ReportItem>
+                                <span className="label">의심 질환</span>
+                                <span className="value-disease">아토피 피부염</span>
+                        </ReportItem>
+                        <ReportItem>
+                                <span className="label">확률</span>
+                                <span className="value">87%</span>
+                        </ReportItem>
+                        <ReportItem>
+                                <span className="label">심각도</span>
+                                <SeverityBar>
+                                    <SeverityBarInner style={{ width: '65%' }} />
+                                </SeverityBar>
+                        </ReportItem>
+                        <ReportItem>
+                                <span className="label">예상 치료 기간</span>
+                                <span className="value">3-4주</span>
+                        </ReportItem>
+                        <AIOpinionBox>
+                                <h4><FaCommentMedical style={{ marginRight: '0.5rem' }} />AI 소견 및 주의사항</h4>
+                                <p>건조함과 가려움을 동반하는 피부염으로 보입니다. 보습제를 충분히 사용하고, 전문의와 상담하여 정확한 진단 및 치료를 받는 것을 권장합니다.</p>
+                        </AIOpinionBox>
+                        <DetailButton>상세 리포트 보기</DetailButton>
+                      </ReportCard>
+                    </Grid>
+                </TabContent>
+              )}
+              {activeTab === 'description' && (
+                <TabContent>
+                  <h3>피부 상태 설명</h3> 
+                  <ul>
+                    <li><strong>추천 성분:</strong> 세라마이드, 판테놀, 히알루론산 등 피부 장벽 강화 및 보습에 도움을 주는 성분</li>
+                    <li><strong>피해야 할 성분:</strong> 인공 향료, 알코올, 과도한 화학적 각질 제거 성분</li>
+                    <li><strong>생활 습관:</strong> 실내 습도를 40-60%로 유지하고, 면 소재의 부드러운 옷을 착용하세요.</li>
+                  </ul>
+                </TabContent>
+              )}
               {activeTab === 'precautions' && (
                 <TabContent>
                   <h3>
@@ -287,15 +344,15 @@ const AnalysisResultPage = () => {
                   </ul>
                 </TabContent>
               )}
-              {activeTab === 'solutions' && (
+              {activeTab === 'management method' && (
                 <TabContent>
-                  <h3>추천 성분 및 제품 타입</h3>
-                  <ul>
-                    <li><strong>추천 성분:</strong> 세라마이드, 판테놀, 히알루론산 등 피부 장벽 강화 및 보습에 도움을 주는 성분</li>
-                    <li><strong>피해야 할 성분:</strong> 인공 향료, 알코올, 과도한 화학적 각질 제거 성분</li>
-                    <li><strong>생활 습관:</strong> 실내 습도를 40-60%로 유지하고, 면 소재의 부드러운 옷을 착용하세요.</li>
-                  </ul>
-                </TabContent>
+                <h3>추천 성분 및 제품 타입</h3>
+                <ul>
+                  <li><strong>추천 성분:</strong> 세라마이드, 판테놀, 히알루론산 등 피부 장벽 강화 및 보습에 도움을 주는 성분</li>
+                  <li><strong>피해야 할 성분:</strong> 인공 향료, 알코올, 과도한 화학적 각질 제거 성분</li>
+                  <li><strong>생활 습관:</strong> 실내 습도를 40-60%로 유지하고, 면 소재의 부드러운 옷을 착용하세요.</li>
+                </ul>
+              </TabContent>
               )}
             </TabContentContainer>
           </DetailsBox>

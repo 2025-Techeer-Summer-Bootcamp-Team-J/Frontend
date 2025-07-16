@@ -54,7 +54,7 @@ const Section = styled.section<{ bg?: string }>`
   }
 `;
 
-const Grid = styled.div<{
+export const Grid = styled.div<{
   cols?: string; sm_cols?: string; md_cols?: string; lg_cols?: string; gap?: string; align?: string;
 }>`
   display: grid;
@@ -385,7 +385,7 @@ const ImageCard = styled.div`
   }
 `;
 
-const ReportCard = styled.div`
+export const ReportCard = styled.div`
   background-color: white;
   padding: 1.5rem;
   border-radius: 0.5rem;
@@ -396,7 +396,7 @@ const ReportCard = styled.div`
   gap: 1rem;
 `;
 
-const ReportItem = styled.div`
+export const ReportItem = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -415,7 +415,7 @@ const ReportItem = styled.div`
   }
 `;
 
-const SeverityBar = styled.div`
+export const SeverityBar = styled.div`
   width: 100%;
   background-color: #e5e7eb;
   border-radius: 9999px;
@@ -423,13 +423,13 @@ const SeverityBar = styled.div`
   margin-left: 1rem;
 `;
 
-const SeverityBarInner = styled.div`
+export const SeverityBarInner = styled.div`
   background-color: #f97316;
   height: 100%;
   border-radius: 9999px;
 `;
 
-const AIOpinionBox = styled.div`
+export const AIOpinionBox = styled.div`
   background-color: #eff6ff;
   padding: 1rem;
   border-radius: 0.5rem;
@@ -450,7 +450,7 @@ const AIOpinionBox = styled.div`
   }
 `;
 
-const DetailButton = styled.button`
+export const DetailButton = styled.button`
   width: 100%;
   background-color: #1f2937;
   color: white;
