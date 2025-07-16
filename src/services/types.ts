@@ -63,10 +63,16 @@ export interface Diagnosis {
   status: 'pending' | 'completed' | 'reviewed';
 }
 
+export interface UVIndexData {
+  location: string;
+  date: string;
+  now: string;
+}
+
 export interface UVIndexResponse {
-    location: string;
-    date: string;
-    today: string;
+  status_code: number;
+  message: string;
+  data: UVIndexData;
 }
 // API 응답 타입
 export interface ApiResponse<T> {

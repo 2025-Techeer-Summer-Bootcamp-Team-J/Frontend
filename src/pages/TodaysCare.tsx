@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { ContentWrapper } from '../components/Layout';
-import { getUVIndex } from '../services/uv_indexApi';
+import { getUvIndex } from "../services/uv_indexApi";
 import type { UVIndexResponse } from '../services/types';
 
 // --- 타입 정의 (기존과 동일) --- //
@@ -226,12 +226,25 @@ const getCareLevelFromUVIndex = (uvIndex: number): string => {
   return '위험';
 };
 
+// 케어 레벨에 해당하는 대표 UV 지수 매핑
+const getUVIndexFromCareLevel = (careLevel: string): number => {
+  switch (careLevel) {
+    case '낮음': return 1;
+    case '보통': return 4;
+    case '높음': return 7;
+    case '매우 높음': return 9;
+    case '위험': return 11;
+    default: return 1;
+  }
+};
+
 // --- 컴포넌트 --- //
 function TodaysCare() {
   const [activeTab, setActiveTab] = useState<string>('보통');
   const [uvData, setUvData] = useState<UVIndexResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRealTimeData, setIsRealTimeData] = useState<boolean>(true);
 
   // 페이지 로드 시 UV 지수 API 호출
   useEffect(() => {
@@ -239,13 +252,18 @@ function TodaysCare() {
       try {
         setIsLoading(true);
         setError(null);
-        const data = await getUVIndex();
+        const data = await getUvIndex();
         setUvData(data);
         
         // UV 지수에 따라 적절한 탭 설정
-        const uvIndex = parseInt(data.today);
-        const careLevel = getCareLevelFromUVIndex(uvIndex);
-        setActiveTab(careLevel);
+        if (data && data.data && data.data.now) {
+          const uvIndex = parseInt(data.data.now);
+          const careLevel = getCareLevelFromUVIndex(uvIndex);
+          setActiveTab(careLevel);
+          setIsRealTimeData(true);
+        } else {
+          setError('UV 지수 데이터를 찾을 수 없습니다.');
+        }
       } catch (err) {
         console.error('UV 지수를 불러오는데 실패했습니다:', err);
         setError('UV 지수를 불러오는데 실패했습니다.');
@@ -258,8 +276,25 @@ function TodaysCare() {
     fetchUVIndex();
   }, []);
 
+  // 탭 클릭 핸들러
+  const handleTabClick = (level: string) => {
+    setActiveTab(level);
+    setIsRealTimeData(false); // 실시간 데이터가 아님을 표시
+  };
+
+  // 실시간 데이터로 돌아가기
+  const handleRealTimeClick = () => {
+    if (uvData && uvData.data && uvData.data.now) {
+      const uvIndex = parseInt(uvData.data.now);
+      const careLevel = getCareLevelFromUVIndex(uvIndex);
+      setActiveTab(careLevel);
+      setIsRealTimeData(true);
+    }
+  };
+
   const currentUvData = careData[activeTab];
-  const currentUVIndex = uvData ? parseInt(uvData.today) : currentUvData.index;
+  // 실시간 데이터인 경우 API 데이터 사용, 아니면 케어 레벨에 맞는 대표 UV 지수 사용
+  const currentUVIndex = isRealTimeData && uvData ? parseInt(uvData.data.now) : getUVIndexFromCareLevel(activeTab);
   // 로딩 중일 때
   if (isLoading) {
     return (
@@ -299,8 +334,26 @@ function TodaysCare() {
                 <span>{currentUVIndex}</span>
               </UvIndexVisual>
               <UvIndexText>
-                <p>{uvData?.location || '현재 위치'}</p>
+                <p>{isRealTimeData ? (uvData?.data?.location || '현재 위치') : ' 데이터'}</p>
                 <h2>{activeTab}</h2>
+                {isRealTimeData && uvData?.data?.date && (
+                  <p style={{ 
+                    fontSize: '0.875rem', 
+                    color: '#64748B', 
+                    margin: '0.25rem 0 0 0' 
+                  }}>
+                    측정 시간: {uvData.data.date}
+                  </p>
+                )}
+                {!isRealTimeData && (
+                  <p style={{ 
+                    fontSize: '0.875rem', 
+                    color: '#64748B', 
+                    margin: '0.25rem 0 0 0' 
+                  }}>
+                    UV 지수 {getUVIndexFromCareLevel(activeTab)}
+                  </p>
+                )}
                 {error && <p style={{ color: '#EF4444', fontSize: '0.875rem' }}>{error}</p>}
               </UvIndexText>
             </UvIndexDisplay>
@@ -318,11 +371,20 @@ function TodaysCare() {
                 <TabButton
                   key={level}
                   $active={activeTab === level}
-                  onClick={() => setActiveTab(level)}
+                  onClick={() => handleTabClick(level)}
                 >
                   {level}
                 </TabButton>
-              ))}
+                              ))}
+                {!isRealTimeData && uvData && (
+                  <TabButton
+                    $active={false}
+                    onClick={handleRealTimeClick}
+                    style={{ marginLeft: '1rem', backgroundColor: '#EBF8FF', color: '#0369A1' }}
+                  >
+                    🌡️ 실시간 데이터
+                  </TabButton>
+                )}
             </TabsContainer>
             <TipsContent>
               {currentUvData.tips.map((tip, index) => (
