@@ -4,14 +4,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import main_image from '../assets/mainpage_image.jpeg';
-import after_treatment_image from '../assets/after_treatment.png';
-import before_treatment_image from '../assets/before_treatment.png';
 import {
   FaCamera, FaCommentMedical, FaExclamationTriangle, FaCalendarAlt,
   FaSun, FaLightbulb, FaArrowUp, FaArrowLeft, FaRedo, FaDownload
 } from 'react-icons/fa';
 import {
-  Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler, ArcElement
+  Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler, ArcElement, type TooltipItem
 } from 'chart.js';
 import { Doughnut, Line } from 'react-chartjs-2';
 import { ContentWrapper } from '../components/Layout';
@@ -646,7 +644,7 @@ const diagnosisChartOptions = {
         legend: { display: false },
         tooltip: {
             callbacks: {
-                label: (context: any) => `${context.label}: ${context.parsed}%`
+                label: (context: TooltipItem<'doughnut'>) => `${context.label}: ${context.parsed}%`
             }
         }
     }
@@ -1019,3 +1017,97 @@ const tabContent: Record<TabType, React.ReactNode> = {
 };
 
 export default MainPage;
+
+// Export components needed by DiseaseAnalysisStep3
+export const ReportCard = styled.div`
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background-color: white;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+`;
+
+export const ReportItem = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f1f5f9;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  .label {
+    font-weight: 600;
+    color: #475569;
+  }
+  
+  .value {
+    font-weight: 700;
+    color: #1e293b;
+    text-align: right;
+  }
+  
+  .value-disease {
+    font-weight: 700;
+    color: #2563eb;
+    font-size: 1.125rem;
+    text-align: right;
+  }
+`;
+
+export const AIOpinionBox = styled.div`
+  background-color: #eff6ff;
+  border-left: 4px solid #3b82f6;
+  color: #1e3a8a;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  
+  h4 {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  p {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+`;
+
+export const DetailButton = styled.button`
+  background-color: #2563eb;
+  color: white;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  margin-top: 1rem;
+  
+  &:hover {
+    background-color: #1d4ed8;
+  }
+`;
+
+export const SeverityBar = styled.div`
+  width: 100%;
+  background-color: #e2e8f0;
+  border-radius: 9999px;
+  height: 0.625rem;
+  overflow: hidden;
+`;
+
+export const SeverityBarInner = styled.div`
+  background-color: #f97316;
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+`;

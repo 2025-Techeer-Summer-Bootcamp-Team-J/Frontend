@@ -63,7 +63,12 @@ export interface Diagnosis {
   status: 'pending' | 'completed' | 'reviewed';
 }
 
-// 공통 API 응답 타입
+export interface UVIndexResponse {
+    location: string;
+    date: string;
+    today: string;
+}
+// API 응답 타입
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
