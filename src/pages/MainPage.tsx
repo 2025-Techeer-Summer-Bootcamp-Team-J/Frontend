@@ -330,11 +330,6 @@ const TipCard = styled.div`
   }
 `;
 
-const DiagnosisSectionWrapper = styled.div`
-  background-color: #ffffff;
-  padding: 4rem 0;
-  @media (min-width: 768px) { padding: 6rem 0; }
-`;
 const DiagnosisGrid = styled.main`
   display: grid;
   grid-template-columns: 1fr;
@@ -1041,7 +1036,6 @@ const tabContent: Record<TabType, React.ReactNode> = {
         </Section>
 
 <Section id="diagnosis-result">
-        <DiagnosisSectionWrapper id="diagnosis-result">
     <ContentWrapper>
         <SectionHeading>
             <NotoSansBlack>AI 피부 질환 진단</NotoSansBlack>
@@ -1096,7 +1090,6 @@ const tabContent: Record<TabType, React.ReactNode> = {
         </DiagnosisGrid>
       </ReportContainer> 
     </ContentWrapper>
-</DiagnosisSectionWrapper>
 </Section>
         
         <Section id="analysis" bg="#eff6ff">
