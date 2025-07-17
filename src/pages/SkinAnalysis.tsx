@@ -4,6 +4,16 @@ import { analyzeSkinType } from '../services/skintypeApi';
 import type { SkinTypeAnalysisResponse } from '../services/types';
 import { AxiosError } from 'axios';
 
+const skinCareTips = [
+    "지성 피부는 오일프리(Oil-Free) 제품을 사용하는 것이 번들거림을 줄이는 데 도움이 됩니다.",
+    "건성 피부는 세라마이드, 히알루론산 성분이 포함된 보습제를 사용하면 피부 장벽 강화에 좋습니다.",
+    "자외선 차단제는 비가 오거나 흐린 날에도 매일 바르는 것이 피부 노화 방지의 핵심입니다.",
+    "복합성 피부는 T존과 U존에 다른 제품을 사용하는 '멀티 마스킹'이 효과적일 수 있습니다.",
+    "민감성 피부는 새로운 화장품 사용 전, 귀 뒤나 팔 안쪽에 패치 테스트를 하는 것이 안전합니다.",
+    "클렌징은 하루 2번, 아침과 저녁에 하는 것이 가장 이상적입니다. 과도한 세안은 피부를 건조하게 만들 수 있어요.",
+    "미지근한 물로 세안하는 것이 피부 자극을 최소화하고 유수분 밸런스를 지키는 데 도움이 됩니다."
+];
+
 // --- 1. 타입 정의 ---
 interface SkinResult {
     title: string;
@@ -132,9 +142,10 @@ const PageSection = styled.section<{ $isFadedIn?: boolean }>`
     width: 100%;
     opacity: 0;
     animation: ${({ $isFadedIn }) => $isFadedIn ? fadeIn : 'none'} 0.8s ease-out forwards;
-    
+ 
     &:first-child {
         padding-top: 1.25rem;
+        scroll-margin-top: 10rem;
     }
 `;
 
@@ -421,7 +432,31 @@ const RestartButton = styled.a`
 `;
 
 
+const TipBox = styled.div`
+    margin-top: 2rem;
+    padding: 1.25rem 1.5rem;
+    background-color: ${theme.lightPrimaryColor};
+    border-radius: 0.75rem;
+    width: 100%;
+    max-width: 34.375rem; /* 550px */
+    text-align: center;
+    box-sizing: border-box;
+    border-left: 5px solid ${theme.primaryColor};
+    animation: ${fadeIn} 0.5s ease-out;
 
+    p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: ${theme.textColor};
+        line-height: 1.6;
+        font-weight: 500;
+    }
+
+    strong {
+        color: ${theme.primaryColor};
+        font-weight: 700;
+    }
+`;
 
 
 
@@ -434,6 +469,7 @@ const SkinAnalysis: React.FC = () => {
     const [analysisStatus, setAnalysisStatus] = useState<string>('초기화 중...');
     const [resultData, setResultData] = useState<SkinResult | null>(null);
     const [hasAnalyzed, setHasAnalyzed] = useState<boolean>(false);
+    const [currentTip, setCurrentTip] = useState<string>(''); 
     const [analysisError, setAnalysisError] = useState<string | null>(null);
     const [isImageUploaded, setIsImageUploaded] = useState<boolean>(false);
 
@@ -533,6 +569,7 @@ const SkinAnalysis: React.FC = () => {
     useEffect(() => {
         let analysisTimer: ReturnType<typeof setTimeout>;
         let statusInterval: ReturnType<typeof setInterval>;
+        let tipInterval: ReturnType<typeof setInterval>;
 
         if (currentSection === 'upload') {
             uploadSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -549,6 +586,21 @@ const SkinAnalysis: React.FC = () => {
                     setAnalysisStatus(statuses[statusIndex]);
                 }
             }, 1000);
+             // --- 피부 팁 변경 로직 ---
+    const showRandomTip = () => {
+        const randomIndex = Math.floor(Math.random() * skinCareTips.length);
+        setCurrentTip(skinCareTips[randomIndex]);
+    };
+     showRandomTip(); // 분석 시작 시 즉시 하나 보여주기
+     tipInterval = setInterval(showRandomTip, 2500); // 2.5초마다 팁 변경
+     // --- 여기까지 추가 ---
+
+      // --- 기존 API 호출 로직 (이 부분은 그대로 두세요) ---
+     analysisTimer = setTimeout(() => {
+        if (uploadedFile && !hasAnalyzed) {
+            performSkinAnalysis(uploadedFile);
+        }
+    }, statuses.length * 1000);
 
             // API 호출 (1회만 실행되도록 hasAnalyzed 체크)
             analysisTimer = setTimeout(() => {
@@ -566,6 +618,7 @@ const SkinAnalysis: React.FC = () => {
         return () => {
             clearTimeout(analysisTimer);
             clearInterval(statusInterval);
+            clearInterval(tipInterval);
         };
     }, [currentSection, uploadedFile, hasAnalyzed, performSkinAnalysis]);
     
@@ -618,6 +671,11 @@ const SkinAnalysis: React.FC = () => {
                         <AnalyzingStatus>
                             {currentSection === 'analyzing' ? analysisStatus : '아래에서 진단 결과를 확인하세요.'}
                         </AnalyzingStatus>
+                            {currentSection === 'analyzing' && currentTip && (
+                                <TipBox key={currentTip}>
+                                    <p><strong>알고 계셨나요?</strong> {currentTip}</p>
+                                </TipBox>
+                            )}
                     </PageSection>
                 )}
                 
