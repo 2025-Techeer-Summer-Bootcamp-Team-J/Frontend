@@ -1,6 +1,7 @@
 import { SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
 import { NavLink, Outlet } from 'react-router-dom';
 import styled from 'styled-components';
+import { GlobalStyle } from '../styles/GlobalStyle';
 
 const PageWrapper = styled.div`
   display: flex;
@@ -154,6 +155,7 @@ const FooterContent = styled(ContentWrapper)`
 function Layout() {
   return (
     <PageWrapper>
+      <GlobalStyle />
       <HeaderWrapper>
         <HeaderContent>
           <HeaderSection>

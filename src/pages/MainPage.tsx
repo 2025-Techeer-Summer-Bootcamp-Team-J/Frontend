@@ -1,7 +1,7 @@
 // src/pages/MainPage.tsx
 
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import main_image from '../assets/mainpage_image.png';
 import video1 from '../assets/video1.svg';
@@ -20,12 +20,6 @@ ChartJS.register(
 );
 
 // Styled Components
-
-const GlobalStyle = createGlobalStyle`
-  html {
-    font-size: 75%;
-  }
-`;
 
 const CustomContainer = styled.div`
   padding-left: 5rem;
@@ -936,8 +930,6 @@ const tabContent: Record<TabType, React.ReactNode> = {
 
     return (
       <>
-        <GlobalStyle />
-
         {/* Video Section */}
         <VideoSection>
             <VideoContainer>
