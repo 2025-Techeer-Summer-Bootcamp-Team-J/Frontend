@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { ContentWrapper } from '../components/Layout';
 import { FaCommentMedical } from 'react-icons/fa';
-import { Grid, ReportCard, ReportItem, AIOpinionBox, DetailButton, SeverityBar, SeverityBarInner } from './MainPage';
+import { Grid, ReportCard, ReportItem, AIOpinionBox, SeverityBar, SeverityBarInner } from './MainPage';
 
 
 // Chart.js에 필요한 요소들을 등록합니다.
