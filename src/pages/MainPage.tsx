@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import main_image from '../assets/mainpage_image.jpeg';
+import main_image from '../assets/mainpage_image.png';
 import video1 from '../assets/video1.svg';
 import {
   FaCamera, FaCommentMedical, FaExclamationTriangle, FaCalendarAlt,
@@ -27,10 +27,9 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-
 const CustomContainer = styled.div`
-  padding-left: 3rem;
-  padding-right: 3rem;
+  padding-left: 5rem;
+  padding-right: 5rem;
   width: 100%;
   max-width: 1280px; /* 콘텐츠 최대 너비 설정 */
   margin-left: auto;   /* 수평 중앙 정렬 */
@@ -65,31 +64,37 @@ export const Grid = styled.div<{
   @media (min-width: 1024px) { grid-template-columns: repeat(${(props) => props.lg_cols || props.md_cols || props.sm_cols || props.cols || 1}, 1fr); }
 `;
 
+// 강조 텍스트
 const NotoSansBlack = styled.span`
   font-family: 'Noto Sans KR', sans-serif;
-  font-weight: 900;
+  font-weight: 600;
 `;
 
+// 색상 텍스트
 const GradientText = styled.span`
   background: linear-gradient(to right, #1e40af, #2563eb);
+  font-weight: 800;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 `;
 
-const HeroHeading = styled.h1`
+// 메인 텍스트
+const MainHeading = styled.h1`
   font-size: 2.25rem; font-weight: 900; line-height: 1.2; margin-bottom: 1rem; text-align: center;
   @media (min-width: 768px) { font-size: 2.75rem; text-align: left; }
   @media (min-width: 1024px) { font-size: 3.25rem; }
 `;
 
-const HeroSubheading = styled.p`
+// 서브 텍스트
+const SubHeading = styled.p`
   font-size: 1.125rem; color: #4b5563; max-width: 42rem; margin: 0 auto 2rem; text-align: center;
-  @media (min-width: 768px) { font-size: 1.25rem; margin: 0 0 2rem; text-align: left; }
+  @media (min-width: 768px)
+  { font-size: 1.25rem; margin: 0 0 2rem; text-align: left; }
 `;
 
 const MagnifyContainer = styled.div`
   position: relative;
-  width: 100%;
+  width: 90%;
   max-width: 55rem;
   margin: 0 auto;
   border-radius: 1rem;
@@ -133,8 +138,8 @@ const SectionHeading = styled.h2`
 `;
 
 const SectionSubheading = styled.p`
-  font-size: 1rem; color: #6b7280; text-align: center; margin-bottom: 3rem;
-  @media (min-width: 768px) { font-size: 1.125rem; margin-bottom: 4rem; }
+  font-size: 1rem; color: #6b7280; text-align: center; margin-bottom: 1.5rem;
+  @media (min-width: 768px) { font-size: 1.125rem; margin-bottom: 2rem; }
 `;
 
 const NeumorphicButton = styled.button`
@@ -172,7 +177,7 @@ const ScrollToTopButton = styled.button`
 const DashboardWrapper = styled.div`
   background-color: #1f2937;
   border-radius: 1.5rem;
-  padding: 2.5rem;
+  padding: 4rem;
   color: #e5e7eb;
   box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
 `;
@@ -362,18 +367,17 @@ const RightPanel = styled.div`
 const NewChartWrapper = styled.div`
   width: 100%;
   max-width: 28rem;
-  height: 20rem;
+  height: 17rem;
   border: none;
   background-color: transparent;
 `;
 const NewLegendContainer = styled.div`
   width: 100%;
   max-width: 28rem;
-  margin-top: 2.5rem;
-
+  margin-top: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
 `;
 
 const NewLegendItem = styled.div`
@@ -404,6 +408,7 @@ const FullReportCard = styled.div`
   flex-direction: column;
   width: 100%;
 `;
+
 const FullTabNav = styled.nav`
   display: flex;
   border-bottom: 1px solid #e2e8f0;
@@ -435,11 +440,11 @@ const FullTabButton = styled.button<{ $isActive: boolean }>`
 
 const FullTabContentContainer = styled.div`
   padding: 1.5rem 2rem;
-  min-height: 300px;
+  min-height: 240px;
   overflow-y: auto;
 `;
 const FullActionsContainer = styled.div`
-  padding-top: 2rem;
+  padding-top: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -498,23 +503,6 @@ const DiseaseListItem = styled.li`
 const IconWrapper = styled.i<{ color: string }>`
   margin-right: 0.75rem;
   color: ${({ color }) => color};
-`;
-
-const SectionDivider = styled.div`
-  /* 구분선의 높이와 위아래 여백 설정 */
-  height: 2px;
-  margin: 4rem auto; /* 위아래로 4rem(64px)의 여백을 줌 */
-  
-  /* 구분선 최대 너비 설정 */
-  width: 100%;
-  max-width: 60rem; /* 768px */
-
-  /* 그라데이션 효과 */
-  background: linear-gradient(to right, transparent, #9fc8fdff, transparent);
-  
-  @media (min-width: 768px) {
-    margin: 6rem auto; /* PC에서는 여백을 더 넓게 */
-  }
 `;
 
 // Video Section Styled Components
@@ -694,6 +682,92 @@ const skinScoreChartOptions = {
   plugins: { legend: { display: false } }
 };
 
+export const ReportItem = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f1f5f9;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  .label {
+    font-weight: 600;
+    color: #475569;
+  }
+  
+  .value {
+    font-weight: 700;
+    color: #1e293b;
+    text-align: right;
+  }
+  
+  .value-disease {
+    font-weight: 700;
+    color: #2563eb;
+    font-size: 1.125rem;
+    text-align: right;
+  }
+`;
+
+export const AIOpinionBox = styled.div`
+  background-color: #eff6ff;
+  border-left: 4px solid #3b82f6;
+  color: #1e3a8a;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  
+  h4 {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  p {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+`;
+
+export const DetailButton = styled.button`
+  background-color: #2563eb;
+  color: white;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  margin-top: 1rem;
+  
+  &:hover {
+    background-color: #1d4ed8;
+  }
+`;
+
+export const SeverityBar = styled.div`
+  width: 100%;
+  background-color: #e2e8f0;
+  border-radius: 9999px;
+  height: 0.625rem;
+  overflow: hidden;
+`;
+
+export const SeverityBarInner = styled.div`
+  background-color: #f97316;
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+
+`;
+
 
 // MainPage 컴포넌트 =======================================================
 
@@ -811,7 +885,7 @@ const MainPage: React.FC = () => {
 };
 const diagnosisChartOptions = {
     responsive: true,
-    maintainAspectRatio: false, // 👈 이 옵션을 false로 설정하는 것이 핵심입니다.
+    maintainAspectRatio: false, 
     devicePixelRatio: window.devicePixelRatio > 1 ? window.devicePixelRatio : 2,
     cutout: '60%',
     plugins: {
@@ -883,7 +957,7 @@ const tabContent: Record<TabType, React.ReactNode> = {
                     </PlayControlButton>
                     
                     <VideoTitle>
-                        <h2>BlueScope AI 피부 케어</h2>
+                        <h2>PPIKA AI 피부 케어</h2>
                         <p>전문적인 피부 관리의 모든 것을 경험해보세요</p>
                     </VideoTitle>
                     
@@ -904,17 +978,16 @@ const tabContent: Record<TabType, React.ReactNode> = {
 
         <Section bg="#eff6ff">
             <ContentWrapper>
-                <Grid lg_cols="2" gap="4rem" align="center">
+                <Grid lg_cols="2" gap="1rem" align="center">
                     <div>
-                        <HeroHeading>
-                            <NotoSansBlack>AI 피부 전문가,</NotoSansBlack>
-                            <br />
-                            <NotoSansBlack><GradientText>BlueScope</GradientText></NotoSansBlack> <br />
-                            <NotoSansBlack>당신의 피부 건강을 책임집니다</NotoSansBlack>
-                        </HeroHeading>
-                        <HeroSubheading>
-                            BlueScope의 AI 진단으로 피부 고민의 원인을 정확히 파악하고, 가장 효과적인 관리법을 찾아보세요. 이제 집에서 간편하게 전문적인 피부 분석을 경험할 수 있습니다.
-                        </HeroSubheading>
+                        <MainHeading>
+                            <NotoSansBlack>AI 피부 전문가,</NotoSansBlack><br />
+                            <NotoSansBlack><GradientText>PPIKA</GradientText></NotoSansBlack> <br />
+                            <NotoSansBlack>당신의 피부 건강을<br /> 책임집니다</NotoSansBlack>
+                        </MainHeading>
+                        <SubHeading>
+                            PPIKA의 AI 진단으로 피부 고민의 원인을 정확히 파악하고, 가장 효과적인 관리법을 찾아보세요. 이제 집에서 간편하게 전문적인 피부 분석을 경험할 수 있습니다.
+                        </SubHeading>
                         <NeumorphicButton onClick={() => navigate('/disease-analysis-step1')}>
                             <FaCamera style={{ marginRight: '0.75rem' }} />
                             AI 피부 진단 시작하기
@@ -942,12 +1015,12 @@ const tabContent: Record<TabType, React.ReactNode> = {
         <Section id="care">
             <ContentWrapper>
                 <SectionHeading>
-                    <NotoSansBlack>BlueScope AI</NotoSansBlack>가 제공하는
+                    <NotoSansBlack>PPIKA AI</NotoSansBlack>가 제공하는
                     <br />
                     <GradientText>핵심 기능 3가지</GradientText>
                 </SectionHeading>
                 <SectionSubheading>
-                    피부 분석부터 맞춤형 솔루션, 그리고 지속적인 관리까지. BlueScope AI는 당신의 피부 건강을 위한 모든 것을 제공합니다.
+                    피부 분석부터 맞춤형 솔루션, 그리고 지속적인 관리까지. PPIKA AI는 당신의 피부 건강을 위한 모든 것을 제공합니다.
                 </SectionSubheading>
                 <Grid md_cols="3" gap="2rem">
                     <GlassmorphismCard>
@@ -975,8 +1048,7 @@ const tabContent: Record<TabType, React.ReactNode> = {
             </ContentWrapper>
         </Section>
 
-        <SectionDivider />
-
+<Section id="diagnosis-result">
         <DiagnosisSectionWrapper id="diagnosis-result">
     <ContentWrapper>
         <SectionHeading>
@@ -1033,6 +1105,7 @@ const tabContent: Record<TabType, React.ReactNode> = {
       </ReportContainer> 
     </ContentWrapper>
 </DiagnosisSectionWrapper>
+</Section>
         
         <Section id="analysis" bg="#eff6ff">
     <ContentWrapper>
@@ -1210,7 +1283,7 @@ const tabContent: Record<TabType, React.ReactNode> = {
         {/* Footer */}
         <Footer>
             <CustomContainer className="text-center">
-                <p className="text-2xl font-bold md:text-3xl"><NotoSansBlack>지금 바로 BlueScope과 함께 건강한 피부 변화를 시작하세요.</NotoSansBlack></p>
+                <p className="text-2xl font-bold md:text-3xl"><NotoSansBlack>지금 바로 PPIKA과 함께 건강한 피부 변화를 시작하세요.</NotoSansBlack></p>
                 <div style={{ marginTop: '2rem' }}>
                 <NeumorphicButton onClick={() => navigate('/disease-analysis-step1')}>
                         AI 진단 시작하기
@@ -1230,100 +1303,3 @@ const tabContent: Record<TabType, React.ReactNode> = {
 
 
 export default MainPage;
-
-// Export components needed by DiseaseAnalysisStep3
-export const ReportCard = styled.div`
-  border: 1px solid #e2e8f0;
-  border-radius: 1rem;
-  background-color: white;
-  padding: 2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-`;
-
-export const ReportItem = styled.div`
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 1rem;
-  align-items: center;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #f1f5f9;
-  
-  &:last-child {
-    border-bottom: none;
-  }
-  
-  .label {
-    font-weight: 600;
-    color: #475569;
-  }
-  
-  .value {
-    font-weight: 700;
-    color: #1e293b;
-    text-align: right;
-  }
-  
-  .value-disease {
-    font-weight: 700;
-    color: #2563eb;
-    font-size: 1.125rem;
-    text-align: right;
-  }
-`;
-
-export const AIOpinionBox = styled.div`
-  background-color: #eff6ff;
-  border-left: 4px solid #3b82f6;
-  color: #1e3a8a;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin: 1rem 0;
-  
-  h4 {
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-  }
-  
-  p {
-    font-size: 0.875rem;
-    line-height: 1.6;
-    margin: 0;
-  }
-`;
-
-export const DetailButton = styled.button`
-  background-color: #2563eb;
-  color: white;
-  font-weight: 700;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  border: none;
-  font-size: 1rem;
-  transition: background-color 0.2s ease;
-  cursor: pointer;
-  margin-top: 1rem;
-  
-  &:hover {
-    background-color: #1d4ed8;
-  }
-`;
-
-export const SeverityBar = styled.div`
-  width: 100%;
-  background-color: #e2e8f0;
-  border-radius: 9999px;
-  height: 0.625rem;
-  overflow: hidden;
-`;
-
-export const SeverityBarInner = styled.div`
-  background-color: #f97316;
-  height: 100%;
-  border-radius: 9999px;
-  transition: width 0.3s ease;
-
-`;
-
-
