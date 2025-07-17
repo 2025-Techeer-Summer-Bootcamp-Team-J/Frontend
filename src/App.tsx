@@ -12,6 +12,7 @@ import MainPage from './pages/MainPage';
 import TodaysCare from './pages/TodaysCare';
 import Dashboard from './pages/Dashboard';
 import SkinAnalysis from './pages/SkinAnalysis';
+import LoadingPage from './pages/LoadingPage';
 
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
           <Route path="/todays-care" element={<TodaysCare />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/skin-analysis" element={<SkinAnalysis />} />
+          <Route path="/loading" element={<LoadingPage />} /> 
         </Route>
 
         {/* 단독으로 표시되는 페이지 그룹 */}
