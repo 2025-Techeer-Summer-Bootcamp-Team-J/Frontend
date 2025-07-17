@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { ContentWrapper } from '../components/Layout';
 import { FaCommentMedical } from 'react-icons/fa';
-import { Grid, ReportCard, ReportItem, AIOpinionBox, DetailButton, SeverityBar, SeverityBarInner } from './MainPage';
+import { Grid, ReportCard, ReportItem, AIOpinionBox, SeverityBar, SeverityBarInner } from './MainPage';
 
 
 // Chart.js에 필요한 요소들을 등록합니다.
@@ -220,7 +220,7 @@ const chartOptions = {
 // --- 메인 페이지 컴포넌트 ---
 // ----------------------------------------------------------------
 const AnalysisResultPage = () => {
-  const [activeTab, setActiveTab] = useState('precautions');
+  const [activeTab, setActiveTab] = useState('summary');
 
   const handleDownloadReport = () => {
     // 리포트 다운로드 로직 (이전과 동일)
@@ -316,7 +316,6 @@ const AnalysisResultPage = () => {
                                 <h4><FaCommentMedical style={{ marginRight: '0.5rem' }} />AI 소견 및 주의사항</h4>
                                 <p>건조함과 가려움을 동반하는 피부염으로 보입니다. 보습제를 충분히 사용하고, 전문의와 상담하여 정확한 진단 및 치료를 받는 것을 권장합니다.</p>
                         </AIOpinionBox>
-                        <DetailButton>상세 리포트 보기</DetailButton>
                       </ReportCard>
                     </Grid>
                 </TabContent>
@@ -325,10 +324,8 @@ const AnalysisResultPage = () => {
                 <TabContent>
                   <h3>피부 상태 설명</h3> 
                   <ul>
-                    <li><strong>추천 성분:</strong> 세라마이드, 판테놀, 히알루론산 등 피부 장벽 강화 및 보습에 도움을 주는 성분</li>
-                    <li><strong>피해야 할 성분:</strong> 인공 향료, 알코올, 과도한 화학적 각질 제거 성분</li>
-                    <li><strong>생활 습관:</strong> 실내 습도를 40-60%로 유지하고, 면 소재의 부드러운 옷을 착용하세요.</li>
-                  </ul>
+                    <li><strong>피부 상태:</strong> 피부 상태 설명 ~~</li>
+                    </ul>
                 </TabContent>
               )}
               {activeTab === 'precautions' && (
