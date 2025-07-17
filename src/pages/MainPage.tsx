@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import main_image from '../assets/mainpage_image.jpeg';
-import video1 from '../assets/video1.svg';
+import video1 from '../assets/video1.mp4';
 import {
   FaCamera, FaCommentMedical, FaExclamationTriangle, FaCalendarAlt,
   FaSun, FaLightbulb, FaArrowUp, FaArrowLeft, FaRedo, FaDownload, FaPlay, FaPause
