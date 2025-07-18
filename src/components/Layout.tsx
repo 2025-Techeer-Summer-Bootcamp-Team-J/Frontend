@@ -1,4 +1,4 @@
-import { SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, UserButton, SignInButton, SignUpButton } from '@clerk/clerk-react';
 import { NavLink, Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 import { GlobalStyle } from '../styles/GlobalStyle';
@@ -117,7 +117,7 @@ const NavItem = styled(NavLink)`
   }
 `;
 
-const AuthLink = styled(NavLink)`
+const AuthButton = styled.button`
   background-color: #2563EB;
   color: white;
   border-radius: 0.5rem;
@@ -172,7 +172,9 @@ function Layout() {
           <HeaderSection>
             <NavLinks>
               <SignedOut>
-                <AuthLink to="/signin">로그인</AuthLink>
+                <SignInButton mode="modal">
+                  <AuthButton>로그인</AuthButton>
+                </SignInButton>
               </SignedOut>
               <SignedIn>
                 <UserButton afterSignOutUrl="/" />
