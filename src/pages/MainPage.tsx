@@ -351,18 +351,19 @@ const LeftPanel = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  max-width: 28rem; /* 최대 너비 설정 */
+  margin: 0 auto; /* 중앙 정렬 */
   .section-title { font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 2rem; }
 `;
 const RightPanel = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   height: 100%;
 `;
 const NewChartWrapper = styled.div`
   width: 100%;
   max-width: 28rem;
-  height: 17rem;
+  height: clamp(10rem, 20vw, 25rem); /* 반응형 높이 (최소 10rem, 뷰포트 너비의 20%, 최대 25rem) */
   border: none;
   background-color: transparent;
 `;
@@ -402,6 +403,7 @@ const FullReportCard = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  flex-grow: 1; /* 남은 세로 공간을 채우도록 */
 `;
 
 const FullTabNav = styled.nav`
@@ -435,8 +437,9 @@ const FullTabButton = styled.button<{ $isActive: boolean }>`
 
 const FullTabContentContainer = styled.div`
   padding: 1.5rem 2rem;
-  min-height: 240px;
+  /* min-height: 240px; */ /* 최소 높이 제거 */
   overflow-y: auto;
+  flex-grow: 1; /* 남은 세로 공간을 채우도록 */
 `;
 const FullActionsContainer = styled.div`
   padding-top: 1.5rem;
@@ -472,6 +475,8 @@ const ReportContainer = styled.div`
   padding: 2.5rem;
   border-radius: 1.5rem; /* 24px, 부드러운 모서리 */
   box-shadow: 0 10px 25px 10px rgba(0, 0, 0, 0.07), 0 8px 10px -6px rgba(0, 0, 0, 0.07);
+  max-width: 80rem; /* 최대 너비 제한 */
+  margin: 0 auto; /* 중앙 정렬 */
   
   @media (max-width: 768px) {
     padding: 1.5rem;
@@ -1136,8 +1141,8 @@ const tabContent: Record<TabType, React.ReactNode> = {
             </GlassmorphismCard>
 
             {/* 2. 주의가 필요한 피부 질환 카드 */}
-            <GlassmorphismCard style={{ padding: '2rem' }}>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem' }}>
+            <GlassmorphismCard style={{ padding: '2rem', alignItems: 'center' }}>
+                <h3 style={{ fontSize: 'clamp(1.2rem, 2vw, 1.5rem)', fontWeight: '700', marginBottom: '1rem' }}>
                     주의가 필요한 피부 질환
                 </h3>
                 <ul style={{ listStyle: 'none', padding: 0, marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -1159,7 +1164,7 @@ const tabContent: Record<TabType, React.ReactNode> = {
             </GlassmorphismCard>
 
             {/* 3. 20대 여성 통계 카드 */}
-            <GlassmorphismCard style={{ padding: '2rem' }}>
+            <GlassmorphismCard style={{ padding: '2rem', alignItems: 'center' }}>
               <div>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem' }}>
                     20대 여성 통계
