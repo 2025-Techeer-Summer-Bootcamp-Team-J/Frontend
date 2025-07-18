@@ -78,7 +78,7 @@ const UvIndexDisplay = styled.div`
   }
 `;
 
-const UvIndexVisual = styled.div<{ bgColor: string }>`
+const UvIndexVisual = styled.div<{ $bgColor: string }>`
   width: 8rem; /* rem으로 통일 */
   height: 8rem; /* rem으로 통일 */
   border-radius: 9999px;
@@ -88,7 +88,7 @@ const UvIndexVisual = styled.div<{ bgColor: string }>`
   align-items: center;
   color: white;
   box-shadow: 0 0.625rem 0.9375rem -0.1875rem rgba(0, 0, 0, 0.1), 0 0.25rem 0.375rem -0.125rem rgba(0, 0, 0, 0.05);
-  background-color: ${props => props.bgColor};
+  background-color: ${props => props.$bgColor};
   transition: background-color 0.3s ease;
 
   span:first-child {
@@ -243,7 +243,7 @@ function TodaysCare() {
         setUvData(data);
         
         // UV 지수에 따라 적절한 탭 설정
-        const uvIndex = parseInt(data.today);
+        const uvIndex = parseInt(data.now);
         const careLevel = getCareLevelFromUVIndex(uvIndex);
         setActiveTab(careLevel);
       } catch (err) {
@@ -259,7 +259,8 @@ function TodaysCare() {
   }, []);
 
   const currentUvData = careData[activeTab];
-  const currentUVIndex = uvData ? parseInt(uvData.today) : currentUvData.index;
+  const currentUVIndex = uvData ? parseInt(uvData.now) : currentUvData.index;
+  const displayUVIndex = isNaN(currentUVIndex) ? '-' : currentUVIndex.toString();
   // 로딩 중일 때
   if (isLoading) {
     return (
@@ -294,9 +295,9 @@ function TodaysCare() {
         <UvInfoBox>
           <UvInfoInnerWrapper>
             <UvIndexDisplay>
-              <UvIndexVisual bgColor={currentUvData.color}>
+              <UvIndexVisual $bgColor={currentUvData.color}>
                 <span>UV 지수</span>
-                <span>{currentUVIndex}</span>
+                <span>{displayUVIndex}</span>
               </UvIndexVisual>
               <UvIndexText>
                 <p>{uvData?.location || '현재 위치'}</p>
