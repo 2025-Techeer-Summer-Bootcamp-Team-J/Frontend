@@ -38,6 +38,13 @@ const CustomContainer = styled.div`
 const Section = styled.section<{ bg?: string }>`
   padding: 4rem 0;
   background-color: ${props => props.bg || '#ffffff'};
+  
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+
   ${props => props.bg === '#eff6ff' && `
     background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23dbeafe' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zm1 5v1H5zM0 0L6 6V5.923L.077 0z'/%3E%3C/g%3E%3C/svg%3E");
   `}
@@ -1265,7 +1272,7 @@ const tabContent: Record<TabType, React.ReactNode> = {
     </ContentWrapper>
 </Section>
             
-        {/* Footer */}
+       <Section>
         <Footer>
             <CustomContainer className="text-center">
                 <p className="text-2xl font-bold md:text-3xl"><NotoSansBlack>지금 바로 PPIKA과 함께 건강한 피부 변화를 시작하세요.</NotoSansBlack></p>
@@ -1276,6 +1283,7 @@ const tabContent: Record<TabType, React.ReactNode> = {
                 </div>
                 </CustomContainer>
         </Footer>
+        </Section>
 
         {showScrollTop && (
             <ScrollToTopButton onClick={scrollToTop}>
