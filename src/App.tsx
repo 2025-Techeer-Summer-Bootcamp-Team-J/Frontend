@@ -15,6 +15,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import UserInfoPage from './pages/UserInfoPage';
 import RedirectPage from './pages/RedirectPage';
 
+  
 
 function App() {
   return (
@@ -56,8 +57,6 @@ function App() {
         </Route>
 
         {/* 단독으로 표시되는 페이지 그룹 */}
-        <Route path="/signin/*" element={<SignInPage />} />
-        <Route path="/signup/*" element={<SignUpPage />} />
         <Route path="/user-info" element={<UserInfoPage />} />
         <Route path="/redirect" element={<RedirectPage />} />
       </Routes>

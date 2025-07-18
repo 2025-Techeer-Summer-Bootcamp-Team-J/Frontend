@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { createUser, signup } from "../services/usersApi";
+import { signup } from "../services/usersApi";  
 
 const PageContainer = styled.div`
   display: flex;
