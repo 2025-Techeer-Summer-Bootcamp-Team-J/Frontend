@@ -251,9 +251,8 @@ const StatusBadge = styled.span<{ status: '개선' | '유지' | '악화' }>`
 `;
 
 const Footer = styled.footer`
-  padding-top: 5rem; /* 80px */
-  padding-bottom: 5rem; /* 80px */
-  background-color: white;
+  padding-top: 5rem;
+  padding-bottom: 5rem;
   text-align: center;
 `;
 
@@ -1042,7 +1041,7 @@ const tabContent: Record<TabType, React.ReactNode> = {
             </ContentWrapper>
         </Section>
 
-<Section id="diagnosis-result">
+<Section id="diagnosis-result"  bg="#eff6ff">
     <ContentWrapper>
         <SectionHeading>
             <NotoSansBlack>AI 피부 질환 진단</NotoSansBlack>
@@ -1099,7 +1098,7 @@ const tabContent: Record<TabType, React.ReactNode> = {
     </ContentWrapper>
 </Section>
         
-        <Section id="analysis" bg="#eff6ff">
+        <Section id="analysis">
     <ContentWrapper>
         <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
             <SectionHeading>
@@ -1178,7 +1177,7 @@ const tabContent: Record<TabType, React.ReactNode> = {
     </ContentWrapper>
 </Section>
         
-        <Section id="dashboard">
+        <Section id="dashboard" bg="#eff6ff">
             <ContentWrapper>
                 <SectionHeading>
                     <NotoSansBlack>개인 맞춤형 대시보드</NotoSansBlack>
@@ -1226,7 +1225,7 @@ const tabContent: Record<TabType, React.ReactNode> = {
             </ContentWrapper>
         </Section>
         
-        <Section id="care" bg="#eff6ff">
+        <Section id="care">
     <ContentWrapper>
         <SectionHeading>
             <NotoSansBlack>오늘의 맞춤 케어</NotoSansBlack>
@@ -1272,10 +1271,12 @@ const tabContent: Record<TabType, React.ReactNode> = {
     </ContentWrapper>
 </Section>
             
-       <Section>
+       <Section bg="#eff6ff">
         <Footer>
             <CustomContainer className="text-center">
-                <p className="text-2xl font-bold md:text-3xl"><NotoSansBlack>지금 바로 PPIKA과 함께 건강한 피부 변화를 시작하세요.</NotoSansBlack></p>
+                <p className="text-2xl font-bold md:text-3xl">
+                  <SectionHeading><NotoSansBlack>지금 바로 PPIKA과 함께 건강한 피부 변화를 시작하세요.</NotoSansBlack></SectionHeading>
+                </p>
                 <div style={{ marginTop: '2rem' }}>
                 <NeumorphicButton onClick={() => navigate('/disease-analysis-step1')}>
                         AI 진단 시작하기
