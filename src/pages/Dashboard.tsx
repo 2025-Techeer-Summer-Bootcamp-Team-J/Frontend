@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../services';
 import type { DashboardData } from '../services/dashboardApi';
+import type { SkinTypeScore } from '../services/types';
 import styled, { css, createGlobalStyle } from 'styled-components';
 import { Line } from 'react-chartjs-2';
 import {
@@ -141,13 +142,13 @@ const Dashboard = () => {
     }
 
     // 차트 데이터 및 옵션
-    const chartLabels = dashboardData.recent_skinType_scores?.map((score: any) => score.date) || [];
+    const chartLabels = dashboardData.recent_skinType_scores?.map((score: SkinTypeScore) => score.date) || [];
     
     const chartData: ChartData<'line'> = {
         labels: chartLabels,
         datasets: [{
             label: '피부 점수',
-            data: dashboardData.recent_skinType_scores?.map((score: any) => score.score) || [],
+            data: dashboardData.recent_skinType_scores?.map((score: SkinTypeScore) => score.score) || [],
             fill: true,
             backgroundColor: (context) => {
                 const ctx = context.chart.ctx;
