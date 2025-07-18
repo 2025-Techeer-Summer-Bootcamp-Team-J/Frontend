@@ -3,6 +3,9 @@ import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import { analyzeSkinType } from '../services/skintypeApi';
 import type { SkinTypeAnalysisResponse } from '../services/types';
 import { AxiosError } from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCameraRetro, faUser, faLightbulb, faTintSlash, faCloudUploadAlt, faBrain, faListCheck, faHandHoldingHeart, faRedo, faExclamationTriangle
+} from '@fortawesome/free-solid-svg-icons';
 
 const skinCareTips = [
     "지성 피부는 오일프리(Oil-Free) 제품을 사용하는 것이 번들거림을 줄이는 데 도움이 됩니다.",
@@ -168,7 +171,7 @@ const ContentBox = styled.div`
     padding: 2.5rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-end;
     width: 100%;
     max-width: 56.25rem;
     margin: 0 auto;
@@ -186,7 +189,7 @@ const Guidelines = styled.div`
         font-size: 1.25rem;
         font-weight: 700;
         margin-top: 0;
-        margin-bottom: 1.5rem;
+        margin-bottom: 2rem;
         color: ${theme.primaryColor};
         text-align: center;
         display: flex;
@@ -199,14 +202,23 @@ const Guidelines = styled.div`
 
 const GuidelineItem = styled.div`
     background-color: ${theme.lightPrimaryColor};
-    padding: 1.125rem 1.5rem;
+    padding: 1.3rem 1.5rem;
     border-radius: 0.625rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     font-size: 0.95rem;
     font-weight: 500;
     display: flex;
     align-items: center;
-    i {
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+     &:last-child {
+        margin-bottom: 0; /* 마지막 항목의 아래 여백만 제거 */
+    }
+
+    svg {
         margin-right: 1rem;
         color: ${theme.primaryColor};
         flex-shrink: 0;
@@ -632,16 +644,16 @@ const SkinAnalysis: React.FC = () => {
                     <MainSubtitle>AI가 당신의 피부 타입을 분석하고, 유형별 특징과 통계를 제공합니다.</MainSubtitle>
                     <ContentBox>
                         <Guidelines>
-                            <h3><i className="fas fa-camera-retro" /> 촬영 가이드</h3>
-                            <GuidelineItem><i className="fas fa-user" /> 정면을 응시하고, 머리카락이 얼굴을 가리지 않게 하세요.</GuidelineItem>
-                            <GuidelineItem><i className="fas fa-lightbulb" /> 그림자 없는 밝은 조명 아래에서 선명하게 촬영하세요.</GuidelineItem>
-                            <GuidelineItem><i className="fas fa-tint-slash" /> 화장기 없는 맨 얼굴에서 가장 정확한 분석이 가능합니다.</GuidelineItem>
+                            <h3><FontAwesomeIcon icon={faCameraRetro} /> 촬영 가이드</h3>
+                            <GuidelineItem><FontAwesomeIcon icon={faUser} /> 정면을 응시하고, 머리카락이 얼굴을 가리지 않게 하세요.</GuidelineItem>
+                            <GuidelineItem><FontAwesomeIcon icon={faLightbulb} /> 그림자 없는 밝은 조명 아래에서 선명하게 촬영하세요.</GuidelineItem>
+                            <GuidelineItem><FontAwesomeIcon icon={faTintSlash} /> 화장기 없는 맨 얼굴에서 가장 정확한 분석이 가능합니다.</GuidelineItem>
                         </Guidelines>
                         <UploadArea onClick={handleUploadAreaClick} style={{ cursor: currentSection === 'upload' ? 'pointer' : 'default' }}>
                             {/* 업로드 이후에도 이미지가 보이도록 수정 */}
                             {!uploadedImageUrl && (
                                 <UploadAreaContent>
-                                    <i className="fas fa-cloud-upload-alt" />
+                                    <FontAwesomeIcon icon={faCloudUploadAlt} />
                                     <p>클릭하여 사진 업로드</p>
                                 </UploadAreaContent>
                             )}
@@ -653,7 +665,7 @@ const SkinAnalysis: React.FC = () => {
                     {/* 사진 업로드 후 분석 시작 버튼 표시 */}
                     {isImageUploaded && currentSection === 'upload' && (
                         <AnalysisStartButton onClick={handleStartAnalysis}>
-                            <i className="fas fa-brain" />
+                            <FontAwesomeIcon icon={faBrain} />
                             AI 피부 분석 시작하기
                         </AnalysisStartButton>
                     )}
@@ -695,13 +707,13 @@ const SkinAnalysis: React.FC = () => {
                         
                         <ResultGrid>
                             <ResultCard>
-                                <ResultSectionTitle><i className="fas fa-list-check" /> 주요 특징</ResultSectionTitle>
+                                <ResultSectionTitle><FontAwesomeIcon icon={faListCheck} /> 주요 특징</ResultSectionTitle>
                                 <ResultList>
                                     {resultData.features.map((item, index) => <li key={index}>{item}</li>)}
                                 </ResultList>
                             </ResultCard>
                             <ResultCard>
-                                <ResultSectionTitle><i className="fas fa-hand-holding-heart" /> 추천 관리법</ResultSectionTitle>
+                                <ResultSectionTitle><FontAwesomeIcon icon={faHandHoldingHeart} /> 추천 관리법</ResultSectionTitle>
                                 <ResultList>
                                     {resultData.care.map((item, index) => <li key={index}>{item}</li>)}
                                 </ResultList>
@@ -709,7 +721,7 @@ const SkinAnalysis: React.FC = () => {
                         </ResultGrid>
 
                         <RestartButton href="#upload" onClick={handleRestart}>
-                           <i className="fas fa-redo" /> 처음부터 다시 진단하기
+                            <FontAwesomeIcon icon={faRedo} /> 처음부터 다시 진단하기
                         </RestartButton>
                     </PageSection>
                 )}
@@ -724,7 +736,7 @@ const SkinAnalysis: React.FC = () => {
                         
                         <ResultCard>
                             <ResultDescription style={{ color: '#ff4757', textAlign: 'center' }}>
-                                <i className="fas fa-exclamation-triangle" style={{ fontSize: '3rem', marginBottom: '1rem', display: 'block' }} />
+                                <FontAwesomeIcon icon={faExclamationTriangle} style={{ fontSize: '3rem', marginBottom: '1rem', display: 'block' }} />
                                 {analysisError || '분석 중 알 수 없는 오류가 발생했습니다.'}
                             </ResultDescription>
                         </ResultCard>
