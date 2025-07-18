@@ -48,6 +48,7 @@ export { default as skintypeApi } from './skintypeApi';
 export { default as diseasesApi } from './diseasesApi';
 export { default as diagnosesApi } from './diagnosesApi';
 export { default as usersApi } from './usersApi';
+export { default as dashboardApi } from './dashboardApi';
 
 // 통합 API 객체
 export const api = {
@@ -68,9 +69,14 @@ export const api = {
     getById: getDiagnosisById,
     updateStatus: updateDiagnosisStatus,
   },
+  dashboard: {
+    getDashboard: dashboardApi.getDashboard,
+  },
   users: {
     create: createUser,
   },
 };
 
-export default api; 
+export default api;
+
+import dashboardApi from './dashboardApi';

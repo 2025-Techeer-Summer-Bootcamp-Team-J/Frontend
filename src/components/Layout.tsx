@@ -1,6 +1,7 @@
-import { SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/clerk-react';
 import { NavLink, Outlet } from 'react-router-dom';
 import styled from 'styled-components';
+import { GlobalStyle } from '../styles/GlobalStyle';
 
 const PageWrapper = styled.div`
   display: flex;
@@ -12,14 +13,16 @@ const PageWrapper = styled.div`
 export const ContentWrapper = styled.div`
   width: 100%;
   max-width: 80rem;
+  max-height: 90%;
   margin: 0 auto;
   padding: 0 2rem;
 
   @media (min-width: 1600px) {
-    max-width: 96rem;
+    max-width: 90rem; /* 96rem에서 90rem으로 줄임 */
   }
   @media (min-width: 1920px) {
-    max-width: 110rem;
+    max-width: 100rem; /* 120rem에서 100rem으로 줄임 */
+    padding: 0 4rem;
   }
   @media (max-width: 768px) {
     padding: 0 1rem;
@@ -28,7 +31,7 @@ export const ContentWrapper = styled.div`
 
 const HeaderWrapper = styled.header`
   width: 100%;
-  height: 5.2rem;
+  height: 4.5rem;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
   background-color: white;
   position: sticky;
@@ -39,7 +42,7 @@ const HeaderWrapper = styled.header`
   align-items: center;
 
   @media (max-width: 768px) {
-    height: auto;
+    height: 100%;
     padding: 1rem 0;
   }
 `;
@@ -50,8 +53,7 @@ const HeaderContent = styled(ContentWrapper)`
   align-items: center;
 
   @media (max-width: 768px) {
-    flex-direction: column;
-    gap: clamp(1rem, 4vw, 1.5rem); /* 모바일에서 세로 간격을 유동적으로 조정 */
+    gap: clamp(1rem, 2vw, 1.5rem); /* 모바일에서 세로 간격을 유동적으로 조정 */
   }
 `;
 
@@ -65,7 +67,7 @@ const HeaderSection = styled.div`
   }
   &:nth-child(2) { // Nav
     justify-content: center;
-    flex: 2;
+    flex: 1 1 auto;
   }
   &:nth-child(3) { // Auth
     justify-content: flex-end;
@@ -76,7 +78,7 @@ const Logo = styled(NavLink)`
   font-weight: bold;
   text-decoration: none;
   color: #2563eb;
-  font-size: clamp(1.5rem, 2.5vw, 2.2rem); /* 로고도 유동적으로! */
+  font-size: clamp(1.5rem, 1.5vw, 2.2rem); /* 로고도 유동적으로! */
   font-family: 'Noto Sans KR', sans-serif;
   font-weight: 900;
 `;
@@ -85,20 +87,20 @@ const Nav = styled.nav`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: clamp(0.5rem, 1.5vw, 1.25rem);
+  gap: clamp(0.5rem, 1vw, 1.25rem);
 `;
 
 const NavLinks = styled.div`
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: clamp(0.5rem, 1vw, 1rem);
+  gap: clamp(0.5rem, 0.5vw, 1rem);
 `;
 
 const NavItem = styled(NavLink)`
   color: #374151;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 400;
   font-size: clamp(0.9rem, 1.2vw, 1.3rem); /* 최소 0.9rem, 최대 1.1rem, 중간에서는 화면너비의 1.2% */
   padding: 0.5rem clamp(0.75rem, 1.5vw, 1.25rem);
   border-radius: 0.5rem;
@@ -116,11 +118,11 @@ const NavItem = styled(NavLink)`
   }
 `;
 
-const AuthLink = styled(NavLink)`
+const AuthButton = styled.button`
   background-color: #2563EB;
   color: white;
   border-radius: 0.5rem;
-  font-weight: 600;
+  font-weight: 400;
   font-size: 1rem;
   height: auto;
   padding: 0.5rem clamp(0.75rem, 1.5vw, 1.25rem);
@@ -137,6 +139,7 @@ const AuthLink = styled(NavLink)`
 const Main = styled.main`
   flex-grow: 1;
   width: 100%;
+  padding: 2.5rem 0; /* 위아래 여백 추가 */
 `;
 
 const FooterWrapper = styled.footer`
@@ -154,15 +157,16 @@ const FooterContent = styled(ContentWrapper)`
 function Layout() {
   return (
     <PageWrapper>
+      <GlobalStyle />
       <HeaderWrapper>
         <HeaderContent>
           <HeaderSection>
-            <Logo to="/">BlueScope</Logo>
+            <Logo to="/">PPIKA</Logo>
           </HeaderSection>
           <HeaderSection>
             <Nav>
               <NavItem to="/disease-analysis-step1">AI 진단</NavItem>
-              <NavItem to="/skin-analysis">상세 분석</NavItem>
+              <NavItem to="/skin-analysis">피부 유형 분석</NavItem>
               <NavItem to="/dashboard">대시보드</NavItem>
               <NavItem to="/todays-care">오늘의 케어</NavItem>
             </Nav>
@@ -170,7 +174,9 @@ function Layout() {
           <HeaderSection>
             <NavLinks>
               <SignedOut>
-                <AuthLink to="/signin">로그인</AuthLink>
+                <SignInButton mode="modal">
+                  <AuthButton>로그인</AuthButton>
+                </SignInButton>
               </SignedOut>
               <SignedIn>
                 <UserButton afterSignOutUrl="/" />

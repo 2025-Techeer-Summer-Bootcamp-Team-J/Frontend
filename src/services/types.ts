@@ -73,8 +73,15 @@ export interface Diagnosis {
 export interface UVIndexResponse {
     location: string;
     date: string;
-    today: string;
+    now: string;
 }
+
+export interface UVIndexApiResponse {
+  status_code: number;
+  message: string;
+  data: UVIndexResponse;
+}
+
 
 export interface SignUpRequest {
   clerk_user_id: string;

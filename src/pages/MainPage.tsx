@@ -1,12 +1,13 @@
 // src/pages/MainPage.tsx
 
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import main_image from '../assets/mainpage_image.jpeg';
+import main_image from '../assets/mainpage_image.png';
+import video1 from '../assets/video1.svg';
 import {
   FaCamera, FaCommentMedical, FaExclamationTriangle, FaCalendarAlt,
-  FaSun, FaLightbulb, FaArrowUp, FaArrowLeft, FaRedo, FaDownload
+  FaSun, FaLightbulb, FaArrowUp, FaArrowLeft, FaRedo, FaDownload, FaPlay, FaPause
 } from 'react-icons/fa';
 import {
   Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler, ArcElement, type TooltipItem
@@ -20,16 +21,9 @@ ChartJS.register(
 
 // Styled Components
 
-const GlobalStyle = createGlobalStyle`
-  html {
-    font-size: 75%;
-  }
-`;
-
-
 const CustomContainer = styled.div`
-  padding-left: 3rem;
-  padding-right: 3rem;
+  padding-left: 5rem;
+  padding-right: 5rem;
   width: 100%;
   max-width: 1280px; /* 콘텐츠 최대 너비 설정 */
   margin-left: auto;   /* 수평 중앙 정렬 */
@@ -44,6 +38,13 @@ const CustomContainer = styled.div`
 const Section = styled.section<{ bg?: string }>`
   padding: 4rem 0;
   background-color: ${props => props.bg || '#ffffff'};
+  
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+
   ${props => props.bg === '#eff6ff' && `
     background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23dbeafe' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zm1 5v1H5zM0 0L6 6V5.923L.077 0z'/%3E%3C/g%3E%3C/svg%3E");
   `}
@@ -64,31 +65,37 @@ export const Grid = styled.div<{
   @media (min-width: 1024px) { grid-template-columns: repeat(${(props) => props.lg_cols || props.md_cols || props.sm_cols || props.cols || 1}, 1fr); }
 `;
 
+// 강조 텍스트
 const NotoSansBlack = styled.span`
   font-family: 'Noto Sans KR', sans-serif;
-  font-weight: 900;
+  font-weight: 600;
 `;
 
+// 색상 텍스트
 const GradientText = styled.span`
   background: linear-gradient(to right, #1e40af, #2563eb);
+  font-weight: 800;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 `;
 
-const HeroHeading = styled.h1`
+// 메인 텍스트
+const MainHeading = styled.h1`
   font-size: 2.25rem; font-weight: 900; line-height: 1.2; margin-bottom: 1rem; text-align: center;
   @media (min-width: 768px) { font-size: 2.75rem; text-align: left; }
   @media (min-width: 1024px) { font-size: 3.25rem; }
 `;
 
-const HeroSubheading = styled.p`
+// 서브 텍스트
+const SubHeading = styled.p`
   font-size: 1.125rem; color: #4b5563; max-width: 42rem; margin: 0 auto 2rem; text-align: center;
-  @media (min-width: 768px) { font-size: 1.25rem; margin: 0 0 2rem; text-align: left; }
+  @media (min-width: 768px)
+  { font-size: 1.25rem; margin: 0 0 2rem; text-align: left; }
 `;
 
 const MagnifyContainer = styled.div`
   position: relative;
-  width: 100%;
+  width: 90%;
   max-width: 55rem;
   margin: 0 auto;
   border-radius: 1rem;
@@ -132,8 +139,8 @@ const SectionHeading = styled.h2`
 `;
 
 const SectionSubheading = styled.p`
-  font-size: 1rem; color: #6b7280; text-align: center; margin-bottom: 3rem;
-  @media (min-width: 768px) { font-size: 1.125rem; margin-bottom: 4rem; }
+  font-size: 1rem; color: #6b7280; text-align: center; margin-bottom: 1.5rem;
+  @media (min-width: 768px) { font-size: 1.125rem; margin-bottom: 2rem; }
 `;
 
 const NeumorphicButton = styled.button`
@@ -171,7 +178,7 @@ const ScrollToTopButton = styled.button`
 const DashboardWrapper = styled.div`
   background-color: #1f2937;
   border-radius: 1.5rem;
-  padding: 2.5rem;
+  padding: 4rem;
   color: #e5e7eb;
   box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
 `;
@@ -244,9 +251,8 @@ const StatusBadge = styled.span<{ status: '개선' | '유지' | '악화' }>`
 `;
 
 const Footer = styled.footer`
-  padding-top: 5rem; /* 80px */
-  padding-bottom: 5rem; /* 80px */
-  background-color: white;
+  padding-top: 5rem;
+  padding-bottom: 5rem;
   text-align: center;
 `;
 
@@ -330,11 +336,6 @@ const TipCard = styled.div`
   }
 `;
 
-const DiagnosisSectionWrapper = styled.div`
-  background-color: #ffffff;
-  padding: 4rem 0;
-  @media (min-width: 768px) { padding: 6rem 0; }
-`;
 const DiagnosisGrid = styled.main`
   display: grid;
   grid-template-columns: 1fr;
@@ -350,29 +351,29 @@ const LeftPanel = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  max-width: 28rem; /* 최대 너비 설정 */
+  margin: 0 auto; /* 중앙 정렬 */
   .section-title { font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 2rem; }
 `;
 const RightPanel = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   height: 100%;
 `;
 const NewChartWrapper = styled.div`
   width: 100%;
   max-width: 28rem;
-  height: 20rem;
+  height: clamp(10rem, 20vw, 25rem); /* 반응형 높이 (최소 10rem, 뷰포트 너비의 20%, 최대 25rem) */
   border: none;
   background-color: transparent;
 `;
 const NewLegendContainer = styled.div`
   width: 100%;
   max-width: 28rem;
-  margin-top: 2.5rem;
-
+  margin-top: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
 `;
 
 const NewLegendItem = styled.div`
@@ -402,7 +403,9 @@ const FullReportCard = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  flex-grow: 1; /* 남은 세로 공간을 채우도록 */
 `;
+
 const FullTabNav = styled.nav`
   display: flex;
   border-bottom: 1px solid #e2e8f0;
@@ -434,11 +437,12 @@ const FullTabButton = styled.button<{ $isActive: boolean }>`
 
 const FullTabContentContainer = styled.div`
   padding: 1.5rem 2rem;
-  min-height: 300px;
+  /* min-height: 240px; */ /* 최소 높이 제거 */
   overflow-y: auto;
+  flex-grow: 1; /* 남은 세로 공간을 채우도록 */
 `;
 const FullActionsContainer = styled.div`
-  padding-top: 2rem;
+  padding-top: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -471,6 +475,8 @@ const ReportContainer = styled.div`
   padding: 2.5rem;
   border-radius: 1.5rem; /* 24px, 부드러운 모서리 */
   box-shadow: 0 10px 25px 10px rgba(0, 0, 0, 0.07), 0 8px 10px -6px rgba(0, 0, 0, 0.07);
+  max-width: 80rem; /* 최대 너비 제한 */
+  margin: 0 auto; /* 중앙 정렬 */
   
   @media (max-width: 768px) {
     padding: 1.5rem;
@@ -499,20 +505,140 @@ const IconWrapper = styled.i<{ color: string }>`
   color: ${({ color }) => color};
 `;
 
-const SectionDivider = styled.div`
-  /* 구분선의 높이와 위아래 여백 설정 */
-  height: 2px;
-  margin: 4rem auto; /* 위아래로 4rem(64px)의 여백을 줌 */
-  
-  /* 구분선 최대 너비 설정 */
-  width: 100%;
-  max-width: 60rem; /* 768px */
+// Video Section Styled Components
+const VideoSection = styled.section`
+  padding: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+`;
 
-  /* 그라데이션 효과 */
-  background: linear-gradient(to right, transparent, #9fc8fdff, transparent);
+const VideoContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+`;
+
+const VideoWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: none;
+`;
+
+const VideoElement = styled.video`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+`;
+
+const VideoNavigation = styled.div`
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  background: transparent;
+  padding: 1rem 2rem;
+  border-radius: 3rem;
+`;
+
+const VideoIndicators = styled.div`
+  display: flex;
+  gap: 1rem;
+`;
+
+const VideoIndicator = styled.button<{ $isActive: boolean }>`
+  width: 60px;
+  height: 2px;
+  border-radius: 1px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: ${props => props.$isActive ? '#000000' : 'rgba(255, 255, 255, 0.4)'};
   
-  @media (min-width: 768px) {
-    margin: 6rem auto; /* PC에서는 여백을 더 넓게 */
+  &:hover {
+    background: white;
+    transform: scaleY(2);
+  }
+`;
+
+const PlayControlButton = styled.button`
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  color: white;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  
+  &:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.1);
+  }
+  
+  @media (max-width: 768px) {
+    top: 1rem;
+    right: 1rem;
+    width: 50px;
+    height: 50px;
+    font-size: 1.25rem;
+  }
+`;
+
+const VideoTitle = styled.div`
+  position: absolute;
+  bottom: 8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  color: white;
+  
+  @media (max-width: 768px) {
+    bottom: 6rem;
+    left: 1rem;
+    right: 1rem;
+    transform: none;
+  }
+  
+  h2 {
+    font-size: 3rem;
+    font-weight: 900;
+    margin: 0 0 1rem 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    
+    @media (max-width: 768px) {
+      font-size: 2rem;
+    }
+  }
+  
+  p {
+    font-size: 1.25rem;
+    margin: 0;
+    opacity: 0.9;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    
+    @media (max-width: 768px) {
+      font-size: 1rem;
+    }
   }
 `;
 
@@ -555,477 +681,6 @@ const skinScoreChartOptions = {
   },
   plugins: { legend: { display: false } }
 };
-
-
-// MainPage 컴포넌트 =======================================================
-
-const MainPage: React.FC = () => {
-    const navigate = useNavigate();
-    const [showScrollTop, setShowScrollTop] = useState(false);
-    
-    const [magnifierState, setMagnifierState] = useState({
-        visible: false,
-        x: 0,
-        y: 0,
-        bgSize: '',
-        bgPos: ''
-    });
-
-    const magnifyContainerRef = useRef<HTMLDivElement>(null);
-    const magnifyImageRef = useRef<HTMLImageElement>(null);
-    const zoom = 2.5;
-
-    const scrollToTop = () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    const handleMagnifierMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!magnifyContainerRef.current || !magnifyImageRef.current) return;
-        
-        const container = magnifyContainerRef.current;
-        const img = magnifyImageRef.current;
-        const rect = container.getBoundingClientRect();
-        
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-
-        if (x < 0 || x > rect.width || y < 0 || y > rect.height) {
-            handleMagnifierLeave();
-            return;
-        }
-
-        const imgWidth = img.width;
-        const imgHeight = img.height;
-        const bgSize = `${imgWidth * zoom}px ${imgHeight * zoom}px`;
-        const bgPosX = `-${x * zoom - 150 / 2}px`;
-        const bgPosY = `-${y * zoom - 150 / 2}px`;
-
-        setMagnifierState({
-            visible: true,
-            x,
-            y,
-            bgSize: bgSize,
-            bgPos: `${bgPosX} ${bgPosY}`
-        });
-    };
-
-    const handleMagnifierLeave = () => {
-        setMagnifierState(prevState => ({ ...prevState, visible: false }));
-    };
-
-    useEffect(() => {
-        const checkScrollTop = () => {
-            if (!showScrollTop && window.pageYOffset > 400) {
-                setShowScrollTop(true);
-            } else if (showScrollTop && window.pageYOffset <= 400) {
-                setShowScrollTop(false);
-            }
-        };
-
-        window.addEventListener('scroll', checkScrollTop);
-        return () => window.removeEventListener('scroll', checkScrollTop);
-    }, [showScrollTop]);
-
-    const diagnosisChartData = {
-    labels: ['아토피 피부염', '접촉성 피부염', '지루성 피부염', '기타'],
-    datasets: [{
-        data: [87, 8, 3, 2],
-        backgroundColor: ['#2563eb', '#60a5fa', '#93c5fd', '#dbeafe'],
-        borderColor: 'white',
-        borderWidth: 0,
-    }]
-};
-const diagnosisChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false, // 👈 이 옵션을 false로 설정하는 것이 핵심입니다.
-    devicePixelRatio: window.devicePixelRatio > 1 ? window.devicePixelRatio : 2,
-    cutout: '60%',
-    plugins: {
-        legend: { display: false },
-        tooltip: {
-            callbacks: {
-                label: (context: TooltipItem<'doughnut'>) => `${context.label}: ${context.parsed}%`
-            }
-        }
-    }
-};
-type TabType = 'summary' | 'description' | 'precautions' | 'management';
-const [activeTab, setActiveTab] = useState<TabType>('summary');
-const handleDownloadReport = () => { /* 다운로드 로직 */ };
-const tabContent: Record<TabType, React.ReactNode> = {
-    summary: (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
-                 <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '1rem', alignItems: 'center' }}>
-                    <span style={{ fontWeight: 600, color: '#475569' }}>의심 질환</span>
-                    <span style={{ fontWeight: 700, color: '#2563eb', fontSize: '1.125rem', textAlign: 'right' }}>아토피 피부염</span>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '1rem', alignItems: 'center' }}>
-                    <span style={{ fontWeight: 600, color: '#475569' }}>확률</span>
-                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '1.125rem', textAlign: 'right' }}>87%</span>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '1rem', alignItems: 'center' }}>
-                     <span style={{ fontWeight: 600, color: '#475569' }}>심각도</span>
-                     <div style={{ width: '100%', backgroundColor: '#e2e8f0', borderRadius: '9999px', height: '0.625rem' }}>
-                        <div style={{ backgroundColor: '#f97316', height: '100%', borderRadius: '9999px', width: '75%' }} />
-                     </div>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '1rem', alignItems: 'center' }}>
-                     <span style={{ fontWeight: 600, color: '#475569' }}>예상 치료 기간</span>
-                     <span style={{ fontWeight: 700, color: '#1e293b', textAlign: 'right' }}>3-4주</span>
-                </div>
-            </div>
-            <div style={{ backgroundColor: '#eff6ff', borderLeft: '4px solid #3b82f6', color: '#1e3a8a', padding: '1rem', borderRadius: '0.5rem' }}>
-                <p style={{ fontWeight: 700, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaCommentMedical /> AI 소견 및 주의사항</p>
-                <p style={{ fontSize: '0.875rem', lineHeight: 1.6 }}>건조함과 가려움을 동반하는 피부염으로 보입니다. 보습제를 충분히 사용하고, 전문의와 상담하여 정확한 진단 및 치료를 받는 것을 권장합니다.</p>
-            </div>
-        </div>
-    ),
-    description: ( <FullContentBlock><h3>상세 설명 내용...</h3></FullContentBlock> ),
-    precautions: ( <FullContentBlock><h3>주의사항 내용...</h3></FullContentBlock> ),
-    management: ( <FullContentBlock><h3>관리법 내용...</h3></FullContentBlock> )
-};
-
-    return (
-      <>
-        <GlobalStyle />
-
-        <Section bg="#eff6ff">
-            <ContentWrapper>
-                <Grid lg_cols="2" gap="4rem" align="center">
-                    <div>
-                        <HeroHeading>
-                            <NotoSansBlack>AI 피부 전문가,</NotoSansBlack>
-                            <br />
-                            <NotoSansBlack><GradientText>BlueScope</GradientText></NotoSansBlack> <br />
-                            <NotoSansBlack>당신의 피부 건강을 책임집니다</NotoSansBlack>
-                        </HeroHeading>
-                        <HeroSubheading>
-                            BlueScope의 AI 진단으로 피부 고민의 원인을 정확히 파악하고, 가장 효과적인 관리법을 찾아보세요. 이제 집에서 간편하게 전문적인 피부 분석을 경험할 수 있습니다.
-                        </HeroSubheading>
-                        <NeumorphicButton onClick={() => navigate('/disease-analysis-step1')}>
-                            <FaCamera style={{ marginRight: '0.75rem' }} />
-                            AI 피부 진단 시작하기
-                        </NeumorphicButton>
-                    </div>
-                    <MagnifyContainer 
-                        ref={magnifyContainerRef}
-                        onMouseMove={handleMagnifierMove}
-                        onMouseLeave={handleMagnifierLeave}
-                    >
-                        <MagnifierImage ref={magnifyImageRef} src={main_image} alt="피부 상태" />
-                        <MagnifierLens 
-                            visible={magnifierState.visible}
-                            x={magnifierState.x}
-                            y={magnifierState.y}
-                            bgImage={main_image}
-                            bgSize={magnifierState.bgSize}
-                            bgPos={magnifierState.bgPos}
-                        />
-                    </MagnifyContainer>
-                </Grid>
-            </ContentWrapper>
-        </Section>
-        
-        <Section id="care">
-            <ContentWrapper>
-                <SectionHeading>
-                    <NotoSansBlack>BlueScope AI</NotoSansBlack>가 제공하는
-                    <br />
-                    <GradientText>핵심 기능 3가지</GradientText>
-                </SectionHeading>
-                <SectionSubheading>
-                    피부 분석부터 맞춤형 솔루션, 그리고 지속적인 관리까지. BlueScope AI는 당신의 피부 건강을 위한 모든 것을 제공합니다.
-                </SectionSubheading>
-                <Grid md_cols="3" gap="2rem">
-                    <GlassmorphismCard>
-                        <FaCamera size={36} className="text-blue-600 mb-4" />
-                        <h3 className="text-xl font-bold mb-2">AI 피부 분석</h3>
-                        <p className="text-gray-600">
-                            사진 한 장으로 피부 나이, 주요 고민(여드름, 모공, 주름 등)을 정밀하게 분석합니다. 시간과 장소에 구애받지 않고 전문가 수준의 진단을 받아보세요.
-                        </p>
-                    </GlassmorphismCard>
-                    <GlassmorphismCard>
-                        <FaCommentMedical size={36} className="text-blue-600 mb-4" />
-                        <h3 className="text-xl font-bold mb-2">맞춤형 솔루션 제안</h3>
-                        <p className="text-gray-600">
-                            분석 결과를 바탕으로 당신의 피부 타입과 고민에 가장 적합한 성분, 제품, 생활 습관을 추천해 드립니다. 더 이상 추측에 의존하지 마세요.
-                        </p>
-                    </GlassmorphismCard>
-                    <GlassmorphismCard>
-                        <FaCalendarAlt size={36} className="text-blue-600 mb-4" />
-                        <h3 className="text-xl font-bold mb-2">피부 상태 트래킹</h3>
-                        <p className="text-gray-600">
-                            일일, 주간, 월간 단위로 피부 변화를 기록하고 시각적인 리포트를 통해 개선 과정을 한눈에 확인하세요. 꾸준한 관리가 아름다운 피부의 비결입니다.
-                        </p>
-                    </GlassmorphismCard>
-                </Grid>
-            </ContentWrapper>
-        </Section>
-
-        <SectionDivider />
-
-        <DiagnosisSectionWrapper id="diagnosis-result">
-    <ContentWrapper>
-        <SectionHeading>
-            <NotoSansBlack>AI 피부 질환 진단</NotoSansBlack>
-        </SectionHeading>
-        <SectionSubheading>
-             사진 한 장으로 AI가 질환을 예측하고, 상세한 리포트를 제공합니다.
-        </SectionSubheading>
-        <ReportContainer>
-        <DiagnosisGrid>
-            {/* 왼쪽 패널 */}
-            <LeftPanel>
-                <h2 className="section-title">예상 질환 통계</h2>
-                <NewChartWrapper>
-                    <Doughnut data={diagnosisChartData} options={diagnosisChartOptions} />
-                </NewChartWrapper>
-                <NewLegendContainer>
-                    {diagnosisChartData.labels.map((label, index) => (
-                        <NewLegendItem key={label}>
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                <NewLegendColorBox color={diagnosisChartData.datasets[0].backgroundColor[index]} />
-                                <span style={{ color: '#334155' }}>{label}</span>
-                            </div>
-                            <span style={{ fontWeight: 'bold', color: '#1e293b' }}>{diagnosisChartData.datasets[0].data[index]}%</span>
-                        </NewLegendItem>
-                    ))}
-                </NewLegendContainer>
-            </LeftPanel>
-
-            {/* 오른쪽 패널 */}
-            <RightPanel>
-                <FullReportCard>
-                    <FullTabNav>
-                        <FullTabButton onClick={() => setActiveTab('summary')} $isActive={activeTab === 'summary'}>요약</FullTabButton>
-                        <FullTabButton onClick={() => setActiveTab('description')} $isActive={activeTab === 'description'}>상세 설명</FullTabButton>
-                        <FullTabButton onClick={() => setActiveTab('precautions')} $isActive={activeTab === 'precautions'}>주의사항</FullTabButton>
-                        <FullTabButton onClick={() => setActiveTab('management')} $isActive={activeTab === 'management'}>관리법</FullTabButton>
-                    </FullTabNav>
-                    <FullTabContentContainer>
-                        {tabContent[activeTab]}
-                    </FullTabContentContainer>
-                </FullReportCard>
-                <FullActionsContainer>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                        <ActionButton><FaArrowLeft /><span>이전</span></ActionButton>
-                        <ActionButton><FaRedo /><span>다시 분석</span></ActionButton>
-                    </div>
-                    <ActionButton primary fullWidth onClick={handleDownloadReport}>
-                        <FaDownload /><span>리포트 내려받기</span>
-                    </ActionButton>
-                </FullActionsContainer>
-            </RightPanel>
-        </DiagnosisGrid>
-      </ReportContainer> 
-    </ContentWrapper>
-</DiagnosisSectionWrapper>
-        
-        <Section id="analysis" bg="#eff6ff">
-    <ContentWrapper>
-        <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <SectionHeading>
-                <NotoSansBlack>나의 피부 유형 바로 알기</NotoSansBlack>
-            </SectionHeading>
-            <SectionSubheading>
-                AI가 당신의 피부 타입을 분석하고, 유형별 특징과 통계를 제공합니다.
-            </SectionSubheading>
-        </div>
-
-        {/* 기존 Grid 컴포넌트를 그대로 사용하되, align="stretch"를 추가합니다. */}
-        <Grid lg_cols="3" gap="2rem" align="stretch">
-            {/* 1. 피부 유형 진단 결과 카드 */}
-            <GlassmorphismCard style={{ textAlign: 'center', padding: '2rem', justifyContent: 'space-between' }}>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem' }}>
-                    피부 유형 진단 결과
-                </h3>
-                <div style={{ margin: '1rem 0' }}>
-                    <div style={{ 
-                        display: 'inline-block',
-                        background: 'rgba(219, 234, 254, 0.5)', /* bg-blue-100/50 */
-                        border: '1px solid rgba(191, 219, 254, 0.5)', /* border-blue-200/50 */
-                        color: '#1e40af', /* text-blue-800 */
-                        fontSize: '1.5rem',
-                        fontWeight: '700',
-                        padding: '1rem 1.5rem',
-                        borderRadius: '0.75rem'
-                    }}>
-                        수분 부족형 지성
-                    </div>
-                </div>
-                <p style={{ color: '#4b5563', maxWidth: '28rem', margin: '0 auto' }}>
-                    겉은 번들거리지만 속은 건조한 타입입니다. 유수분 밸런스를 맞추는 것이 중요합니다.
-                </p>
-            </GlassmorphismCard>
-
-            {/* 2. 주의가 필요한 피부 질환 카드 */}
-            <GlassmorphismCard style={{ padding: '2rem' }}>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem' }}>
-                    주의가 필요한 피부 질환
-                </h3>
-                <ul style={{ listStyle: 'none', padding: 0, marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    <DiseaseListItem>
-                        {/* 1-3 선택사항을 적용 안 한 경우 */}
-                        <FaExclamationTriangle className="fa-icon" style={{ color: '#ef4444' }}/>
-                        <span>여드름 및 뾰루지</span>
-                    </DiseaseListItem>
-                    <DiseaseListItem>
-                        {/* 1-3 선택사항을 적용한 경우 */}
-                        <IconWrapper as={FaExclamationTriangle} color="#f97316" /> 
-                        <span>지루성 피부염</span>
-                    </DiseaseListItem>
-                    <DiseaseListItem>
-                        <IconWrapper as={FaExclamationTriangle} color="#eab308" />
-                        <span>모낭염</span>
-                    </DiseaseListItem>
-                </ul>
-            </GlassmorphismCard>
-
-            {/* 3. 20대 여성 통계 카드 */}
-            <GlassmorphismCard style={{ padding: '2rem' }}>
-              <div>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem' }}>
-                    20대 여성 통계
-                </h3>
-                <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-                    나와 같은 그룹의 피부 고민
-                </p>
-              </div>
-              <div style={{ flexGrow: 1, position: 'relative' }}>
-                {/* 기존 Doughnut 차트 코드를 그대로 사용합니다. */}
-                <Doughnut data={skinTypeChartData} options={skinTypeChartOptions} />
-              </div>
-            </GlassmorphismCard>
-        </Grid>
-    </ContentWrapper>
-</Section>
-        
-        <Section id="dashboard">
-            <ContentWrapper>
-                <SectionHeading>
-                    <NotoSansBlack>개인 맞춤형 대시보드</NotoSansBlack>
-                </SectionHeading>
-                <SectionSubheading>
-                    나의 피부 상태 변화를 기록하고, 한눈에 추적하세요.
-                </SectionSubheading>
-                <DashboardWrapper>
-                    <DashboardGrid>
-                        <ChartContainer>
-                            <h3>피부 상태 점수 변화 (최근 4주)</h3>
-                            <Line data={skinScoreChartData} options={skinScoreChartOptions} />
-                        </ChartContainer>
-                        <HistoryContainer>
-                            <h3>최근 진단 기록</h3>
-                            <HistoryList>
-                                <HistoryItem>
-                                    <div className="info">
-                                        <FaCalendarAlt />
-                                        <span>7월 4일</span>
-                                        <span>아토피</span>
-                                    </div>
-                                    <StatusBadge status="개선">개선</StatusBadge>
-                                </HistoryItem>
-                                <HistoryItem>
-                                    <div className="info">
-                                        <FaCalendarAlt />
-                                        <span>6월 28일</span>
-                                        <span>아토피</span>
-                                    </div>
-                                    <StatusBadge status="유지">유지</StatusBadge>
-                                </HistoryItem>
-                                <HistoryItem>
-                                    <div className="info">
-                                        <FaCalendarAlt />
-                                        <span>6월 21일</span>
-                                        <span>접촉성 피부염</span>
-                                    </div>
-                                    <StatusBadge status="악화">악화</StatusBadge>
-                                </HistoryItem>
-                            </HistoryList>
-                        </HistoryContainer>
-                    </DashboardGrid>
-                </DashboardWrapper>
-            </ContentWrapper>
-        </Section>
-        
-        <Section id="care" bg="#eff6ff">
-    <ContentWrapper>
-        <SectionHeading>
-            <NotoSansBlack>오늘의 맞춤 케어</NotoSansBlack>
-        </SectionHeading>
-        <SectionSubheading>
-            자외선 지수와 전문가 팁으로 매일 피부를 보호하세요.
-        </SectionSubheading>
-        <Grid md_cols="2" gap="2rem" align="stretch">
-            {/* 자외선 지수 카드와 관리 팁 카드 */}
-            <UvIndexCard>
-                <CardTitle>
-                    <FaSun style={{ color: '#fb923c', marginRight: '0.75rem' }} />
-                    오늘의 자외선 지수
-                </CardTitle>
-                <UvIndexDisplay>
-                    <UvIndexNumber>7</UvIndexNumber>
-                    <UvIndexText>높음 (부천시)</UvIndexText>
-                </UvIndexDisplay>
-                <UvInfoBox>
-                    <p>외출 시 주의!</p>
-                    <p>햇볕이 강한 시간대에는 외출을 자제하고, 긴 소매 옷과 자외선 차단제를 꼭 사용하세요.</p>
-                </UvInfoBox>
-            </UvIndexCard>
-
-            {/* 관리 팁 카드 */}
-            <UvIndexCard>
-                <CardTitle>
-                    <FaLightbulb style={{ color: '#22c55e', marginRight: '0.75rem' }} />
-                    이주의 관리 팁
-                </CardTitle>
-                <TipsContainer>
-                    <TipCard>
-                        <h4>수분 부족형 지성, 클렌징이 중요!</h4>
-                        <p>약산성 클렌저를 사용하여 유분은 제거하되 수분은 남기는 것이 핵심입니다. 과도한 세안은 오히려 피부를 더 건조하게 만들 수 있습니다.</p>
-                    </TipCard>
-                    <TipCard>
-                        <h4>보습, 가볍지만 확실하게</h4>
-                        <p>오일프리 타입의 수분 크림이나 젤 타입의 제품을 사용하여 속건조를 해결해주세요.</p>
-                    </TipCard>
-                </TipsContainer>
-            </UvIndexCard>
-        </Grid>
-    </ContentWrapper>
-</Section>
-            
-        {/* Footer */}
-        <Footer>
-            <CustomContainer className="text-center">
-                <p className="text-2xl font-bold md:text-3xl"><NotoSansBlack>지금 바로 BlueScope과 함께 건강한 피부 변화를 시작하세요.</NotoSansBlack></p>
-                <div style={{ marginTop: '2rem' }}>
-                <NeumorphicButton onClick={() => navigate('/disease-analysis-step1')}>
-                        AI 진단 시작하기
-                </NeumorphicButton>
-                </div>
-                </CustomContainer>
-        </Footer>
-
-        {showScrollTop && (
-            <ScrollToTopButton onClick={scrollToTop}>
-                <FaArrowUp />
-            </ScrollToTopButton>
-        )}
-    </>
-    );
-};
-
-export default MainPage;
-
-// Export components needed by DiseaseAnalysisStep3
-export const ReportCard = styled.div`
-  border: 1px solid #e2e8f0;
-  border-radius: 1rem;
-  background-color: white;
-  padding: 2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-`;
 
 export const ReportItem = styled.div`
   display: grid;
@@ -1113,3 +768,537 @@ export const SeverityBarInner = styled.div`
 
 `;
 
+
+// MainPage 컴포넌트 =======================================================
+
+const MainPage: React.FC = () => {
+    const navigate = useNavigate();
+    const [showScrollTop, setShowScrollTop] = useState(false);
+    
+    // Video state management
+    const videoList = [
+        { id: 1, src: video1 },
+        { id: 2, src: video1 },
+        { id: 3, src: video1 },
+        { id: 4, src: video1 }
+    ];
+    
+    const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const videoRef = useRef<HTMLVideoElement>(null);
+    
+    const handleVideoPlay = () => {
+        if (videoRef.current) {
+            if (isPlaying) {
+                videoRef.current.pause();
+            } else {
+                videoRef.current.play();
+            }
+            setIsPlaying(!isPlaying);
+        }
+    };
+    
+    const handleNextVideo = () => {
+        setCurrentVideoIndex((prev) => 
+            prev === videoList.length - 1 ? 0 : prev + 1
+        );
+        setIsPlaying(false);
+    };
+    
+    const handleVideoSelect = (index: number) => {
+        setCurrentVideoIndex(index);
+        setIsPlaying(false);
+    };
+    
+    // Existing magnifier state
+    const [magnifierState, setMagnifierState] = useState({
+        visible: false,
+        x: 0,
+        y: 0,
+        bgSize: '',
+        bgPos: ''
+    });
+
+    const magnifyContainerRef = useRef<HTMLDivElement>(null);
+    const magnifyImageRef = useRef<HTMLImageElement>(null);
+    const zoom = 2.5;
+
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleMagnifierMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!magnifyContainerRef.current || !magnifyImageRef.current) return;
+        
+        const container = magnifyContainerRef.current;
+        const img = magnifyImageRef.current;
+        const rect = container.getBoundingClientRect();
+        
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        if (x < 0 || x > rect.width || y < 0 || y > rect.height) {
+            handleMagnifierLeave();
+            return;
+        }
+
+        const imgWidth = img.width;
+        const imgHeight = img.height;
+        const bgSize = `${imgWidth * zoom}px ${imgHeight * zoom}px`;
+        const bgPosX = `-${x * zoom - 150 / 2}px`;
+        const bgPosY = `-${y * zoom - 150 / 2}px`;
+
+        setMagnifierState({
+            visible: true,
+            x,
+            y,
+            bgSize: bgSize,
+            bgPos: `${bgPosX} ${bgPosY}`
+        });
+    };
+
+    const handleMagnifierLeave = () => {
+        setMagnifierState(prevState => ({ ...prevState, visible: false }));
+    };
+
+    useEffect(() => {
+        const checkScrollTop = () => {
+            if (!showScrollTop && window.pageYOffset > 400) {
+                setShowScrollTop(true);
+            } else if (showScrollTop && window.pageYOffset <= 400) {
+                setShowScrollTop(false);
+            }
+        };
+
+        window.addEventListener('scroll', checkScrollTop);
+        return () => window.removeEventListener('scroll', checkScrollTop);
+    }, [showScrollTop]);
+
+    const diagnosisChartData = {
+    labels: ['아토피 피부염', '접촉성 피부염', '지루성 피부염', '기타'],
+    datasets: [{
+        data: [87, 8, 3, 2],
+        backgroundColor: ['#2563eb', '#60a5fa', '#93c5fd', '#dbeafe'],
+        borderColor: 'white',
+        borderWidth: 0,
+    }]
+};
+const diagnosisChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false, 
+    devicePixelRatio: window.devicePixelRatio > 1 ? window.devicePixelRatio : 2,
+    cutout: '60%',
+    plugins: {
+        legend: { display: false },
+        tooltip: {
+            callbacks: {
+                label: (context: TooltipItem<'doughnut'>) => `${context.label}: ${context.parsed}%`
+            }
+        }
+    }
+};
+type TabType = 'summary' | 'description' | 'precautions' | 'management';
+const [activeTab, setActiveTab] = useState<TabType>('summary');
+const handleDownloadReport = () => { /* 다운로드 로직 */ };
+const tabContent: Record<TabType, React.ReactNode> = {
+    summary: (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
+                 <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '1rem', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 600, color: '#475569' }}>의심 질환</span>
+                    <span style={{ fontWeight: 700, color: '#2563eb', fontSize: '1.125rem', textAlign: 'right' }}>아토피 피부염</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '1rem', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 600, color: '#475569' }}>확률</span>
+                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '1.125rem', textAlign: 'right' }}>87%</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '1rem', alignItems: 'center' }}>
+                     <span style={{ fontWeight: 600, color: '#475569' }}>심각도</span>
+                     <div style={{ width: '100%', backgroundColor: '#e2e8f0', borderRadius: '9999px', height: '0.625rem' }}>
+                        <div style={{ backgroundColor: '#f97316', height: '100%', borderRadius: '9999px', width: '75%' }} />
+                     </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '1rem', alignItems: 'center' }}>
+                     <span style={{ fontWeight: 600, color: '#475569' }}>예상 치료 기간</span>
+                     <span style={{ fontWeight: 700, color: '#1e293b', textAlign: 'right' }}>3-4주</span>
+                </div>
+            </div>
+            <div style={{ backgroundColor: '#eff6ff', borderLeft: '4px solid #3b82f6', color: '#1e3a8a', padding: '1rem', borderRadius: '0.5rem' }}>
+                <p style={{ fontWeight: 700, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaCommentMedical /> AI 소견 및 주의사항</p>
+                <p style={{ fontSize: '0.875rem', lineHeight: 1.6 }}>건조함과 가려움을 동반하는 피부염으로 보입니다. 보습제를 충분히 사용하고, 전문의와 상담하여 정확한 진단 및 치료를 받는 것을 권장합니다.</p>
+            </div>
+        </div>
+    ),
+    description: ( <FullContentBlock><h3>상세 설명 내용...</h3></FullContentBlock> ),
+    precautions: ( <FullContentBlock><h3>주의사항 내용...</h3></FullContentBlock> ),
+    management: ( <FullContentBlock><h3>관리법 내용...</h3></FullContentBlock> )
+};
+
+    return (
+      <>
+        {/* Video Section */}
+        <VideoSection>
+            <VideoContainer>
+                <VideoWrapper>
+                    <VideoElement
+                        ref={videoRef}
+                        src={videoList[currentVideoIndex].src}
+                        onClick={handleNextVideo}
+                        onPlay={() => setIsPlaying(true)}
+                        onPause={() => setIsPlaying(false)}
+                        muted
+                        loop
+                    />
+                    
+                    <PlayControlButton onClick={handleVideoPlay}>
+                        {isPlaying ? <FaPause /> : <FaPlay />}
+                    </PlayControlButton>
+                    
+                    <VideoTitle>
+                        <h2>PPIKA AI 피부 케어</h2>
+                        <p>전문적인 피부 관리의 모든 것을 경험해보세요</p>
+                    </VideoTitle>
+                    
+                    <VideoNavigation>
+                        <VideoIndicators>
+                            {videoList.map((_, index) => (
+                                <VideoIndicator
+                                    key={index}
+                                    $isActive={index === currentVideoIndex}
+                                    onClick={() => handleVideoSelect(index)}
+                                />
+                            ))}
+                        </VideoIndicators>
+                    </VideoNavigation>
+                </VideoWrapper>
+            </VideoContainer>
+        </VideoSection>
+
+        <Section bg="#eff6ff">
+            <ContentWrapper>
+                <Grid lg_cols="2" gap="1rem" align="center">
+                    <div>
+                        <MainHeading>
+                            <NotoSansBlack>AI 피부 전문가,</NotoSansBlack><br />
+                            <NotoSansBlack><GradientText>PPIKA</GradientText></NotoSansBlack> <br />
+                            <NotoSansBlack>당신의 피부 건강을<br /> 책임집니다</NotoSansBlack>
+                        </MainHeading>
+                        <SubHeading>
+                            PPIKA의 AI 진단으로 피부 고민의 원인을 정확히 파악하고, 가장 효과적인 관리법을 찾아보세요. 이제 집에서 간편하게 전문적인 피부 분석을 경험할 수 있습니다.
+                        </SubHeading>
+                        <NeumorphicButton onClick={() => navigate('/disease-analysis-step1')}>
+                            <FaCamera style={{ marginRight: '0.75rem' }} />
+                            AI 피부 진단 시작하기
+                        </NeumorphicButton>
+                    </div>
+                    <MagnifyContainer 
+                        ref={magnifyContainerRef}
+                        onMouseMove={handleMagnifierMove}
+                        onMouseLeave={handleMagnifierLeave}
+                    >
+                        <MagnifierImage ref={magnifyImageRef} src={main_image} alt="피부 상태" />
+                        <MagnifierLens 
+                            visible={magnifierState.visible}
+                            x={magnifierState.x}
+                            y={magnifierState.y}
+                            bgImage={main_image}
+                            bgSize={magnifierState.bgSize}
+                            bgPos={magnifierState.bgPos}
+                        />
+                    </MagnifyContainer>
+                </Grid>
+            </ContentWrapper>
+        </Section>
+        
+        <Section id="care">
+            <ContentWrapper>
+                <SectionHeading>
+                    <NotoSansBlack>PPIKA AI</NotoSansBlack>가 제공하는
+                    <br />
+                    <GradientText>핵심 기능 3가지</GradientText>
+                </SectionHeading>
+                <SectionSubheading>
+                    피부 분석부터 맞춤형 솔루션, 그리고 지속적인 관리까지. PPIKA AI는 당신의 피부 건강을 위한 모든 것을 제공합니다.
+                </SectionSubheading>
+                <Grid md_cols="3" gap="2rem">
+                    <GlassmorphismCard>
+                        <FaCamera size={36} className="text-blue-600 mb-4" />
+                        <h3 className="text-xl font-bold mb-2">AI 피부 분석</h3>
+                        <p className="text-gray-600">
+                            사진 한 장으로 피부 나이, 주요 고민(여드름, 모공, 주름 등)을 정밀하게 분석합니다. 시간과 장소에 구애받지 않고 전문가 수준의 진단을 받아보세요.
+                        </p>
+                    </GlassmorphismCard>
+                    <GlassmorphismCard>
+                        <FaCommentMedical size={36} className="text-blue-600 mb-4" />
+                        <h3 className="text-xl font-bold mb-2">맞춤형 솔루션 제안</h3>
+                        <p className="text-gray-600">
+                            분석 결과를 바탕으로 당신의 피부 타입과 고민에 가장 적합한 성분, 제품, 생활 습관을 추천해 드립니다. 더 이상 추측에 의존하지 마세요.
+                        </p>
+                    </GlassmorphismCard>
+                    <GlassmorphismCard>
+                        <FaCalendarAlt size={36} className="text-blue-600 mb-4" />
+                        <h3 className="text-xl font-bold mb-2">피부 상태 트래킹</h3>
+                        <p className="text-gray-600">
+                            일일, 주간, 월간 단위로 피부 변화를 기록하고 시각적인 리포트를 통해 개선 과정을 한눈에 확인하세요. 꾸준한 관리가 아름다운 피부의 비결입니다.
+                        </p>
+                    </GlassmorphismCard>
+                </Grid>
+            </ContentWrapper>
+        </Section>
+
+<Section id="diagnosis-result"  bg="#eff6ff">
+    <ContentWrapper>
+        <SectionHeading>
+            <NotoSansBlack>AI 피부 질환 진단</NotoSansBlack>
+        </SectionHeading>
+        <SectionSubheading>
+             사진 한 장으로 AI가 질환을 예측하고, 상세한 리포트를 제공합니다.
+        </SectionSubheading>
+        <ReportContainer>
+        <DiagnosisGrid>
+            {/* 왼쪽 패널 */}
+            <LeftPanel>
+                <h2 className="section-title">예상 질환 통계</h2>
+                <NewChartWrapper>
+                    <Doughnut data={diagnosisChartData} options={diagnosisChartOptions} />
+                </NewChartWrapper>
+                <NewLegendContainer>
+                    {diagnosisChartData.labels.map((label, index) => (
+                        <NewLegendItem key={label}>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <NewLegendColorBox color={diagnosisChartData.datasets[0].backgroundColor[index]} />
+                                <span style={{ color: '#334155' }}>{label}</span>
+                            </div>
+                            <span style={{ fontWeight: 'bold', color: '#1e293b' }}>{diagnosisChartData.datasets[0].data[index]}%</span>
+                        </NewLegendItem>
+                    ))}
+                </NewLegendContainer>
+            </LeftPanel>
+
+            {/* 오른쪽 패널 */}
+            <RightPanel>
+                <FullReportCard>
+                    <FullTabNav>
+                        <FullTabButton onClick={() => setActiveTab('summary')} $isActive={activeTab === 'summary'}>요약</FullTabButton>
+                        <FullTabButton onClick={() => setActiveTab('description')} $isActive={activeTab === 'description'}>상세 설명</FullTabButton>
+                        <FullTabButton onClick={() => setActiveTab('precautions')} $isActive={activeTab === 'precautions'}>주의사항</FullTabButton>
+                        <FullTabButton onClick={() => setActiveTab('management')} $isActive={activeTab === 'management'}>관리법</FullTabButton>
+                    </FullTabNav>
+                    <FullTabContentContainer>
+                        {tabContent[activeTab]}
+                    </FullTabContentContainer>
+                </FullReportCard>
+                <FullActionsContainer>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                        <ActionButton><FaArrowLeft /><span>이전</span></ActionButton>
+                        <ActionButton><FaRedo /><span>다시 분석</span></ActionButton>
+                    </div>
+                    <ActionButton primary fullWidth onClick={handleDownloadReport}>
+                        <FaDownload /><span>리포트 내려받기</span>
+                    </ActionButton>
+                </FullActionsContainer>
+            </RightPanel>
+        </DiagnosisGrid>
+      </ReportContainer> 
+    </ContentWrapper>
+</Section>
+        
+        <Section id="analysis">
+    <ContentWrapper>
+        <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            <SectionHeading>
+                <NotoSansBlack>나의 피부 유형 바로 알기</NotoSansBlack>
+            </SectionHeading>
+            <SectionSubheading>
+                AI가 당신의 피부 타입을 분석하고, 유형별 특징과 통계를 제공합니다.
+            </SectionSubheading>
+        </div>
+
+        {/* 기존 Grid 컴포넌트를 그대로 사용하되, align="stretch"를 추가합니다. */}
+        <Grid lg_cols="3" gap="2rem" align="stretch">
+            {/* 1. 피부 유형 진단 결과 카드 */}
+            <GlassmorphismCard style={{ textAlign: 'center', padding: '2rem', justifyContent: 'space-between' }}>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem' }}>
+                    피부 유형 진단 결과
+                </h3>
+                <div style={{ margin: '1rem 0' }}>
+                    <div style={{ 
+                        display: 'inline-block',
+                        background: 'rgba(219, 234, 254, 0.5)', /* bg-blue-100/50 */
+                        border: '1px solid rgba(191, 219, 254, 0.5)', /* border-blue-200/50 */
+                        color: '#1e40af', /* text-blue-800 */
+                        fontSize: '1.5rem',
+                        fontWeight: '700',
+                        padding: '1rem 1.5rem',
+                        borderRadius: '0.75rem'
+                    }}>
+                        수분 부족형 지성
+                    </div>
+                </div>
+                <p style={{ color: '#4b5563', maxWidth: '28rem', margin: '0 auto' }}>
+                    겉은 번들거리지만 속은 건조한 타입입니다. 유수분 밸런스를 맞추는 것이 중요합니다.
+                </p>
+            </GlassmorphismCard>
+
+            {/* 2. 주의가 필요한 피부 질환 카드 */}
+            <GlassmorphismCard style={{ padding: '2rem', alignItems: 'center' }}>
+                <h3 style={{ fontSize: 'clamp(1.2rem, 2vw, 1.5rem)', fontWeight: '700', marginBottom: '1rem' }}>
+                    주의가 필요한 피부 질환
+                </h3>
+                <ul style={{ listStyle: 'none', padding: 0, marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <DiseaseListItem>
+                        {/* 1-3 선택사항을 적용 안 한 경우 */}
+                        <FaExclamationTriangle className="fa-icon" style={{ color: '#ef4444' }}/>
+                        <span>여드름 및 뾰루지</span>
+                    </DiseaseListItem>
+                    <DiseaseListItem>
+                        {/* 1-3 선택사항을 적용한 경우 */}
+                        <IconWrapper as={FaExclamationTriangle} color="#f97316" /> 
+                        <span>지루성 피부염</span>
+                    </DiseaseListItem>
+                    <DiseaseListItem>
+                        <IconWrapper as={FaExclamationTriangle} color="#eab308" />
+                        <span>모낭염</span>
+                    </DiseaseListItem>
+                </ul>
+            </GlassmorphismCard>
+
+            {/* 3. 20대 여성 통계 카드 */}
+            <GlassmorphismCard style={{ padding: '2rem', alignItems: 'center' }}>
+              <div>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem' }}>
+                    20대 여성 통계
+                </h3>
+                <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
+                    나와 같은 그룹의 피부 고민
+                </p>
+              </div>
+              <div style={{ flexGrow: 1, position: 'relative' }}>
+                {/* 기존 Doughnut 차트 코드를 그대로 사용합니다. */}
+                <Doughnut data={skinTypeChartData} options={skinTypeChartOptions} />
+              </div>
+            </GlassmorphismCard>
+        </Grid>
+    </ContentWrapper>
+</Section>
+        
+        <Section id="dashboard" bg="#eff6ff">
+            <ContentWrapper>
+                <SectionHeading>
+                    <NotoSansBlack>개인 맞춤형 대시보드</NotoSansBlack>
+                </SectionHeading>
+                <SectionSubheading>
+                    나의 피부 상태 변화를 기록하고, 한눈에 추적하세요.
+                </SectionSubheading>
+                <DashboardWrapper>
+                    <DashboardGrid>
+                        <ChartContainer>
+                            <h3>피부 상태 점수 변화 (최근 4주)</h3>
+                            <Line data={skinScoreChartData} options={skinScoreChartOptions} />
+                        </ChartContainer>
+                        <HistoryContainer>
+                            <h3>최근 진단 기록</h3>
+                            <HistoryList>
+                                <HistoryItem>
+                                    <div className="info">
+                                        <FaCalendarAlt />
+                                        <span>7월 4일</span>
+                                        <span>아토피</span>
+                                    </div>
+                                    <StatusBadge status="개선">개선</StatusBadge>
+                                </HistoryItem>
+                                <HistoryItem>
+                                    <div className="info">
+                                        <FaCalendarAlt />
+                                        <span>6월 28일</span>
+                                        <span>아토피</span>
+                                    </div>
+                                    <StatusBadge status="유지">유지</StatusBadge>
+                                </HistoryItem>
+                                <HistoryItem>
+                                    <div className="info">
+                                        <FaCalendarAlt />
+                                        <span>6월 21일</span>
+                                        <span>접촉성 피부염</span>
+                                    </div>
+                                    <StatusBadge status="악화">악화</StatusBadge>
+                                </HistoryItem>
+                            </HistoryList>
+                        </HistoryContainer>
+                    </DashboardGrid>
+                </DashboardWrapper>
+            </ContentWrapper>
+        </Section>
+        
+        <Section id="care">
+    <ContentWrapper>
+        <SectionHeading>
+            <NotoSansBlack>오늘의 맞춤 케어</NotoSansBlack>
+        </SectionHeading>
+        <SectionSubheading>
+            자외선 지수와 전문가 팁으로 매일 피부를 보호하세요.
+        </SectionSubheading>
+        <Grid md_cols="2" gap="2rem" align="stretch">
+            {/* 자외선 지수 카드와 관리 팁 카드 */}
+            <UvIndexCard>
+                <CardTitle>
+                    <FaSun style={{ color: '#fb923c', marginRight: '0.75rem' }} />
+                    오늘의 자외선 지수
+                </CardTitle>
+                <UvIndexDisplay>
+                    <UvIndexNumber>7</UvIndexNumber>
+                    <UvIndexText>높음 (부천시)</UvIndexText>
+                </UvIndexDisplay>
+                <UvInfoBox>
+                    <p>외출 시 주의!</p>
+                    <p>햇볕이 강한 시간대에는 외출을 자제하고, 긴 소매 옷과 자외선 차단제를 꼭 사용하세요.</p>
+                </UvInfoBox>
+            </UvIndexCard>
+
+            {/* 관리 팁 카드 */}
+            <UvIndexCard>
+                <CardTitle>
+                    <FaLightbulb style={{ color: '#22c55e', marginRight: '0.75rem' }} />
+                    이주의 관리 팁
+                </CardTitle>
+                <TipsContainer>
+                    <TipCard>
+                        <h4>수분 부족형 지성, 클렌징이 중요!</h4>
+                        <p>약산성 클렌저를 사용하여 유분은 제거하되 수분은 남기는 것이 핵심입니다. 과도한 세안은 오히려 피부를 더 건조하게 만들 수 있습니다.</p>
+                    </TipCard>
+                    <TipCard>
+                        <h4>보습, 가볍지만 확실하게</h4>
+                        <p>오일프리 타입의 수분 크림이나 젤 타입의 제품을 사용하여 속건조를 해결해주세요.</p>
+                    </TipCard>
+                </TipsContainer>
+            </UvIndexCard>
+        </Grid>
+    </ContentWrapper>
+</Section>
+            
+       <Section bg="#eff6ff">
+        <Footer>
+            <CustomContainer className="text-center">
+                <p className="text-2xl font-bold md:text-3xl">
+                  <SectionHeading><NotoSansBlack>지금 바로 PPIKA과 함께 건강한 피부 변화를 시작하세요.</NotoSansBlack></SectionHeading>
+                </p>
+                <div style={{ marginTop: '2rem' }}>
+                <NeumorphicButton onClick={() => navigate('/disease-analysis-step1')}>
+                        AI 진단 시작하기
+                </NeumorphicButton>
+                </div>
+                </CustomContainer>
+        </Footer>
+        </Section>
+
+        {showScrollTop && (
+            <ScrollToTopButton onClick={scrollToTop}>
+                <FaArrowUp />
+            </ScrollToTopButton>
+        )}
+    </>
+    );
+};
+
+
+export default MainPage;

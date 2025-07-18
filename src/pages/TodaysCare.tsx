@@ -4,7 +4,7 @@ import { ContentWrapper } from '../components/Layout';
 import { getUVIndex } from '../services/uv_indexApi';
 import type { UVIndexResponse } from '../services/types';
 
-// --- 타입 정의 (기존과 동일) --- //
+// --- 타입 정의 --- //
 interface Tip {
   icon: string;
   title: string;
@@ -14,6 +14,7 @@ interface Tip {
 interface CareLevelData {
   index: number;
   color: string;
+  range: string; // 범위 속성 추가
   summary: {
     title: string;
     description: string;
@@ -25,19 +26,37 @@ interface CareData {
   [key: string]: CareLevelData;
 }
 
-// --- 스타일 컴포넌트 정의 (rem 및 clamp() 적용하여 수정) --- //
+const LocationStatus = styled.p<{ $isRealTime: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+  font-weight: ${props => props.$isRealTime ? '600' : '400'};
+  color: ${props => props.$isRealTime ? '#1E293B' : '#64748B'};
+  font-size: ${props => props.$isRealTime ? '1.125rem' : '1rem'};
+
+  &::before {
+    content: '●';
+    color: ${props => props.$isRealTime ? '#22c55e' : '#94a3b8'};
+    font-size: 0.875rem;
+    margin-right: 0.25rem;
+  }
+`;
+
+
+// --- 스타일 컴포넌트 정의 --- //
 const Header = styled.header`
   text-align: center;
   padding: 3rem 0;
 
   h1 {
-    font-size: clamp(2rem, 5vw, 2.5rem); /* clamp 적용 */
+    font-size: clamp(2rem, 5vw, 2.5rem); 
     font-weight: 700;
     color: #1E293B;
     margin: 0;
   }
   p {
-    font-size: clamp(1rem, 2vw, 1.25rem); /* clamp 적용 */
+    font-size: clamp(1rem, 2vw, 1.25rem); 
     color: #64748B;
     margin-top: 0.5rem;
   }
@@ -78,9 +97,9 @@ const UvIndexDisplay = styled.div`
   }
 `;
 
-const UvIndexVisual = styled.div<{ bgColor: string }>`
-  width: 8rem; /* rem으로 통일 */
-  height: 8rem; /* rem으로 통일 */
+const UvIndexVisual = styled.div<{ $bgColor: string }>`
+  width: 8rem; 
+  height: 8rem; 
   border-radius: 9999px;
   display: flex;
   flex-direction: column;
@@ -88,15 +107,15 @@ const UvIndexVisual = styled.div<{ bgColor: string }>`
   align-items: center;
   color: white;
   box-shadow: 0 0.625rem 0.9375rem -0.1875rem rgba(0, 0, 0, 0.1), 0 0.25rem 0.375rem -0.125rem rgba(0, 0, 0, 0.05);
-  background-color: ${props => props.bgColor};
+  background-color: ${props => props.$bgColor};
   transition: background-color 0.3s ease;
 
   span:first-child {
-    font-size: 1rem; /* rem으로 통일 */
+    font-size: 1rem; 
     font-weight: 500;
   }
   span:last-child {
-    font-size: clamp(2.5rem, 6vw, 3rem); /* clamp 적용 */
+    font-size: clamp(2.5rem, 6vw, 3rem); 
     font-weight: 700;
   }
 `;
@@ -108,7 +127,7 @@ const UvIndexText = styled.div`
     font-size: 1rem;
   }
   h2 {
-    font-size: clamp(1.8rem, 4vw, 2.25rem); /* clamp 적용 */
+    font-size: clamp(1.8rem, 4vw, 2.25rem); 
     font-weight: 700;
     color: #1E293B;
     margin: 0.25rem 0 0 0;
@@ -154,7 +173,7 @@ const TabsContainer = styled.div`
 `;
 
 const TabButton = styled.button<{ $active: boolean }>`
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1.25rem;
   border: none;
   background-color: transparent;
   color: ${props => props.$active ? '#0891B2' : '#64748B'};
@@ -164,13 +183,21 @@ const TabButton = styled.button<{ $active: boolean }>`
   border-bottom: 0.1875rem solid ${props => props.$active ? '#0891B2' : 'transparent'};
   flex-shrink: 0;
   white-space: nowrap;
-  font-size: clamp(0.9rem, 1.8vw, 1.3rem); /* 폰트 크기 명시 */
+  font-size: clamp(0.9rem, 1.8vw, 1.2rem); 
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+`;
+
+const TabRange = styled.span`
+  font-size: 0.8rem;
+  color: #94A3B8;
+  font-weight: 400;
 `;
 
 const TipsContent = styled.div`
   padding-top: 2rem;
   display: grid;
-  /* ❗❗❗ 핵심 수정: 280px -> 17.5rem 으로 변경 */
   grid-template-columns: repeat(auto-fit, minmax(17.5rem, 1fr));
   gap: 1.5rem;
 `;
@@ -208,13 +235,13 @@ const TipCard = styled.div`
   }
 `;
 
-// --- 데이터 (기존과 동일) --- //
+// --- 데이터 --- //
 const careData: CareData = {
-    '낮음': { index: 1, color: '#22C55E', summary: { title: '오늘은 날씨가 좋아요!', description: '대부분 안전하지만, 민감성 피부는 가벼운 자외선 차단제를 사용하는 것이 좋습니다.'}, tips: [ { icon: '☀️', title: '자외선 차단제', description: '흐린 날에도 자외선은 존재해요. SPF 15 이상의 자외선 차단제를 사용하세요.' }, { icon: '😎', title: '보호 장비', description: '특별한 보호는 필요 없지만, 민감성 피부는 선글라스를 착용하는 것이 좋습니다.' } ]},
-    '보통': { index: 4, color: '#F59E0B', summary: { title: '오늘의 외출, 준비가 필요해요', description: '외출 30분 전 자외선 차단제를 바르고, 햇볕이 강한 시간대에는 그늘을 활용하세요.'}, tips: [ { icon: '🧴', title: '자외선 차단제 필수', description: 'SPF 30, PA++ 이상의 자외선 차단제를 외출 30분 전에 바르세요.' }, { icon: '👒', title: '모자 및 의류', description: '햇볕이 강한 시간대(오전 10시~오후 3시)에는 그늘을 찾고, 넓은 챙의 모자를 쓰세요.' }, { icon: '🕶️', title: '선글라스 착용', description: '눈 건강을 위해 자외선 차단 기능이 있는 선글라스를 착용하세요.' } ]},
-    '높음': { index: 7, color: '#F97316', summary: { title: '오늘은 외출 시 주의가 필요해요', description: '자외선 차단제를 꼼꼼히 바르고, 2시간마다 덧발라주세요. 가능한 한 긴 소매 옷을 착용하는 것이 좋습니다.'}, tips: [ { icon: '🧴', title: '차단 지수 높은 제품 사용', description: 'SPF 50, PA+++ 이상의 강력한 자외선 차단제를 사용하고, 2시간마다 덧발라주세요.' }, { icon: '👕', title: '긴 소매 옷 착용', description: '피부 보호를 위해 긴 소매 옷, 긴 바지를 입어 노출을 최소화하세요.' }, { icon: '🏠', title: '실내 활동 권장', description: '햇볕이 가장 강한 시간에는 가급적 실내에 머무르는 것이 안전합니다.' } ]},
-    '매우 높음': { index: 9, color: '#EF4444', summary: { title: '강한 자외선, 외출을 자제하세요', description: '피부가 쉽게 손상될 수 있습니다. 오전 10시부터 오후 3시까지는 실내에 머무르는 것을 강력히 권장합니다.'}, tips: [ { icon: '🚫', title: '외출 자제', description: '오전 10시부터 오후 3시까지는 외출을 삼가는 것이 가장 좋습니다.' }, { icon: '💧', title: '수분 보충', description: '피부가 쉽게 건조해지고 열을 받을 수 있으니, 물을 충분히 마셔주세요.' }, { icon: '🌿', title: '진정 케어', description: '외출 후에는 알로에 젤 등으로 피부를 진정시켜주는 것이 중요합니다.' } ]},
-    '위험': { index: 11, color: '#8B5CF6', summary: { title: '위험 수준! 외출은 절대 금물입니다', description: '짧은 시간의 노출에도 피부가 심각한 화상을 입을 수 있습니다. 반드시 실내에 머무르세요.'}, tips: [ { icon: '🚨', title: '외출 금지 수준', description: '햇볕에 몇 분만 노출되어도 화상을 입을 수 있습니다. 외출을 절대적으로 피하세요.' }, { icon: '🛡️', title: '완벽한 차단', description: '부득이하게 외출 시, 자외선 차단 의류, 모자, 선글라스 등 모든 수단을 동원하세요.' }, { icon: '❄️', title: '쿨링 및 진정', description: '실내에서도 시원하게 유지하고, 피부 온도를 낮추는 데 신경 써야 합니다.' } ]}
+    '낮음': { index: 1, range: '0-2', color: '#22C55E', summary: { title: '오늘은 날씨가 좋아요!', description: '대부분 안전하지만, 민감성 피부는 가벼운 자외선 차단제를 사용하는 것이 좋습니다.'}, tips: [ { icon: '☀️', title: '자외선 차단제', description: '흐린 날에도 자외선은 존재해요. SPF 15 이상의 자외선 차단제를 사용하세요.' }, { icon: '😎', title: '보호 장비', description: '특별한 보호는 필요 없지만, 민감성 피부는 선글라스를 착용하는 것이 좋습니다.' } ]},
+    '보통': { index: 4, range: '3-5', color: '#F59E0B', summary: { title: '오늘의 외출, 준비가 필요해요', description: '외출 30분 전 자외선 차단제를 바르고, 햇볕이 강한 시간대에는 그늘을 활용하세요.'}, tips: [ { icon: '🧴', title: '자외선 차단제 필수', description: 'SPF 30, PA++ 이상의 자외선 차단제를 외출 30분 전에 바르세요.' }, { icon: '👒', title: '모자 및 의류', description: '햇볕이 강한 시간대(오전 10시~오후 3시)에는 그늘을 찾고, 넓은 챙의 모자를 쓰세요.' }, { icon: '🕶️', title: '선글라스 착용', description: '눈 건강을 위해 자외선 차단 기능이 있는 선글라스를 착용하세요.' } ]},
+    '높음': { index: 7, range: '6-7', color: '#F97316', summary: { title: '오늘은 외출 시 주의가 필요해요', description: '자외선 차단제를 꼼꼼히 바르고, 2시간마다 덧발라주세요. 가능한 한 긴 소매 옷을 착용하는 것이 좋습니다.'}, tips: [ { icon: '🧴', title: '차단 지수 높은 제품 사용', description: 'SPF 50, PA+++ 이상의 강력한 자외선 차단제를 사용하고, 2시간마다 덧발라주세요.' }, { icon: '👕', title: '긴 소매 옷 착용', description: '피부 보호를 위해 긴 소매 옷, 긴 바지를 입어 노출을 최소화하세요.' }, { icon: '🏠', title: '실내 활동 권장', description: '햇볕이 가장 강한 시간에는 가급적 실내에 머무르는 것이 안전합니다.' } ]},
+    '매우 높음': { index: 9, range: '8-10', color: '#EF4444', summary: { title: '강한 자외선, 외출을 자제하세요', description: '피부가 쉽게 손상될 수 있습니다. 오전 10시부터 오후 3시까지는 실내에 머무르는 것을 강력히 권장합니다.'}, tips: [ { icon: '🚫', title: '외출 자제', description: '오전 10시부터 오후 3시까지는 외출을 삼가는 것이 가장 좋습니다.' }, { icon: '💧', title: '수분 보충', description: '피부가 쉽게 건조해지고 열을 받을 수 있으니, 물을 충분히 마셔주세요.' }, { icon: '🌿', title: '진정 케어', description: '외출 후에는 알로에 젤 등으로 피부를 진정시켜주는 것이 중요합니다.' } ]},
+    '위험': { index: 11, range: '11+', color: '#8B5CF6', summary: { title: '위험 수준! 외출은 절대 금물입니다', description: '짧은 시간의 노출에도 피부가 심각한 화상을 입을 수 있습니다. 반드시 실내에 머무르세요.'}, tips: [ { icon: '🚨', title: '외출 금지 수준', description: '햇볕에 몇 분만 노출되어도 화상을 입을 수 있습니다. 외출을 절대적으로 피하세요.' }, { icon: '🛡️', title: '완벽한 차단', description: '부득이하게 외출 시, 자외선 차단 의류, 모자, 선글라스 등 모든 수단을 동원하세요.' }, { icon: '❄️', title: '쿨링 및 진정', description: '실내에서도 시원하게 유지하고, 피부 온도를 낮추는 데 신경 써야 합니다.' } ]}
 };
 
 // UV 지수에 따른 케어 레벨 결정 함수
@@ -226,12 +253,25 @@ const getCareLevelFromUVIndex = (uvIndex: number): string => {
   return '위험';
 };
 
+// 케어 레벨에 해당하는 대표 UV 지수 매핑
+const getUVIndexFromCareLevel = (careLevel: string): number => {
+  switch (careLevel) {
+    case '낮음': return 1;
+    case '보통': return 4;
+    case '높음': return 7;
+    case '매우 높음': return 9;
+    case '위험': return 11;
+    default: return 1;
+  }
+};
+
 // --- 컴포넌트 --- //
 function TodaysCare() {
   const [activeTab, setActiveTab] = useState<string>('보통');
   const [uvData, setUvData] = useState<UVIndexResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRealTimeData, setIsRealTimeData] = useState<boolean>(true);
 
   // 페이지 로드 시 UV 지수 API 호출
   useEffect(() => {
@@ -242,14 +282,19 @@ function TodaysCare() {
         const data = await getUVIndex();
         setUvData(data);
         
-        // UV 지수에 따라 적절한 탭 설정
-        const uvIndex = parseInt(data.today);
-        const careLevel = getCareLevelFromUVIndex(uvIndex);
-        setActiveTab(careLevel);
+        if (data && data.now) {
+          const uvIndex = parseInt(data.now, 10);
+          const careLevel = getCareLevelFromUVIndex(uvIndex);
+          setActiveTab(careLevel);
+          setIsRealTimeData(true);
+        } else {
+          setError('UV 지수 데이터를 찾을 수 없습니다.');
+          setIsRealTimeData(false); // 데이터 없으면 실시간 아님
+        }
       } catch (err) {
         console.error('UV 지수를 불러오는데 실패했습니다:', err);
         setError('UV 지수를 불러오는데 실패했습니다.');
-        // 에러 발생 시 기본값 유지
+        setIsRealTimeData(false); // 에러 시 실시간 아님
       } finally {
         setIsLoading(false);
       }
@@ -258,9 +303,31 @@ function TodaysCare() {
     fetchUVIndex();
   }, []);
 
-  const currentUvData = careData[activeTab];
-  const currentUVIndex = uvData ? parseInt(uvData.today) : currentUvData.index;
-  // 로딩 중일 때
+  // 탭 클릭 핸들러
+  const handleTabClick = (level: string) => {
+    setActiveTab(level);
+    setIsRealTimeData(false); // 탭을 클릭하면 더 이상 실시간 데이터가 아님
+  };
+
+  // 실시간 데이터로 돌아가기 버튼 핸들러
+  const handleRealTimeClick = () => {
+    if (uvData && uvData.now) {
+      const uvIndex = parseInt(uvData.now, 10);
+      const careLevel = getCareLevelFromUVIndex(uvIndex);
+      setActiveTab(careLevel);
+      setIsRealTimeData(true);
+    }
+  };
+
+  // 현재 탭에 맞는 데이터 선택
+  const currentCareData = careData[activeTab];
+
+  // UV 지수 표시 값 결정
+  const displayUVIndex = isRealTimeData && uvData
+    ? uvData.now
+    : getUVIndexFromCareLevel(activeTab).toString();
+
+  // 로딩 중일 때 UI
   if (isLoading) {
     return (
       <>
@@ -294,19 +361,26 @@ function TodaysCare() {
         <UvInfoBox>
           <UvInfoInnerWrapper>
             <UvIndexDisplay>
-              <UvIndexVisual bgColor={currentUvData.color}>
+              <UvIndexVisual $bgColor={currentCareData.color}>
                 <span>UV 지수</span>
-                <span>{currentUVIndex}</span>
+                <span>{displayUVIndex}</span>
               </UvIndexVisual>
               <UvIndexText>
-                <p>{uvData?.location || '현재 위치'}</p>
+                <LocationStatus $isRealTime={isRealTimeData}>
+                  {isRealTimeData ? `${uvData?.location || '현재 위치'} (실시간)` : '케어 단계별 정보'}
+                </LocationStatus>
                 <h2>{activeTab}</h2>
+                {isRealTimeData && uvData?.date && (
+                  <p style={{ fontSize: '0.875rem', color: '#64748B', margin: '0.25rem 0 0 0' }}>
+                    측정 시간: {uvData.date}
+                  </p>
+                )}
                 {error && <p style={{ color: '#EF4444', fontSize: '0.875rem' }}>{error}</p>}
               </UvIndexText>
             </UvIndexDisplay>
             <UvSummary>
-              <p><strong>{currentUvData.summary.title}</strong></p>
-              <p>{currentUvData.summary.description}</p>
+              <p><strong>{currentCareData.summary.title}</strong></p>
+              <p>{currentCareData.summary.description}</p>
             </UvSummary>
           </UvInfoInnerWrapper>
         </UvInfoBox>
@@ -314,18 +388,26 @@ function TodaysCare() {
         <ContentWrapper>
           <CareTipsContainer>
             <TabsContainer>
-              {Object.keys(careData).map(level => (
+              <TabButton
+                $active={isRealTimeData}
+                onClick={handleRealTimeClick}
+                disabled={!uvData}
+              >
+                🌡️ 실시간
+              </TabButton>
+              {Object.entries(careData).map(([level, data]) => (
                 <TabButton
                   key={level}
-                  $active={activeTab === level}
-                  onClick={() => setActiveTab(level)}
+                  $active={!isRealTimeData && activeTab === level}
+                  onClick={() => handleTabClick(level)}
                 >
                   {level}
+                  <TabRange>({data.range})</TabRange>
                 </TabButton>
               ))}
             </TabsContainer>
             <TipsContent>
-              {currentUvData.tips.map((tip, index) => (
+              {currentCareData.tips.map((tip, index) => (
                 <TipCard key={index}>
                   <span className="icon" role="img" aria-label="icon">{tip.icon}</span>
                   <div>

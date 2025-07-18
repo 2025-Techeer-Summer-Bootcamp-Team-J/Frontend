@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { api } from '../services';
+import type { DashboardData } from '../services/dashboardApi';
 import styled, { css, createGlobalStyle } from 'styled-components';
 import { Line } from 'react-chartjs-2';
 import {
@@ -29,13 +31,9 @@ const WarningIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 
 // --- 데이터 정의 ---
 type DiagnosisStatus = '개선' | '유지' | '악화';
-const recentDiagnosesData: { id: number; name: string; date: string; status: DiagnosisStatus }[] = [
-  { id: 1, name: '아토피 피부염', date: '7월 4일', status: '개선' },
-  { id: 2, name: '지루성 피부염', date: '6월 28일', status: '유지' },
-  { id: 3, name: '접촉성 피부염', date: '6월 21일', status: '악화' },
-];
 
 // --- 메인 대시보드 컴포넌트 ---
+
 const Dashboard = () => {
     const { user, isLoaded } = useUser();
 
@@ -107,15 +105,50 @@ const Dashboard = () => {
             setIsSaving(false);
         }
     };
-    
+
+    const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                setLoading(true);
+                // Replace with actual user ID from authentication context
+                const userId = 1;
+                const response = await api.dashboard.getDashboard(userId);
+                setDashboardData(response.data.data); // Access the 'data' field from the API response
+            } catch (err) {
+                setError('Failed to fetch dashboard data.');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, []);
+
+    if (loading) {
+        return <BodyContainer><p>Loading dashboard...</p></BodyContainer>;
+    }
+
+    if (error) {
+        return <BodyContainer><p>Error: {error}</p></BodyContainer>;
+    }
+
+    if (!dashboardData) {
+        return <BodyContainer><p>No dashboard data available.</p></BodyContainer>;
+    }
+
     // 차트 데이터 및 옵션
-    const chartLabels = ['29일 전', '27일 전', '25일 전', '23일 전', '21일 전', '19일 전', '17일 전', '15일 전', '13일 전', '11일 전', '9일 전', '7일 전', '5일 전', '3일 전', '1일 전'];
+    const chartLabels = dashboardData.recent_skinType_scores?.map((score: any) => score.date) || [];
     
     const chartData: ChartData<'line'> = {
         labels: chartLabels,
         datasets: [{
             label: '피부 점수',
-            data: [70, 72, 75, 74, 78, 80, 79, 82, 85, 84, 88, 87, 90, 89, 92],
+            data: dashboardData.recent_skinType_scores?.map((score: any) => score.score) || [],
             fill: true,
             backgroundColor: (context) => {
                 const ctx = context.chart.ctx;
@@ -199,13 +232,14 @@ const Dashboard = () => {
                             <Card>
                                 <CardTitle>최근 진단 기록</CardTitle>
                                 <ListContainer>
-                                    {recentDiagnosesData.map(item => (
+                                    {dashboardData.recent_diagnosis_records?.map((item) => (
                                         <ListItem key={item.id}>
                                             <div>
-                                                <p className="font-semibold text-gray-700">{item.name}</p>
-                                                <p className="text-sm text-gray-500">{item.date}</p>
+                                                <p className="font-semibold text-gray-700">{item.disease_name || 'N/A'}</p>
+                                                <p className="text-sm text-gray-500">{new Date(item.created_at).toLocaleDateString('ko-KR')}</p>
                                             </div>
-                                            <StatusBadge status={item.status}>{item.status}</StatusBadge>
+                                            {/* Backend does not provide status, using a placeholder */}
+                                            <StatusBadge status={'유지'}>유지</StatusBadge>
                                         </ListItem>
                                     ))}
                                 </ListContainer>
@@ -477,6 +511,7 @@ const CardTitle = styled.h3`
 
 const PageTitle = styled.div`
   margin-bottom: 2rem;
+  text-align: center;
   h2 {
     font-size: 1.875rem;
     font-weight: 700;
@@ -541,7 +576,7 @@ const ProfileLabel = styled.p`
 
 const ProfileValue = styled.p`
   font-weight: 600;
-  color: #1f2937; /* Updated for better readability */
+  color: #2563eb;
   margin: 0;
 `;
 

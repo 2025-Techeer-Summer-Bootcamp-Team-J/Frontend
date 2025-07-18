@@ -6,12 +6,12 @@ import DiseaseAnalysisStep2Page from './pages/DiseaseAnalysisStep2';
 import AnalysisResultPage from './pages/DiseaseAnalysisStep3';
 import { GlobalStyle } from './styles/GlobalStyle';
 import Layout from './components/Layout';
-import SignInPage from './pages/SigninPage';
-import SignUpPage from './pages/SignUpPage';
 import MainPage from './pages/MainPage';
 import TodaysCare from './pages/TodaysCare';
 import Dashboard from './pages/Dashboard';
 import SkinAnalysis from './pages/SkinAnalysis';
+import LoadingPage from './pages/LoadingPage';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import UserInfoPage from './pages/UserInfoPage';
 import RedirectPage from './pages/RedirectPage';
 
@@ -21,16 +21,38 @@ function App() {
     <>
       <GlobalStyle />
       <Routes>
-        {/* 공통 레이아웃(헤더 등)을 사용하는 페이지 그룹 */}
         <Route element={<Layout />}>
           <Route path="/" element={<MainPage />} />
           <Route path="/main" element={<MainPage />} />
-          <Route path="/disease-analysis-step1" element={<SkinAnalysisStep1 />} />
-          <Route path="/disease-analysis-step2" element={<DiseaseAnalysisStep2Page />} />
-          <Route path="/disease-analysis-step3" element={<AnalysisResultPage />} />
-          <Route path="/todays-care" element={<TodaysCare />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/skin-analysis" element={<SkinAnalysis />} />
+
+          <Route
+            path="/disease-analysis-step1"
+            element={<ProtectedRoute><SkinAnalysisStep1 /></ProtectedRoute>}
+          />
+          <Route
+            path="/disease-analysis-step2"
+            element={<ProtectedRoute><DiseaseAnalysisStep2Page /></ProtectedRoute>}
+          />
+          <Route
+            path="/disease-analysis-step3"
+            element={<ProtectedRoute><AnalysisResultPage /></ProtectedRoute>}
+          />
+          <Route
+            path="/todays-care"
+            element={<ProtectedRoute><TodaysCare /></ProtectedRoute>}
+          />
+          <Route
+            path="/dashboard"
+            element={<ProtectedRoute><Dashboard /></ProtectedRoute>}
+          />
+          <Route
+            path="/skin-analysis"
+            element={<ProtectedRoute><SkinAnalysis /></ProtectedRoute>}
+          />
+          <Route
+            path="/loading"
+            element={<ProtectedRoute><LoadingPage /></ProtectedRoute>}
+          />
         </Route>
 
         {/* 단독으로 표시되는 페이지 그룹 */}
