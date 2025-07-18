@@ -8,7 +8,6 @@ import {
   Title, Tooltip, Legend, Filler, type ChartData, type ChartOptions
 } from 'chart.js';
 import { useUser } from "@clerk/clerk-react";
-import { useState, useEffect } from 'react';
 
 // Chart.js 모듈 등록
 ChartJS.register(
@@ -62,7 +61,7 @@ const Dashboard = () => {
     const [editGender, setEditGender] = useState(gender);
     const [editBirthdate, setEditBirthdate] = useState(birthdate);
     const [isSaving, setIsSaving] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [userError, setUserError] = useState<string | null>(null);
 
     useEffect(() => {
         if (user) {
@@ -77,7 +76,7 @@ const Dashboard = () => {
 
     const handleCancel = () => {
         setIsEditing(false);
-        setError(null);
+        setUserError(null);
         // Reset to original values
         setEditGender(gender);
         setEditBirthdate(birthdate);
@@ -87,7 +86,7 @@ const Dashboard = () => {
         if (!user) return;
 
         setIsSaving(true);
-        setError(null);
+        setUserError(null);
 
         try {
             await user.update({
@@ -99,7 +98,7 @@ const Dashboard = () => {
             });
             setIsEditing(false);
         } catch (err) {
-            setError("정보 저장에 실패했습니다. 다시 시도해주세요.");
+            setUserError("정보 저장에 실패했습니다. 다시 시도해주세요.");
             console.error("Failed to update user metadata:", err);
         } finally {
             setIsSaving(false);
@@ -108,7 +107,7 @@ const Dashboard = () => {
 
     const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+    const [dashboardError, setDashboardError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -119,7 +118,7 @@ const Dashboard = () => {
                 const response = await api.dashboard.getDashboard(userId);
                 setDashboardData(response.data.data); // Access the 'data' field from the API response
             } catch (err) {
-                setError('Failed to fetch dashboard data.');
+                setDashboardError('Failed to fetch dashboard data.');
                 console.error(err);
             } finally {
                 setLoading(false);
@@ -133,8 +132,8 @@ const Dashboard = () => {
         return <BodyContainer><p>Loading dashboard...</p></BodyContainer>;
     }
 
-    if (error) {
-        return <BodyContainer><p>Error: {error}</p></BodyContainer>;
+    if (dashboardError) {
+        return <BodyContainer><p>Error: {dashboardError}</p></BodyContainer>;
     }
 
     if (!dashboardData) {
@@ -277,7 +276,7 @@ const Dashboard = () => {
                                                 <ProfileLabel>생년월일</ProfileLabel>
                                                 <input type="date" value={editBirthdate} onChange={e => setEditBirthdate(e.target.value)} />
                                             </FormRow>
-                                            {error && <p style={{ color: 'red', fontSize: '0.875rem' }}>{error}</p>}
+                                            {userError && <p style={{ color: 'red', fontSize: '0.875rem' }}>{userError}</p>}
                                             <ButtonContainer>
                                                 <SaveButton onClick={handleSave} disabled={isSaving}>
                                                     {isSaving ? '저장 중...' : '저장'}
