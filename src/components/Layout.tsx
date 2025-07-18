@@ -1,4 +1,4 @@
-import { SignedIn, SignedOut, UserButton, SignInButton, SignUpButton } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/clerk-react';
 import { NavLink, Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 import { GlobalStyle } from '../styles/GlobalStyle';
@@ -18,10 +18,11 @@ export const ContentWrapper = styled.div`
   padding: 0 2rem;
 
   @media (min-width: 1600px) {
-    max-width: 96rem;
+    max-width: 90rem; /* 96rem에서 90rem으로 줄임 */
   }
   @media (min-width: 1920px) {
-    max-width: 110rem;
+    max-width: 100rem; /* 120rem에서 100rem으로 줄임 */
+    padding: 0 4rem;
   }
   @media (max-width: 768px) {
     padding: 0 1rem;
@@ -52,7 +53,7 @@ const HeaderContent = styled(ContentWrapper)`
   align-items: center;
 
   @media (max-width: 768px) {
-    gap: clamp(1rem, 4vw, 1.5rem); /* 모바일에서 세로 간격을 유동적으로 조정 */
+    gap: clamp(1rem, 2vw, 1.5rem); /* 모바일에서 세로 간격을 유동적으로 조정 */
   }
 `;
 
@@ -77,7 +78,7 @@ const Logo = styled(NavLink)`
   font-weight: bold;
   text-decoration: none;
   color: #2563eb;
-  font-size: clamp(1.5rem, 2.5vw, 2.2rem); /* 로고도 유동적으로! */
+  font-size: clamp(1.5rem, 1.5vw, 2.2rem); /* 로고도 유동적으로! */
   font-family: 'Noto Sans KR', sans-serif;
   font-weight: 900;
 `;
@@ -86,14 +87,14 @@ const Nav = styled.nav`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: clamp(0.5rem, 1.5vw, 1.25rem);
+  gap: clamp(0.5rem, 1vw, 1.25rem);
 `;
 
 const NavLinks = styled.div`
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: clamp(0.5rem, 1vw, 1rem);
+  gap: clamp(0.5rem, 0.5vw, 1rem);
 `;
 
 const NavItem = styled(NavLink)`
@@ -138,6 +139,7 @@ const AuthButton = styled.button`
 const Main = styled.main`
   flex-grow: 1;
   width: 100%;
+  padding: 2.5rem 0; /* 위아래 여백 추가 */
 `;
 
 const FooterWrapper = styled.footer`
