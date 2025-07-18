@@ -264,6 +264,7 @@ const CardTitle = styled.h3`
 // 페이지 타이틀
 const PageTitle = styled.div`
   margin-bottom: 2rem;
+  text-align: center;
   h2 {
     font-size: 1.875rem; /* 30px */
     font-weight: 700;
