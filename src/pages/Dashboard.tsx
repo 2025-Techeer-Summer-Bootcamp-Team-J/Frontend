@@ -7,6 +7,7 @@ import {
   Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
   Title, Tooltip, Legend, Filler, type ChartData, type ChartOptions
 } from 'chart.js';
+import { useUser } from "@clerk/clerk-react";
 
 // Chart.js 모듈 등록
 ChartJS.register(
@@ -15,8 +16,6 @@ ChartJS.register(
 );
 
 // --- SVG 아이콘 컴포넌트들 ---
-
-
 const InfoIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -29,27 +28,97 @@ const WarningIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-
 // --- 데이터 정의 ---
 type DiagnosisStatus = '개선' | '유지' | '악화';
 
 // --- 메인 대시보드 컴포넌트 ---
 
 const Dashboard = () => {
+    const { user, isLoaded } = useUser();
+
+    // Clerk 기본 정보
+    let name = (user?.fullName ?? `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()) || '미입력';
+    if (name.startsWith('/') && name.includes(' ')) {
+        name = name.substring(name.indexOf(' ') + 1);
+    }
+    const email = user?.primaryEmailAddress?.emailAddress ?? '미입력';
+    const gender = user?.unsafeMetadata?.gender as string || '';
+    const birthdate = user?.unsafeMetadata?.birthdate as string || '';
+
+    const getGenderDisplay = (value: string) => {
+        switch (value) {
+            case 'male':
+                return '남성';
+            case 'female':
+                return '여성';
+            default:
+                return '미입력';
+        }
+    };
+
+    // 정보 수정 관련 상태
+    const [isEditing, setIsEditing] = useState(false);
+    const [editGender, setEditGender] = useState(gender);
+    const [editBirthdate, setEditBirthdate] = useState(birthdate);
+    const [isSaving, setIsSaving] = useState(false);
+    const [userError, setUserError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (user) {
+            setEditGender(user.unsafeMetadata.gender as string || '');
+            setEditBirthdate(user.unsafeMetadata.birthdate as string || '');
+        }
+    }, [user]);
+
+    const handleEdit = () => {
+        setIsEditing(true);
+    };
+
+    const handleCancel = () => {
+        setIsEditing(false);
+        setUserError(null);
+        // Reset to original values
+        setEditGender(gender);
+        setEditBirthdate(birthdate);
+    };
+
+    const handleSave = async () => {
+        if (!user) return;
+
+        setIsSaving(true);
+        setUserError(null);
+
+        try {
+            await user.update({
+                unsafeMetadata: {
+                    ...user.unsafeMetadata,
+                    gender: editGender,
+                    birthdate: editBirthdate,
+                },
+            });
+            setIsEditing(false);
+        } catch (err) {
+            setUserError("정보 저장에 실패했습니다. 다시 시도해주세요.");
+            console.error("Failed to update user metadata:", err);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+    const [dashboardError, setDashboardError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
                 setLoading(true);
                 // Replace with actual user ID from authentication context
-                const userId = 1; 
+                const userId = 1;
                 const response = await api.dashboard.getDashboard(userId);
                 setDashboardData(response.data.data); // Access the 'data' field from the API response
             } catch (err) {
-                setError('Failed to fetch dashboard data.');
+                setDashboardError('Failed to fetch dashboard data.');
                 console.error(err);
             } finally {
                 setLoading(false);
@@ -63,8 +132,8 @@ const Dashboard = () => {
         return <BodyContainer><p>Loading dashboard...</p></BodyContainer>;
     }
 
-    if (error) {
-        return <BodyContainer><p>Error: {error}</p></BodyContainer>;
+    if (dashboardError) {
+        return <BodyContainer><p>Error: {dashboardError}</p></BodyContainer>;
     }
 
     if (!dashboardData) {
@@ -127,16 +196,24 @@ const Dashboard = () => {
         },
     };
 
+    if (!isLoaded || !user) {
+        return (
+            <BodyContainer>
+                <Main>
+                    <div>Loading...</div>
+                </Main>
+            </BodyContainer>
+        );
+    }
+
     return (
         <>
             <GlobalFontStyle />
             <BodyContainer>
-                
-                {/* 메인 컨텐츠 */}
                 <Main>
                     <PageTitle>
                         <h2>개인 맞춤형 대시보드</h2>
-                        <p>김메이커님의 피부 상태 변화를 기록하고, 한눈에 추적하세요.</p>
+                        <p>{name}님의 피부 상태 변화를 기록하고, 한눈에 추적하세요.</p>
                     </PageTitle>
 
                     <DashboardGrid>
@@ -170,10 +247,56 @@ const Dashboard = () => {
 
                         {/* 오른쪽 사이드바 */}
                         <Sidebar>
-                            {/* 내 피부 프로필 */}
+                            {/* 내 정보 */}
                             <Card>
-                                <CardTitle>내 피부 프로필</CardTitle>
+                                <CardTitleContainer>
+                                    <CardTitle>내 정보</CardTitle>
+                                    {!isEditing && <EditButton onClick={handleEdit}>수정</EditButton>}
+                                </CardTitleContainer>
                                 <ProfileContent>
+                                    <div>
+                                        <ProfileLabel>이름</ProfileLabel>
+                                        <ProfileValue>{name}</ProfileValue>
+                                    </div>
+                                    <div>
+                                        <ProfileLabel>이메일</ProfileLabel>
+                                        <ProfileValue>{email}</ProfileValue>
+                                    </div>
+                                    {isEditing ? (
+                                        <>
+                                            <FormRow>
+                                                <ProfileLabel>성별</ProfileLabel>
+                                                <select value={editGender} onChange={e => setEditGender(e.target.value)}>
+                                                    <option value="">선택</option>
+                                                    <option value="male">남성</option>
+                                                    <option value="female">여성</option>
+                                                </select>
+                                            </FormRow>
+                                            <FormRow>
+                                                <ProfileLabel>생년월일</ProfileLabel>
+                                                <input type="date" value={editBirthdate} onChange={e => setEditBirthdate(e.target.value)} />
+                                            </FormRow>
+                                            {userError && <p style={{ color: 'red', fontSize: '0.875rem' }}>{userError}</p>}
+                                            <ButtonContainer>
+                                                <SaveButton onClick={handleSave} disabled={isSaving}>
+                                                    {isSaving ? '저장 중...' : '저장'}
+                                                </SaveButton>
+                                                <CancelButton onClick={handleCancel}>취소</CancelButton>
+                                            </ButtonContainer>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div>
+                                                <ProfileLabel>성별</ProfileLabel>
+                                                <ProfileValue>{getGenderDisplay(gender)}</ProfileValue>
+                                            </div>
+                                            <div>
+                                                <ProfileLabel>생년월일</ProfileLabel>
+                                                <ProfileValue>{birthdate || '미입력'}</ProfileValue>
+                                            </div>
+                                        </>
+                                    )}
+                                    <hr style={{ border: 'none', borderTop: '1px solid #e5e7eb', margin: '0.5rem 0' }} />
                                     <div>
                                         <ProfileLabel>피부 타입</ProfileLabel>
                                         <ProfileValue>민감성 수부지</ProfileValue>
@@ -221,6 +344,55 @@ const Dashboard = () => {
 export default Dashboard;
 
 // --- Styled-Components 정의 ---
+
+const CardTitleContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+`;
+
+const EditButton = styled.button`
+  background: none;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  &:hover {
+    background-color: #f9fafb;
+  }
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+`;
+
+const SaveButton = styled.button`
+  flex-grow: 1;
+  padding: 0.5rem;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  &:disabled {
+    background-color: #9ca3af;
+  }
+`;
+
+const CancelButton = styled.button`
+  flex-grow: 1;
+  padding: 0.5rem;
+  background-color: #e5e7eb;
+  color: #374151;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+`;
 
 // 전역 스타일
 const GlobalFontStyle = createGlobalStyle`
@@ -279,27 +451,45 @@ const Sidebar = styled.div`
   }
 `;
 
-// 공통 카드 컴포넌트
 const Card = styled.div`
   background-color: #fff;
-  padding: 1.5rem; /* 24px */
-  border-radius: 0.75rem; /* 12px */
+  padding: 1.5rem;
+  border-radius: 0.75rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
 `;
 
-const CardTitle = styled.h3`
-  font-size: 1.25rem; /* 20px */
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 1rem 0;
+
+
+const FormRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  label {
+    font-weight: 500;
+    color: #374151;
+  }
+
+  select, input {
+    padding: 0.375rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    flex-grow: 1;
+  }
 `;
 
-// 페이지 타이틀
+const CardTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+`;
+
 const PageTitle = styled.div`
   margin-bottom: 2rem;
   text-align: center;
   h2 {
-    font-size: 1.875rem; /* 30px */
+    font-size: 1.875rem;
     font-weight: 700;
     color: #1f2937;
     margin: 0;
@@ -310,12 +500,10 @@ const PageTitle = styled.div`
   }
 `;
 
-// 차트
 const ChartContainer = styled.div`
-  height: 20rem; /* 320px */
+  height: 20rem;
 `;
 
-// 최근 진단 기록
 const ListContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -329,7 +517,6 @@ const ListItem = styled.div`
   padding: 1rem;
   background-color: #f9fafb;
   border-radius: 0.5rem;
-
   p { margin: 0; }
   .font-semibold { font-weight: 600; }
   .text-gray-700 { color: #374151; }
@@ -351,7 +538,6 @@ const StatusBadge = styled.span<{ status: DiagnosisStatus }>`
   ${({ status }) => statusStyles[status]}
 `;
 
-// 내 피부 프로필
 const ProfileContent = styled.div`
   display: flex;
   flex-direction: column;
@@ -397,7 +583,6 @@ const TipList = styled.ul`
   gap: 0.25rem;
 `;
 
-// 피부 지식
 const KnowledgeContainer = styled.div`
   display: flex;
   flex-direction: column;

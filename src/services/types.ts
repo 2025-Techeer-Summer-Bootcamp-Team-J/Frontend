@@ -1,3 +1,10 @@
+export interface User {
+  id: number;
+  email: string;
+  name?: string;
+  // Add other user-related fields as needed
+}
+
 // Skintype 관련 타입
 export interface SkinType {
   id: number;
@@ -73,6 +80,16 @@ export interface UVIndexApiResponse {
   status_code: number;
   message: string;
   data: UVIndexResponse;
+}
+
+
+export interface SignUpRequest {
+  clerk_user_id: string;
+  email: string;
+  password?: string; // password는 선택 사항으로 변경
+  name: string;
+  gender: string;
+  birth_date: string; // YYYY-MM-DD 형식의 문자열
 }
 
 // API 응답 타입
