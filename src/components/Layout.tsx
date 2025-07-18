@@ -1,6 +1,7 @@
 import { SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
 import { NavLink, Outlet } from 'react-router-dom';
 import styled from 'styled-components';
+import { GlobalStyle } from '../styles/GlobalStyle';
 
 const PageWrapper = styled.div`
   display: flex;
@@ -12,6 +13,7 @@ const PageWrapper = styled.div`
 export const ContentWrapper = styled.div`
   width: 100%;
   max-width: 80rem;
+  max-height: 90%;
   margin: 0 auto;
   padding: 0 2rem;
 
@@ -28,7 +30,7 @@ export const ContentWrapper = styled.div`
 
 const HeaderWrapper = styled.header`
   width: 100%;
-  height: 5.2rem;
+  height: 4.5rem;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
   background-color: white;
   position: sticky;
@@ -39,7 +41,7 @@ const HeaderWrapper = styled.header`
   align-items: center;
 
   @media (max-width: 768px) {
-    height: auto;
+    height: 100%;
     padding: 1rem 0;
   }
 `;
@@ -50,7 +52,6 @@ const HeaderContent = styled(ContentWrapper)`
   align-items: center;
 
   @media (max-width: 768px) {
-    flex-direction: column;
     gap: clamp(1rem, 4vw, 1.5rem); /* 모바일에서 세로 간격을 유동적으로 조정 */
   }
 `;
@@ -65,7 +66,7 @@ const HeaderSection = styled.div`
   }
   &:nth-child(2) { // Nav
     justify-content: center;
-    flex: 2;
+    flex: 1 1 auto;
   }
   &:nth-child(3) { // Auth
     justify-content: flex-end;
@@ -98,7 +99,7 @@ const NavLinks = styled.div`
 const NavItem = styled(NavLink)`
   color: #374151;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 400;
   font-size: clamp(0.9rem, 1.2vw, 1.3rem); /* 최소 0.9rem, 최대 1.1rem, 중간에서는 화면너비의 1.2% */
   padding: 0.5rem clamp(0.75rem, 1.5vw, 1.25rem);
   border-radius: 0.5rem;
@@ -120,7 +121,7 @@ const AuthLink = styled(NavLink)`
   background-color: #2563EB;
   color: white;
   border-radius: 0.5rem;
-  font-weight: 600;
+  font-weight: 400;
   font-size: 1rem;
   height: auto;
   padding: 0.5rem clamp(0.75rem, 1.5vw, 1.25rem);
@@ -154,10 +155,11 @@ const FooterContent = styled(ContentWrapper)`
 function Layout() {
   return (
     <PageWrapper>
+      <GlobalStyle />
       <HeaderWrapper>
         <HeaderContent>
           <HeaderSection>
-            <Logo to="/">BlueScope</Logo>
+            <Logo to="/">PPIKA</Logo>
           </HeaderSection>
           <HeaderSection>
             <Nav>

@@ -14,7 +14,7 @@ export const GlobalStyle = createGlobalStyle`
     html {
       /* 화면 너비에 따라 폰트 크기를 유동적으로 조절합니다. */
       /* 최소 14px, 기본 16px, 최대 18px (뷰포트 너비 360px ~ 1200px 기준) */
-      font-size: clamp(0.875rem, 1.25vw, 1.15rem);
+      font-size: 80%;
     }
 
     body {

@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { ContentWrapper } from '../components/Layout';
 import { FaCommentMedical } from 'react-icons/fa';
-import { Grid, ReportCard, ReportItem, AIOpinionBox, SeverityBar, SeverityBarInner } from './MainPage';
+import { Grid, ReportItem, AIOpinionBox, SeverityBar, SeverityBarInner } from './MainPage';
 
 
 // Chart.js에 필요한 요소들을 등록합니다.
@@ -215,6 +215,14 @@ const chartOptions = {
     tooltip: { callbacks: { label: (context: TooltipItem<'doughnut'>) => `${context.label}: ${context.parsed}%` } },
   },
 };
+
+const ReportCard = styled.div`
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background-color: white;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+`;
 
 // ----------------------------------------------------------------
 // --- 메인 페이지 컴포넌트 ---
