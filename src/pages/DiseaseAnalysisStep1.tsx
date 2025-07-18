@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import styled, { css } from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faLightbulb, faTintSlash, faCamera } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faLightbulb, faTintSlash, faCamera, faChevronLeft, faChevronRight, faTimes, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import { ContentWrapper } from '../components/Layout';
 
@@ -153,6 +153,7 @@ const ImagePreview = styled.img`
 const UploadPrompt = styled.div`
   text-align: center;
   color: #64748b; /* slate-500 */
+  pointer-events: none;
 `;
 
 const PromptText = styled.p`
@@ -194,13 +195,85 @@ const NextButton = styled.button`
   }
 `;
 
+// --- 캐러셀 UI를 위한 Styled-components 추가 ---
+const CarouselButton = styled.button`
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.7);
+    }
+    
+    &:disabled {
+        background-color: rgba(0, 0, 0, 0.2);
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+`;
+
+const PrevButton = styled(CarouselButton)`
+    left: 1rem;
+`;
+
+const NextImageButton = styled(CarouselButton)`
+    right: 1rem;
+`;
+
+const ImageCounter = styled.div`
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    z-index: 10;
+    pointer-events: none;
+`;
+
+const ActionButton = styled(CarouselButton)`
+    top: 2rem;
+    width: 2.25rem;
+    height: 2.25rem;
+`;
+
+const RemoveImageButton = styled(ActionButton)`
+    right: 1rem;
+    &:hover {
+      background-color: #ef4444; // red-500
+    }
+`;
+
+const AddImageButton = styled(ActionButton)`
+    right: 4.25rem;
+    &:hover {
+      background-color: #3b82f6; // blue-500
+    }
+`;
+
 // React Component
 // ---------------------------------
 
 const SkinAnalysisStep1: React.FC = () => {
     const navigate = useNavigate();
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleUploadWrapperClick = () => {
@@ -208,26 +281,64 @@ const SkinAnalysisStep1: React.FC = () => {
     };
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            // 파일 객체 저장
-            setSelectedFile(file);
-            
-            // 미리보기 이미지 설정
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
 
-    const handleNextButtonClick = () => {
-        // 이미지 파일을 state로 전달
-        navigate('/disease-analysis-step2', {
-            state: { uploadedImage: selectedFile }
-        });
-    };
+      const newFiles = Array.from(files);
+      setSelectedFiles(prevFiles => [...prevFiles, ...newFiles]);
+
+      const newPreviewsPromises = newFiles.map(file => {
+          return new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result as string);
+              reader.onerror = reject;
+              reader.readAsDataURL(file);
+          });
+      });
+
+      Promise.all(newPreviewsPromises)
+          .then(newPreviews => {
+              setImagePreviews(prevPreviews => [...prevPreviews, ...newPreviews]);
+          })
+          .catch(error => {
+              console.error("Error reading files:", error);
+              alert("파일을 읽는 중 오류가 발생했습니다.");
+          });
+      
+      event.target.value = '';
+  };
+
+  const handleNextButtonClick = () => {
+      navigate('/disease-analysis-step2', {
+          state: { uploadedImages: selectedFiles }
+      });
+  };
+  
+  // 캐러셀 제어 함수들 추가
+  const goToPreviousImage = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setCurrentImageIndex(prevIndex => Math.max(0, prevIndex - 1));
+  };
+
+  const goToNextImage = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setCurrentImageIndex(prevIndex => Math.min(imagePreviews.length - 1, prevIndex + 1));
+  };
+  
+  // 안정성이 강화된 이미지 삭제 함수
+  const removeImage = (e: React.MouseEvent, indexToRemove: number) => {
+      e.stopPropagation();
+
+      const newImagePreviews = imagePreviews.filter((_, index) => index !== indexToRemove);
+      const newSelectedFiles = selectedFiles.filter((_, index) => index !== indexToRemove);
+
+      setImagePreviews(newImagePreviews);
+      setSelectedFiles(newSelectedFiles);
+
+      if (currentImageIndex >= newImagePreviews.length) {
+          setCurrentImageIndex(Math.max(0, newImagePreviews.length - 1));
+      }
+  };
 
     return (
         <ContentWrapper style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
@@ -264,28 +375,48 @@ const SkinAnalysisStep1: React.FC = () => {
                     </GuideList>
                 </GuidePanel>
 
-                {/* Right Panel */}
-                <UploaderPanel>
-                    <UploadWrapper onClick={handleUploadWrapperClick}>
-                        {imagePreview ? (
-                            <ImagePreview src={imagePreview} alt="Uploaded skin" />
-                        ) : (
-                            <UploadPrompt>
-                                <FontAwesomeIcon icon={faCamera} size="3x" />
-                                <PromptText>여기를 클릭하여 사진을 업로드하세요</PromptText>
-                            </UploadPrompt>
-                        )}
-                        <HiddenFileInput
-                            type="file"
-                            accept="image/*"
-                            ref={fileInputRef}
-                            onChange={handleFileChange}
-                        />
-                    </UploadWrapper>
-                    <NextButton onClick={handleNextButtonClick} disabled={!imagePreview}>
-                        다음 단계로
-                    </NextButton>
-                </UploaderPanel>
+                            {/* Right Panel */}
+            <UploaderPanel>
+                <UploadWrapper onClick={handleUploadWrapperClick}>
+                    {imagePreviews.length > 0 ? (
+                        <>
+                            <ImagePreview src={imagePreviews[currentImageIndex]} alt={`Uploaded skin ${currentImageIndex + 1}`} />
+                            
+                            <PrevButton onClick={goToPreviousImage} disabled={currentImageIndex === 0}>
+                                <FontAwesomeIcon icon={faChevronLeft} />
+                            </PrevButton>
+                            <NextImageButton onClick={goToNextImage} disabled={currentImageIndex >= imagePreviews.length - 1}>
+                                <FontAwesomeIcon icon={faChevronRight} />
+                            </NextImageButton>
+                            
+                            <ImageCounter>{currentImageIndex + 1} / {imagePreviews.length}</ImageCounter>
+                            
+                            <AddImageButton onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleUploadWrapperClick(); }}>
+                                <FontAwesomeIcon icon={faPlus} />
+                            </AddImageButton>
+                            
+                            <RemoveImageButton onClick={(e: React.MouseEvent) => removeImage(e, currentImageIndex)}>
+                                <FontAwesomeIcon icon={faTimes} />
+                            </RemoveImageButton>
+                        </>
+                    ) : (
+                        <UploadPrompt>
+                            <FontAwesomeIcon icon={faCamera} size="3x" />
+                            <PromptText>여기를 클릭하여 사진을 업로드하세요</PromptText>
+                        </UploadPrompt>
+                    )}
+                    <HiddenFileInput
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        multiple
+                    />
+                </UploadWrapper>
+                <NextButton onClick={handleNextButtonClick} disabled={imagePreviews.length === 0}>
+                    다음 단계로
+                </NextButton>
+            </UploaderPanel>
             </MainContent>
         </ContentWrapper>
     );
