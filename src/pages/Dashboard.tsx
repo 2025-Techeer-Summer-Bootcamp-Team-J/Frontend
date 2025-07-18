@@ -458,30 +458,7 @@ const Card = styled.div`
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
 `;
 
-const InfoFormCard = styled(Card)`
-  background-color: #fffbe7;
-  border: 1px solid #fde68a;
 
-  button {
-    padding: 0.5rem 1.2rem;
-    background: #2563eb;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    &:disabled {
-      background: #9ca3af;
-      cursor: not-allowed;
-    }
-  }
-`;
-
-const FormContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-`;
 
 const FormRow = styled.div`
   display: flex;
