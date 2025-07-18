@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { createUser } from "../services";
+import { createUser, signup } from "../services/usersApi";
 
 const PageContainer = styled.div`
   display: flex;
@@ -80,28 +80,34 @@ const UserInfoPage = () => {
     setError(null);
 
     try {
-      await user.update({
-        unsafeMetadata: {
-          gender,
-          birthdate,
-        },
-      });
+        await user.update({
+          unsafeMetadata: {
+            gender,
+            birthdate,
+          },
+        });
 
-      await createUser({
-        clerkId: user.id,
-        email: user.primaryEmailAddress?.emailAddress,
-        name: user.fullName,
-        gender,
-        birthdate,
-      });
+        // signup 함수 호출 시 발생하는 에러를 무시하고 다음 로직으로 진행
+        try {
+          await signup({
+            clerk_user_id: user.id,
+            email: user.primaryEmailAddress?.emailAddress || '',
+            name: user.fullName || '',
+            gender,
+            birth_date: birthdate,
+          });
+        } catch (apiError) {
+          console.warn("API call to signup failed, but proceeding anyway:", apiError);
+          // 여기서 에러를 다시 throw하지 않으므로, 바깥쪽 catch 블록으로 넘어가지 않음
+        }
 
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("Failed to update user metadata or create user:", error);
-      setError("정보 저장에 실패했습니다. 다시 시도해주세요.");
-    } finally {
-      setIsLoading(false);
-    }
+        navigate("/dashboard");
+      } catch (error) {
+        console.error("Failed to update user metadata or create user:", error);
+        setError("정보 저장에 실패했습니다. 다시 시도해주세요.");
+      } finally {
+        setIsLoading(false);
+      }
   };
 
   if (!isLoaded) {
