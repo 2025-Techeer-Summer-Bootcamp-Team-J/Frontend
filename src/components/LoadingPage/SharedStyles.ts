@@ -133,7 +133,7 @@ export const ResultButton = styled.button`
   border-radius: 0.5rem; /* 8px */
   cursor: pointer;
   transition: all 0.3s ease;
-  opacity: 70;
+  opacity: 0.7;
   transform: translateY(0.625rem);
   animation: ${buttonAppearAnimation} 0.5s forwards;
 

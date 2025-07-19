@@ -17,7 +17,11 @@ import {
 } from './SharedStyles';
 import { Grid, ReportItem, AIOpinionBox, SeverityBar, SeverityBarInner } from '../../components/MainPage/SharedStyles';
 
-const DetailsPanel: React.FC = () => {
+interface DetailsPanelProps {
+  onRestartAnalysis: () => void;
+}
+
+const DetailsPanel: React.FC<DetailsPanelProps> = ({ onRestartAnalysis }) => {
   const [activeTab, setActiveTab] = useState('summary');
 
   const handleDownloadReport = () => {
@@ -125,7 +129,7 @@ const DetailsPanel: React.FC = () => {
           나의 케어 플랜에 추가
         </StyledButton>
         <TwoButtonGrid>
-          <StyledButton onClick={() => window.location.reload()}>
+          <StyledButton onClick={onRestartAnalysis}>
             <FontAwesomeIcon icon={faRedo} /> 다시 분석하기
           </StyledButton>
           <StyledButton $variant="secondary" onClick={handleDownloadReport}>
