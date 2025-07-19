@@ -1,14 +1,7 @@
 import { useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-
-const PageContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-`;
+import { PageContainer } from '../components/RedirectPage/SharedStyles';
 
 const RedirectPage = () => {
   const { user, isLoaded } = useUser();

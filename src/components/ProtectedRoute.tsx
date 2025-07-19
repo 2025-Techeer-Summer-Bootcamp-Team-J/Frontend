@@ -21,7 +21,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     }
     // location.key를 의존성 배열에 추가하여, 동일한 경로로 다시 이동해도
     // (예: 헤더에서 같은 메뉴를 다시 클릭) 이 효과가 다시 실행되도록 합니다.
-  }, [isLoaded, isSignedIn, openSignIn, location.key]);
+  }, [isLoaded, isSignedIn, openSignIn, location.key, location.hash, location.pathname, location.search]);
 
   // Clerk가 로드되는 동안 로딩 화면을 표시합니다.
   if (!isLoaded) {
