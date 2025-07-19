@@ -84,7 +84,7 @@ export const MainSubtitle = styled.p`
 
 export const ContentBox = styled.div`
     background-color: ${theme.cardBgColor};
-    border-radius: 1.25rem;
+    border-radius: 3.2rem;
     padding: 2.5rem;
     display: flex;
     flex-direction: column;
@@ -92,7 +92,7 @@ export const ContentBox = styled.div`
     width: 100%;
     max-width: 56.25rem;
     margin: 0 auto;
-    box-shadow: 0 0.25rem 1.25rem rgba(0, 82, 255, 0.05);
+    box-shadow: 0.25rem 0.25rem 0.5rem rgba(71, 69, 179, 0.2);
     text-align: left;
     gap: 2.5rem;
     @media (min-width: 768px) {
@@ -120,7 +120,7 @@ export const Guidelines = styled.div`
 export const GuidelineItem = styled.div`
     background-color: ${theme.lightPrimaryColor};
     padding: 1.3rem 1.5rem;
-    border-radius: 0.625rem;
+    border-radius: 1rem;
     margin-bottom: 1.5rem;
     font-size: 0.95rem;
     font-weight: 500;
@@ -148,7 +148,7 @@ export const UploadArea = styled.div`
     width: 100%;
     height: 18.75rem;
     border: 2px dashed #d0d8e8;
-    border-radius: 0.625rem;
+    border-radius: 1.2rem;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -263,9 +263,9 @@ export const ResultHeader = styled.div`
 
 export const ResultCard = styled.div`
     background: ${theme.cardBgColor};
-    border-radius: 1.25rem;
+    border-radius: 3.2rem;
     padding: 2rem;
-    box-shadow: 0 0.25rem 1.25rem rgba(0, 82, 255, 0.05);
+    box-shadow: 0.25rem 0.25rem 0.5rem rgba(71, 69, 179, 0.2);
     width: 100%;
     max-width: 56.25rem;
     box-sizing: border-box;

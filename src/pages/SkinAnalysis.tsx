@@ -102,10 +102,10 @@ const SkinAnalysis: React.FC = () => {
         try {
             setAnalysisError(null);
             console.log('피부 분석 시작:', { userId, imageFile: imageFile.name, size: imageFile.size });
-            
+
             const analysisResponse = await analyzeSkinType(userId, { image: imageFile });
             console.log('분석 응답:', analysisResponse);
-            
+
             const skinResult = convertApiResponseToSkinResult(analysisResponse);
             console.log('최종 결과 데이터:', skinResult);
             
@@ -249,7 +249,7 @@ const SkinAnalysis: React.FC = () => {
                         currentTip={currentTip}
                     />
                 )}
-                
+
                 {currentSection === 'result' && resultData && (
                     <ResultSection
                         resultData={resultData}
