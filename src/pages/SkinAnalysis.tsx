@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import { analyzeSkinType } from '../services/skintypeApi';
 import type { SkinTypeAnalysisResponse } from '../services/types';
 import { AxiosError } from 'axios';
