@@ -22,10 +22,16 @@ import {
   createDiagnosis,
   getUserDiagnoses,
   getDiagnosisById,
-  updateDiagnosisStatus,
+  deleteDiagnosis,
+  generateDiagnosisStream,
+  saveDiagnosisResult,
+  createDiagnosisAdditionalInfo,
+  getDiagnosisAdditionalInfo,
 } from './diagnosesApi';
 
-import { createUser } from './usersApi';
+import { createUser, signup } from './usersApi';
+import { getUVIndex } from './uv_indexApi';
+import dashboardApi from './dashboardApi';
 
 // 개별 함수들 re-export
 export {
@@ -39,8 +45,14 @@ export {
   createDiagnosis,
   getUserDiagnoses,
   getDiagnosisById,
-  updateDiagnosisStatus,
+  deleteDiagnosis,
+  generateDiagnosisStream,
+  saveDiagnosisResult,
+  createDiagnosisAdditionalInfo,
+  getDiagnosisAdditionalInfo,
   createUser,
+  signup,
+  getUVIndex,
 };
 
 // API 서비스들
@@ -49,6 +61,7 @@ export { default as diseasesApi } from './diseasesApi';
 export { default as diagnosesApi } from './diagnosesApi';
 export { default as usersApi } from './usersApi';
 export { default as dashboardApi } from './dashboardApi';
+export { default as uvIndexApi } from './uv_indexApi';
 
 // 통합 API 객체
 export const api = {
@@ -67,16 +80,22 @@ export const api = {
     create: createDiagnosis,
     getByUserId: getUserDiagnoses,
     getById: getDiagnosisById,
-    updateStatus: updateDiagnosisStatus,
+    delete: deleteDiagnosis,
+    generateStream: generateDiagnosisStream,
+    saveResult: saveDiagnosisResult,
+    createAdditionalInfo: createDiagnosisAdditionalInfo,
+    getAdditionalInfo: getDiagnosisAdditionalInfo,
   },
   dashboard: {
     getDashboard: dashboardApi.getDashboard,
   },
   users: {
     create: createUser,
+    signup: signup,
+  },
+  uvIndex: {
+    get: getUVIndex,
   },
 };
 
 export default api;
-
-import dashboardApi from './dashboardApi';
