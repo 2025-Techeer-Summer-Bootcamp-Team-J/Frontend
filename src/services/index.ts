@@ -25,6 +25,8 @@ import {
   updateDiagnosisStatus,
 } from './diagnosesApi';
 
+import { createUser } from './usersApi';
+
 // 개별 함수들 re-export
 export {
   getAllSkinTypes,
@@ -38,12 +40,14 @@ export {
   getUserDiagnoses,
   getDiagnosisById,
   updateDiagnosisStatus,
+  createUser,
 };
 
 // API 서비스들
 export { default as skintypeApi } from './skintypeApi';
 export { default as diseasesApi } from './diseasesApi';
 export { default as diagnosesApi } from './diagnosesApi';
+export { default as usersApi } from './usersApi';
 export { default as dashboardApi } from './dashboardApi';
 
 // 통합 API 객체
@@ -68,8 +72,11 @@ export const api = {
   dashboard: {
     getDashboard: dashboardApi.getDashboard,
   },
+  users: {
+    create: createUser,
+  },
 };
 
 export default api;
 
-import dashboardApi from './dashboardApi'; 
+import dashboardApi from './dashboardApi';

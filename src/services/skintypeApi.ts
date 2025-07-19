@@ -19,7 +19,7 @@ export const getAllSkinTypes = async (): Promise<SkinType[]> => {
  */
 export const getSkinTypeById = async (skintypeId: number): Promise<SkinType> => {
   try {
-    const response = await apiClient.get<ApiResponse<SkinType>>(`/api/skintype/${skintypeId}`);
+    const response = await apiClient.get<ApiResponse<SkinType>>(`/api/skintypes/${skintypeId}`);
     return response.data.data;
   } catch (error) {
     console.error(`Failed to fetch skin type ${skintypeId}:`, error);

@@ -1,4 +1,5 @@
 import apiClient from "./apiClient";
+import type { SkinTypeScore } from "./types";
 
 export interface DiagnosisRecord {
   id: number;
@@ -7,14 +8,14 @@ export interface DiagnosisRecord {
   skin_type_id: number | null;
   confidence: number;
   image: string;
-  after: any | null;
+  after: string | null;
   created_at: string;
   updated_at: string;
   is_deleted: boolean;
 }
 
 export interface DashboardData {
-  recent_skinType_scores: any[]; // 실제 타입에 따라 더 구체화 필요
+  recent_skinType_scores: SkinTypeScore[];
   recent_diagnosis_records: DiagnosisRecord[];
   // 백엔드 응답에 없는 필드들은 일단 제거하거나 optional로 처리합니다.
   // chartLabels?: string[];
