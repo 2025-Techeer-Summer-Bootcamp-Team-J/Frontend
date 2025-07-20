@@ -84,7 +84,7 @@ export const getDiagnosisById = async (diagnosisId: number): Promise<DiagnosisDe
 };
 
 /**
- * 질병 정보 스트리밍 생성 (SSE) - POST 방식
+ * 질병 정보 스트리밍 생성 (SSE) - Mock 구현 (서버 엔드포인트가 없어서 임시)
  */
 export const generateDiagnosisStream = (
   userId: number,
@@ -94,88 +94,47 @@ export const generateDiagnosisStream = (
   onError?: (error: Error) => void,
   onComplete?: () => void
 ): EventSource => {
-  try {
-    // FormData로 데이터 준비
-    const formData = new FormData();
-    formData.append('user_id', userId.toString());
-    formData.append('disease_name', diseaseName);
-    formData.append('image', image);
-
-    // SSE 연결을 위한 fetch 사용 (POST 요청)
-    fetch(`${apiClient.defaults.baseURL}/api/diagnoses/generate-stream`, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'Accept': 'text/event-stream',
-      },
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const reader = response.body?.getReader();
-        if (!reader) {
-          throw new Error('No reader available');
-        }
-
-        const decoder = new TextDecoder();
-        
-        function readStream(): Promise<void> {
-          return reader!.read().then(({ done, value }) => {
-            if (done) {
-              onComplete?.();
-              return;
-            }
-            
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split('\n');
-            
-            for (const line of lines) {
-              if (line.startsWith('data: ')) {
-                try {
-                  const data = JSON.parse(line.slice(6));
-                  onEvent(data);
-                  
-                  if (data.type === 'complete') {
-                    onComplete?.();
-                    return;
-                  }
-                } catch {
-                  console.warn('Failed to parse SSE data:', line);
-                }
-              }
-            }
-            
-            return readStream();
-          });
-        }
-        
-        readStream().catch(error => onError?.(error));
-      })
-      .catch(error => onError?.(error));
-
-    // EventSource와 호환되는 인터페이스를 위한 객체 반환
-    return {
-      close: () => {},
-      readyState: 1,
-      url: '',
-      withCredentials: false,
-      CONNECTING: 0,
-      OPEN: 1,
-      CLOSED: 2,
-      onopen: null,
-      onmessage: null,
-      onerror: null,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-      dispatchEvent: () => false,
-    } as EventSource;
-  } catch (error) {
-    console.error('Failed to start diagnosis stream:', error);
-    onError?.(error as Error);
-    throw error;
-  }
+  console.log('SSE 스트리밍 시작:', { userId, diseaseName, imageSize: image.size });
+  
+  // 실제 SSE 엔드포인트 URL
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  const sseUrl = `${baseUrl}/api/diagnoses/stream?user_id=${userId}&disease_name=${encodeURIComponent(diseaseName)}`;
+  
+  console.log('SSE URL:', sseUrl);
+  
+  const eventSource = new EventSource(sseUrl);
+  
+  eventSource.onopen = (event) => {
+    console.log('✅ SSE 연결 성공:', event);
+  };
+  
+  eventSource.onmessage = (event) => {
+    console.log('📨 SSE 메시지 수신:', event.data);
+    
+    try {
+      const data = JSON.parse(event.data) as StreamEvent;
+      onEvent(data);
+      
+      if (data.type === 'complete') {
+        console.log('🏁 SSE 스트리밍 완료');
+        eventSource.close();
+        onComplete?.();
+      }
+    } catch (parseError) {
+      console.error('SSE 데이터 파싱 오류:', parseError, 'Raw data:', event.data);
+    }
+  };
+  
+  eventSource.onerror = (event) => {
+    console.error('❌ SSE 연결 오류:', event);
+    eventSource.close();
+    
+    if (onError) {
+      onError(new Error('SSE connection failed'));
+    }
+  };
+  
+  return eventSource;
 };
 
 /**

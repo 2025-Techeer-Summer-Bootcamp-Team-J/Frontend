@@ -55,6 +55,15 @@ const LoadingPage: React.FC = () => {
   const locationState = location.state as LocationState | null;
   const { uploadedFiles, analysisResults, additionalInfo } = locationState || { uploadedFiles: [], analysisResults: [], additionalInfo: undefined };
 
+  // 유효하지 않은 상태일 때 Step1으로 리다이렉트
+  useEffect(() => {
+    if (!locationState || !uploadedFiles || uploadedFiles.length === 0 || !analysisResults || analysisResults.length === 0) {
+      console.log('❌ LoadingPage: 유효하지 않은 상태 - Step1으로 이동');
+      navigate('/disease-analysis-step1', { replace: true });
+      return;
+    }
+  }, [locationState, uploadedFiles, analysisResults, navigate]);
+
   useEffect(() => {
     if (isComplete) return;
 

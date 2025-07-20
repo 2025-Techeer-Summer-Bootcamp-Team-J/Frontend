@@ -141,11 +141,20 @@ export interface SaveDiagnosisResponse {
   message: string;
 }
 
-// SSE 스트림 이벤트 타입
+// SSE 스트림 이벤트 타입 - 백엔드 구조에 맞게 확장
 export interface StreamEvent {
-  type: 'progress' | 'result' | 'complete';
+  type: 
+    // 기존 타입들
+    | 'progress' | 'result' | 'complete' | 'tab_complete'
+    // 백엔드 섹션 타입들
+    | 'ai_opinion_start' | 'ai_opinion_chunk' | 'ai_opinion_end'
+    | 'detailed_description_start' | 'detailed_description_chunk' | 'detailed_description_end'  
+    | 'precautions_start' | 'precautions_chunk' | 'precautions_end'
+    | 'management_start' | 'management_chunk' | 'management_end';
   message?: string;
   content?: string;
+  data?: string; // 백엔드에서 사용하는 data 필드
+  tab?: string;
 }
 
 // Dashboard 관련 타입

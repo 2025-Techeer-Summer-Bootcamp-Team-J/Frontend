@@ -14,6 +14,13 @@ import { MainContent, PageTitle } from '../components/DiseaseAnalysisStep2/Share
 const SYMPTOMS = ['가려움', '따가움/통증', '붉은 반점', '각질/비늘', '진물/수포', '피부 건조', '뾰루지/여드름'];
 const DURATIONS = ['오늘', '2-3일 전', '1주일 이상', '오래 전'];
 
+// 타입 정의
+interface AnalysisResult {
+  file: File;
+  result: unknown;
+  error?: unknown;
+}
+
 const DiseaseAnalysisStep2Page: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -38,35 +45,53 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
     };
 
     const handleSkipButtonClick = () => {
-        // 추가 정보 없이 바로 로딩 페이지로 이동
-        navigate('/loading', {
-            state: {
-                uploadedFiles: uploadedFiles,
-                analysisResults: analysisResults,
-                additionalInfo: {
-                    symptoms: [],
-                    itchLevel: 0,
-                    duration: 'unknown',
-                    additionalInfo: '건너뛰기 선택'
+        // 첫 번째 성공한 분석 결과 찾기
+        const successfulResult = analysisResults.find((result: AnalysisResult) => result.result && !result.error);
+        
+        if (successfulResult) {
+            // 추가 정보 없이 바로 Step3로 이동
+            navigate('/disease-analysis-step3', {
+                state: {
+                    uploadedFiles: uploadedFiles,
+                    analysisResults: analysisResults,
+                    selectedResult: successfulResult,
+                    additionalInfo: {
+                        symptoms: [],
+                        itchLevel: 0,
+                        duration: 'unknown',
+                        additionalInfo: '건너뛰기 선택'
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            alert('분석 결과를 찾을 수 없습니다. 다시 시도해주세요.');
+            navigate('/disease-analysis-step1');
+        }
     };
 
     const handleResultViewClick = () => {
-        // 추가 정보와 함께 로딩 페이지로 이동
-        navigate('/loading', {
-            state: {
-                uploadedFiles: uploadedFiles,
-                analysisResults: analysisResults,
-                additionalInfo: {
-                    symptoms: selectedSymptoms,
-                    itchLevel: itchLevel,
-                    duration: selectedDuration || 'unknown',
-                    additionalInfo: additionalInfo || `가려움 정도: ${itchLevel}/10`
+        // 첫 번째 성공한 분석 결과 찾기
+        const successfulResult = analysisResults.find((result: AnalysisResult) => result.result && !result.error);
+        
+        if (successfulResult) {
+            // 추가 정보와 함께 바로 Step3로 이동
+            navigate('/disease-analysis-step3', {
+                state: {
+                    uploadedFiles: uploadedFiles,
+                    analysisResults: analysisResults,
+                    selectedResult: successfulResult,
+                    additionalInfo: {
+                        symptoms: selectedSymptoms,
+                        itchLevel: itchLevel,
+                        duration: selectedDuration || 'unknown',
+                        additionalInfo: additionalInfo || `가려움 정도: ${itchLevel}/10`
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            alert('분석 결과를 찾을 수 없습니다. 다시 시도해주세요.');
+            navigate('/disease-analysis-step1');
+        }
     };
 
     return (
