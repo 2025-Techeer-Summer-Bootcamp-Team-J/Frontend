@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../services';
-import type { DashboardData } from '../services/dashboardApi';
-import type { SkinTypeScore } from '../services/types';
+import type { DashboardData } from '../services/types';
 import styled, { css, createGlobalStyle } from 'styled-components';
 import { Line } from 'react-chartjs-2';
 import {
@@ -116,8 +115,8 @@ const Dashboard = () => {
                 setLoading(true);
                 // Replace with actual user ID from authentication context
                 const userId = 1;
-                const response = await api.dashboard.getDashboard(userId);
-                setDashboardData(response.data.data); // Access the 'data' field from the API response
+                const response = await api.users.getDashboard(userId);
+                setDashboardData(response);
             } catch (err) {
                 setDashboardError('Failed to fetch dashboard data.');
                 console.error(err);
@@ -141,14 +140,14 @@ const Dashboard = () => {
         return <BodyContainer><p>No dashboard data available.</p></BodyContainer>;
     }
 
-    // 차트 데이터 및 옵션
-    const chartLabels = dashboardData.recent_skinType_scores?.map((score: SkinTypeScore) => score.date) || [];
+    // 차트 데이터 및 옵션 (recent_skinType_scores는 number[] 배열)
+    const chartLabels = dashboardData.recent_skinType_scores?.map((_score: number, index: number) => `${index + 1}`) || [];
     
     const chartData: ChartData<'line'> = {
         labels: chartLabels,
         datasets: [{
             label: '피부 점수',
-            data: dashboardData.recent_skinType_scores?.map((score: SkinTypeScore) => score.score) || [],
+            data: dashboardData.recent_skinType_scores || [],
             fill: true,
             backgroundColor: (context) => {
                 const ctx = context.chart.ctx;

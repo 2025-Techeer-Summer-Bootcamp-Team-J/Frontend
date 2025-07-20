@@ -29,9 +29,14 @@ import {
   getDiagnosisAdditionalInfo,
 } from './diagnosesApi';
 
-import { createUser, signup } from './usersApi';
+import { 
+  createUser, 
+  signup,
+  getUserDashboard,
+  getUserById,
+  updateUser
+} from './usersApi';
 import { getUVIndex } from './uv_indexApi';
-import dashboardApi from './dashboardApi';
 
 // 개별 함수들 re-export
 export {
@@ -52,6 +57,9 @@ export {
   getDiagnosisAdditionalInfo,
   createUser,
   signup,
+  getUserDashboard,
+  getUserById,
+  updateUser,
   getUVIndex,
 };
 
@@ -60,7 +68,6 @@ export { default as skintypeApi } from './skintypeApi';
 export { default as diseasesApi } from './diseasesApi';
 export { default as diagnosesApi } from './diagnosesApi';
 export { default as usersApi } from './usersApi';
-export { default as dashboardApi } from './dashboardApi';
 export { default as uvIndexApi } from './uv_indexApi';
 
 // 통합 API 객체
@@ -86,12 +93,12 @@ export const api = {
     createAdditionalInfo: createDiagnosisAdditionalInfo,
     getAdditionalInfo: getDiagnosisAdditionalInfo,
   },
-  dashboard: {
-    getDashboard: dashboardApi.getDashboard,
-  },
   users: {
     create: createUser,
     signup: signup,
+    getDashboard: getUserDashboard,
+    getById: getUserById,
+    update: updateUser,
   },
   uvIndex: {
     get: getUVIndex,

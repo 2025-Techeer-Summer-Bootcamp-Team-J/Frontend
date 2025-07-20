@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getUVIndex } from '../services/uv_indexApi';
-import type { UVIndexResponse } from '../services/types';
+import type { UVIndexData } from '../services/types';
 
 import CareHeader from '../components/TodaysCare/CareHeader';
 import UvIndexSection from '../components/TodaysCare/UvIndexSection';
@@ -60,7 +60,7 @@ const getUVIndexFromCareLevel = (careLevel: string): number => {
 
 function TodaysCare() {
   const [activeTab, setActiveTab] = useState<string>('보통');
-  const [uvData, setUvData] = useState<UVIndexResponse | null>(null);
+  const [uvData, setUvData] = useState<UVIndexData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isRealTimeData, setIsRealTimeData] = useState<boolean>(true);

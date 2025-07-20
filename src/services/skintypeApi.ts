@@ -6,7 +6,7 @@ import type { SkinType, SkinTypeAnalysisRequest, SkinTypeAnalysisResponse, ApiRe
  */
 export const getAllSkinTypes = async (): Promise<SkinType[]> => {
   try {
-    const response = await apiClient.get<ApiResponse<SkinType[]>>('/api/skintypes');
+    const response = await apiClient.get<ApiResponse<SkinType[]>>('/api/skintype');
     return response.data.data;
   } catch (error) {
     console.error('Failed to fetch skin types:', error);
@@ -19,7 +19,7 @@ export const getAllSkinTypes = async (): Promise<SkinType[]> => {
  */
 export const getSkinTypeById = async (skintypeId: number): Promise<SkinType> => {
   try {
-    const response = await apiClient.get<ApiResponse<SkinType>>(`/api/skintypes/${skintypeId}`);
+    const response = await apiClient.get<ApiResponse<SkinType>>(`/api/skintype/${skintypeId}`);
     return response.data.data;
   } catch (error) {
     console.error(`Failed to fetch skin type ${skintypeId}:`, error);
@@ -49,7 +49,7 @@ export const analyzeSkinType = async (
     console.log('API 요청 시작:', { userId, hasImage: !!analysisData.image });
 
     const response = await apiClient.post<SkinTypeAnalysisResponse>(
-      `/api/skintypes/${userId}/analysis`,
+      `/api/skintype/${userId}/analysis`,
       formData,
       {
         headers: {
