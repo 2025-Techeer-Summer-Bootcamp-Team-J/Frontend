@@ -104,7 +104,7 @@ const skinScoreChartOptions = {
 
 const DashboardPreviewSection: React.FC = () => {
   return (
-    <Section id="dashboard" bg="#eff6ff">
+    <Section id="dashboard">
       <ContentWrapper>
         <SectionHeading>
           <NotoSansBlack>개인 맞춤형 대시보드</NotoSansBlack>

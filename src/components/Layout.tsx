@@ -18,10 +18,10 @@ export const ContentWrapper = styled.div`
   padding: 0 2rem;
 
   @media (min-width: 1600px) {
-    max-width: 90rem; /* 96rem에서 90rem으로 줄임 */
+    max-width: 90rem;
   }
   @media (min-width: 1920px) {
-    max-width: 100rem; /* 120rem에서 100rem으로 줄임 */
+    max-width: 100rem; 
     padding: 0 4rem;
   }
   @media (max-width: 768px) {
@@ -31,19 +31,18 @@ export const ContentWrapper = styled.div`
 
 const HeaderWrapper = styled.header`
   width: 100%;
-  height: 4.5rem;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  height: 4rem;
   background-color: white;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 50;
   
   display: flex;
   align-items: center;
 
   @media (max-width: 768px) {
-    height: 100%;
-    padding: 1rem 0;
+    height: 4rem;
+    padding: 0.5rem 0;
   }
 `;
 
@@ -51,36 +50,46 @@ const HeaderContent = styled(ContentWrapper)`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 100%;
 
   @media (max-width: 768px) {
-    gap: clamp(1rem, 2vw, 1.5rem); /* 모바일에서 세로 간격을 유동적으로 조정 */
+    gap: 0.5rem;
   }
 `;
 
 const HeaderSection = styled.div`
   display: flex;
   align-items: center;
-  flex: 1;
 
   &:nth-child(1) { // Logo
     justify-content: flex-start;
+    flex: 0 0 auto;
   }
   &:nth-child(2) { // Nav
     justify-content: center;
     flex: 1 1 auto;
+    
+    @media (max-width: 768px) {
+      flex: 1 1 0;
+      min-width: 0;
+    }
   }
   &:nth-child(3) { // Auth
     justify-content: flex-end;
+    flex: 0 0 auto;
   }
 `;
 
 const Logo = styled(NavLink)`
-  font-weight: bold;
+  font-size: clamp(1.1rem, 2vw, 2.25rem);
+  font-weight: 800;
   text-decoration: none;
-  color: #2563eb;
-  font-size: clamp(1.5rem, 1.5vw, 2.2rem); /* 로고도 유동적으로! */
-  font-family: 'Noto Sans KR', sans-serif;
-  font-weight: 900;
+  color: #1f2937;
+  margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+  }
 `;
 
 const Nav = styled.nav`
@@ -88,6 +97,11 @@ const Nav = styled.nav`
   justify-content: center;
   align-items: center;
   gap: clamp(0.5rem, 1vw, 1.25rem);
+
+  @media (max-width: 768px) {
+    gap: 0.2rem;
+    overflow: hidden;
+  }
 `;
 
 const NavLinks = styled.div`
@@ -101,11 +115,16 @@ const NavItem = styled(NavLink)`
   color: #374151;
   text-decoration: none;
   font-weight: 400;
-  font-size: clamp(0.9rem, 1.2vw, 1.3rem); /* 최소 0.9rem, 최대 1.1rem, 중간에서는 화면너비의 1.2% */
+  font-size: clamp(0.9rem, 1.2vw, 1.3rem); 
   padding: 0.5rem clamp(0.75rem, 1.5vw, 1.25rem);
-  border-radius: 0.5rem;
+  border-radius: 9999px;
   transition: color 0.2s, background-color 0.2s;
 
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.3rem;
+  }
+    
   &:hover {
     background-color: #f3f4f6;
     color: #1f2937;
@@ -119,27 +138,43 @@ const NavItem = styled(NavLink)`
 `;
 
 const AuthButton = styled.button`
-  background-color: #2563EB;
+  background-color: #4A6CFD;
   color: white;
-  border-radius: 0.5rem;
+  border-radius: 9999px;
   font-weight: 400;
-  font-size: 1rem;
+  font-size: 0.9rem;
   height: auto;
   padding: 0.5rem clamp(0.75rem, 1.5vw, 1.25rem);
   cursor: pointer;
   border: none;
   transition: background-color 0.2s;
   text-decoration: none;
+  white-space: nowrap;
+
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
+  }
 
   &:hover {
-    background-color: #1d4ed8;
+    color: white;
+    background-color: #2949d5;
+  }
+`;
+
+const UserButtonWrapper = styled.div`
+  @media (max-width: 768px) {
+    .cl-userButtonBox {
+      width: 2rem;
+      height: 2rem;
+    }
   }
 `;
 
 const Main = styled.main`
   flex-grow: 1;
   width: 100%;
-  padding: 2.5rem 0; /* 위아래 여백 추가 */
+  padding: 2.5rem 0; 
 `;
 
 const FooterWrapper = styled.footer`
@@ -179,7 +214,9 @@ function Layout() {
                 </SignInButton>
               </SignedOut>
               <SignedIn>
-                <UserButton afterSignOutUrl="/" />
+                <UserButtonWrapper>
+                  <UserButton afterSignOutUrl="/" />
+                </UserButtonWrapper>
               </SignedIn>
             </NavLinks>
           </HeaderSection>

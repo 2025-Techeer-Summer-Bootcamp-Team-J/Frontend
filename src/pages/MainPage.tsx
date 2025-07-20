@@ -6,7 +6,7 @@ import video2 from '../assets/video2.mp4';
 import video3 from '../assets/video3.mp4';
 
 import VideoSection from '../components/MainPage/VideoSection';
-import HeroSection from '../components/MainPage/HeroSection';
+import MainSection from '../components/MainPage/MainSection';
 import KeyFeaturesSection from '../components/MainPage/KeyFeaturesSection';
 import DiagnosisReportSection from '../components/MainPage/DiagnosisReportSection';
 import SkinTypeAnalysisSection from '../components/MainPage/SkinTypeAnalysisSection';
@@ -50,18 +50,18 @@ const MainPage: React.FC = () => {
         window.addEventListener('scroll', checkScrollTop);
         return () => window.removeEventListener('scroll', checkScrollTop);
     }, [showScrollTop]);
-
+ 
     return (
       <>
         <VideoSection videoList={videoList} />
-        <HeroSection mainImage={main_image} />
+        <MainSection mainImage={main_image} />
         <KeyFeaturesSection />
         <DiagnosisReportSection />
         <SkinTypeAnalysisSection />
         <DashboardPreviewSection />
         <TodaysCareSection />
             
-       <Section bg="#eff6ff">
+       <Section>
         <Footer>
             <CustomContainer className="text-center">
                 <p className="text-2xl font-bold md:text-3xl">
