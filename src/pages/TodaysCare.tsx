@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getUVIndex } from '../services/uv_indexApi';
 import type { UVIndexResponse } from '../services/types';
-
+import { ContentWrapper } from '../components/Layout';
 import CareHeader from '../components/TodaysCare/CareHeader';
 import UvIndexSection from '../components/TodaysCare/UvIndexSection';
 import CareTipsSection from '../components/TodaysCare/CareTipsSection';
@@ -119,6 +119,7 @@ function TodaysCare() {
       <CareHeader />
       
       <main>
+      <ContentWrapper style={{ marginBottom: '2rem' }}>
         <UvIndexSection
           uvData={uvData}
           isLoading={isLoading}
@@ -127,6 +128,7 @@ function TodaysCare() {
           currentCareData={currentCareData}
           displayUVIndex={displayUVIndex}
         />
+        </ContentWrapper>
 
         <CareTipsSection
           careData={careData}
