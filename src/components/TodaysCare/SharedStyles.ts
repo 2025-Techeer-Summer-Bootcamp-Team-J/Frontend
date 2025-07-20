@@ -1,5 +1,21 @@
 import styled from 'styled-components';
-import { ContentWrapper } from '../../components/Layout';
+//import { ContentWrapper } from '../../components/Layout';
+
+// ✨ [추가] 전체 페이지를 감싸는 컨테이너
+// =================================================================
+export const CareContainer = styled.div`
+  max-width: 1200px;
+  margin: 2rem auto; /* 위아래 여백과 좌우 자동 정렬(가운데 배치) */
+  padding: 2.5rem; /* 카드 내부의 여백 */
+  background-color: #f8f9fa; /* 두 번째 이미지의 연한 회색 배경 */
+  border-radius: 1.5rem; /* 24px, 둥근 모서리 */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06); /* 부드러운 그림자 효과 */
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+`;
 
 export const LocationStatus = styled.p<{ $isRealTime: boolean }>`
   display: flex;
@@ -35,18 +51,18 @@ export const Header = styled.header`
   }
 `;
 
-export const UvInfoBox = styled.div`
-  width: 100%;
+export const UvInfoBox = styled.div` // 핵심: styled(ContentWrapper) -> styled.div
   background-color: #F0F9FF;
-  padding: 2.5rem 0;
-  box-sizing: border-box;
+  padding: 2.5rem; 
+  border-radius: 3.2rem;
+  box-shadow:  0.3rem 0.25rem 0.8rem rgba(71, 69, 179, 0.2);
 
   @media (max-width: 768px) {
-    padding: 2rem 0;
+    padding: 2rem;
   }
 `;
 
-export const UvInfoInnerWrapper = styled(ContentWrapper)`
+export const UvInfoInnerWrapper = styled.div` // 변경: styled(ContentWrapper) -> styled.div
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -180,9 +196,9 @@ export const TipCard = styled.div`
   align-items: flex-start;
   padding: 1.5rem;
   background-color: white;
-  border: 0.0625rem solid #E2E8F0;
-  border-radius: 0.75rem;
-  box-shadow: 0 0.0625rem 0.125rem 0 rgba(0, 0, 0, 0.05);
+  border: 0rem solid #E2E8F0;
+  border-radius: 1.5rem;
+  box-shadow:  0.3rem 0.25rem 0.8rem rgba(71, 69, 179, 0.2);
   transition: box-shadow 0.2s, border-color 0.2s;
 
   &:hover {
