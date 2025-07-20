@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ContentWrapper } from '../components/Layout';
-import { api, type DiagnosisRequest } from '../services';
+
 
 import StepProgress from '../components/DiseaseAnalysisStep2/StepProgress';
 import SymptomInput from '../components/DiseaseAnalysisStep2/SymptomInput';
@@ -17,14 +17,13 @@ const DURATIONS = ['오늘', '2-3일 전', '1주일 이상', '오래 전'];
 const DiseaseAnalysisStep2Page: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [userId] = useState<number>(1); // 예시 사용자 ID
     const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
     const [itchLevel, setItchLevel] = useState<number>(0);
     const [selectedDuration, setSelectedDuration] = useState<string | null>(null);
     const [additionalInfo, setAdditionalInfo] = useState<string>('');
 
-    const uploadedImage = location.state?.uploadedImage as File | undefined;
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    // Step1에서 전달받은 데이터
+    const { uploadedFiles, analysisResults } = location.state || { uploadedFiles: [], analysisResults: [] };
 
     const handleSymptomToggle = (symptom: string) => {
         setSelectedSymptoms(prev => 
@@ -38,64 +37,36 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
         setSelectedDuration(prev => (prev === duration ? null : duration));
     };
 
-    const handleSkipButtonClick = async () => {
-        if (uploadedImage) {
-            setIsSubmitting(true);
-            try {
-                const diagnosisData: DiagnosisRequest = {
-                    user_id: userId,
+    const handleSkipButtonClick = () => {
+        // 추가 정보 없이 바로 로딩 페이지로 이동
+        navigate('/loading', {
+            state: {
+                uploadedFiles: uploadedFiles,
+                analysisResults: analysisResults,
+                additionalInfo: {
                     symptoms: [],
-                    affected_areas: [],
+                    itchLevel: 0,
                     duration: 'unknown',
-                    severity: 0,
-                    file: uploadedImage,
-                    additional_info: '건너뛰기 선택'
-                };
-                
-                const response = await api.diagnoses.create(diagnosisData);
-                console.log('진단 요청 성공 (건너뛰기):', response);
-                navigate('/disease-analysis-step3', { 
-                    state: { diagnosisResult: response } 
-                });
-            } catch (error) {
-                console.error('진단 요청 실패 (건너뛰기):', error);
-                navigate('/disease-analysis-step3');
-            } finally {
-                setIsSubmitting(false);
+                    additionalInfo: '건너뛰기 선택'
+                }
             }
-        } else {
-            navigate('/disease-analysis-step3');
-        }
+        });
     };
 
-    const handleNextButtonClick = async () => {
-        if (selectedSymptoms.length > 0 || uploadedImage) {
-            setIsSubmitting(true);
-            try {
-                const diagnosisData: DiagnosisRequest = {
-                    user_id: userId,
+    const handleResultViewClick = () => {
+        // 추가 정보와 함께 로딩 페이지로 이동
+        navigate('/loading', {
+            state: {
+                uploadedFiles: uploadedFiles,
+                analysisResults: analysisResults,
+                additionalInfo: {
                     symptoms: selectedSymptoms,
-                    affected_areas: selectedSymptoms,
+                    itchLevel: itchLevel,
                     duration: selectedDuration || 'unknown',
-                    severity: itchLevel,
-                    file: uploadedImage,
-                    additional_info: additionalInfo || `가려움 정도: ${itchLevel}/10`
-                };
-                
-                const response = await api.diagnoses.create(diagnosisData);
-                console.log('진단 요청 성공:', response);
-                navigate('/disease-analysis-step3', { 
-                    state: { diagnosisResult: response } 
-                });
-            } catch (error) {
-                console.error('진단 요청 실패:', error);
-                navigate('/disease-analysis-step3');
-            } finally {
-                setIsSubmitting(false);
+                    additionalInfo: additionalInfo || `가려움 정도: ${itchLevel}/10`
+                }
             }
-        } else {
-            navigate('/disease-analysis-step3');
-        }
+        });
     };
 
     return (
@@ -124,8 +95,8 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
                 <NavigationButtons
                     onPrevious={() => navigate('/disease-analysis-step1')}
                     onSkip={handleSkipButtonClick}
-                    onNext={handleNextButtonClick}
-                    isSubmitting={isSubmitting}
+                    onNext={handleResultViewClick}
+                    isSubmitting={false}
                 />
             </MainContent>
         </ContentWrapper>
