@@ -6,6 +6,7 @@ import type { UVIndexData } from '../services/types';
 import CareHeader from '../components/TodaysCare/CareHeader';
 import UvIndexSection from '../components/TodaysCare/UvIndexSection';
 import CareTipsSection from '../components/TodaysCare/CareTipsSection';
+import { ContentWrapper } from '../components/Layout';
 
 // --- 타입 정의 --- //
 interface Tip {
@@ -137,7 +138,7 @@ function TodaysCare() {
           isRealTimeData={isRealTimeData}
           uvData={uvData}
           handleRealTimeClick={handleRealTimeClick}
-          handleTabClick={handleTabClick}
+          handleTabClick={handleTabClick} 
         />
       </main>
     </>
