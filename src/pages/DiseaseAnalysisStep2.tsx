@@ -48,7 +48,7 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
                     affected_areas: [],
                     duration: 'unknown',
                     severity: 0,
-                    images: [uploadedImage],
+                    file: uploadedImage,
                     additional_info: '건너뛰기 선택'
                 };
                 
@@ -78,7 +78,7 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
                     affected_areas: selectedSymptoms,
                     duration: selectedDuration || 'unknown',
                     severity: itchLevel,
-                    images: uploadedImage ? [uploadedImage] : undefined,
+                    file: uploadedImage,
                     additional_info: additionalInfo || `가려움 정도: ${itchLevel}/10`
                 };
                 
