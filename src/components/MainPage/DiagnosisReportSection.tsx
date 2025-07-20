@@ -231,7 +231,7 @@ const DiagnosisReportSection: React.FC = () => {
   };
 
   return (
-    <Section id="diagnosis-result" bg="#eff6ff">
+    <Section id="diagnosis-result">
       <ContentWrapper>
         <SectionHeading>
           <NotoSansBlack>AI 피부 질환 진단</NotoSansBlack>
