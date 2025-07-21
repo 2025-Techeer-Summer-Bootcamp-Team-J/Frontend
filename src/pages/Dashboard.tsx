@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../services';
 import type { DashboardData } from '../services/types';
 import styled, { createGlobalStyle } from 'styled-components';
