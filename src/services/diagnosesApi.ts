@@ -2,6 +2,7 @@ import apiClient from './apiClient';
 import type { 
   DiagnosisRequest, 
   AsyncDiagnosisResponse,
+  TaskStatusResponse,
   UserDiagnosesResponse,
   DiagnosisDetailResponse,
   SaveDiagnosisRequest,
@@ -19,7 +20,14 @@ export const createDiagnosis = async (diagnosisData: DiagnosisRequest): Promise<
     // FormData 형태로 전송
     const formData = new FormData();
     
-    formData.append('user_id', diagnosisData.user_id.toString());
+    // user_id를 integer로 변환 (Clerk ID를 해시하거나 매핑된 숫자 ID 사용)
+    // 임시로 user_id 문자열을 숫자로 해시 변환
+    const numericUserId = Math.abs(diagnosisData.user_id.split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0));
+    
+    formData.append('user_id', numericUserId.toString());
     
     if (diagnosisData.file) {
       formData.append('file', diagnosisData.file);
@@ -187,6 +195,19 @@ export const getDiagnosisAdditionalInfo = async (diagnosisId: number): Promise<D
   }
 };
 
+/**
+ * 진단 작업 상태 조회
+ */
+export const getDiagnosisTaskStatus = async (taskId: string): Promise<TaskStatusResponse> => {
+  try {
+    const response = await apiClient.get<TaskStatusResponse>(`/api/diagnoses/tasks/${taskId}/status`);
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch task status for task ${taskId}:`, error);
+    throw error;
+  }
+};
+
 // 편의 함수들
 export const diagnosesApi = {
   create: createDiagnosis,
@@ -197,6 +218,7 @@ export const diagnosesApi = {
   saveResult: saveDiagnosisResult,
   createAdditionalInfo: createDiagnosisAdditionalInfo,
   getAdditionalInfo: getDiagnosisAdditionalInfo,
+  getTaskStatus: getDiagnosisTaskStatus,
 };
 
 export default diagnosesApi; 

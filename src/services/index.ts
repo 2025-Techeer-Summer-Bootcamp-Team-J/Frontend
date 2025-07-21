@@ -30,6 +30,7 @@ import {
   saveDiagnosisResult,
   createDiagnosisAdditionalInfo,
   getDiagnosisAdditionalInfo,
+  getDiagnosisTaskStatus,
 } from './diagnosesApi';
 
 import { 
@@ -58,6 +59,7 @@ export {
   saveDiagnosisResult,
   createDiagnosisAdditionalInfo,
   getDiagnosisAdditionalInfo,
+  getDiagnosisTaskStatus,
   createUser,
   signup,
   getUserDashboard,
@@ -95,6 +97,7 @@ export const api = {
     saveResult: saveDiagnosisResult,
     createAdditionalInfo: createDiagnosisAdditionalInfo,
     getAdditionalInfo: getDiagnosisAdditionalInfo,
+    getTaskStatus: getDiagnosisTaskStatus,
   },
   users: {
     create: createUser,

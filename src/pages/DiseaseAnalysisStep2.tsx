@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ContentWrapper } from '../components/Layout';
 
@@ -16,8 +16,16 @@ const DURATIONS = ['오늘', '2-3일 전', '1주일 이상', '오래 전'];
 
 // 타입 정의
 interface AnalysisResult {
-  file: File;
-  result: unknown;
+  fileName?: string;
+  fileSize?: number;
+  fileType?: string;
+  success?: boolean;
+  taskId?: string;
+  status?: string;
+  message?: string;
+  errorMessage?: string;
+  file?: File;
+  result?: unknown;
   error?: unknown;
 }
 
@@ -28,9 +36,33 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
     const [itchLevel, setItchLevel] = useState<number>(0);
     const [selectedDuration, setSelectedDuration] = useState<string | null>(null);
     const [additionalInfo, setAdditionalInfo] = useState<string>('');
+    const [hasValidResults, setHasValidResults] = useState<boolean>(false);
 
     // Step1에서 전달받은 데이터
-    const { uploadedFiles, analysisResults } = location.state || { uploadedFiles: [], analysisResults: [] };
+    const { uploadedFiles = [], analysisResults = [] } = location.state || {};
+
+    useEffect(() => {
+        // 페이지 로드 시 분석 결과 유효성 검사
+        const checkResults = () => {
+            if (!analysisResults || analysisResults.length === 0) {
+                return false;
+            }
+            
+            // 성공한 분석 결과가 있는지 확인
+            const successfulResults = analysisResults.filter((result: AnalysisResult) => 
+                result.success === true && result.taskId
+            );
+            
+            return successfulResults.length > 0;
+        };
+        
+        const isValid = checkResults();
+        setHasValidResults(isValid);
+        
+        if (!isValid) {
+            console.warn('유효한 분석 결과가 없습니다:', analysisResults);
+        }
+    }, [analysisResults]);
 
     const handleSymptomToggle = (symptom: string) => {
         setSelectedSymptoms(prev => 
@@ -45,12 +77,20 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
     };
 
     const handleSkipButtonClick = () => {
-        // 첫 번째 성공한 분석 결과 찾기
-        const successfulResult = analysisResults.find((result: AnalysisResult) => result.result && !result.error);
+        if (!hasValidResults) {
+            alert('분석이 아직 진행 중이거나 실패했습니다.\n\n잠시 후 다시 시도하거나 새로운 이미지로 분석을 시작해주세요.');
+            navigate('/disease-analysis-step1');
+            return;
+        }
+
+        // 성공한 분석 결과 찾기
+        const successfulResult = analysisResults.find((result: AnalysisResult) => 
+            result.success === true && result.taskId
+        );
         
         if (successfulResult) {
-            // 추가 정보 없이 바로 Step3로 이동
-            navigate('/disease-analysis-step3', {
+            // LoadingPage로 이동 (추가 정보 없이)
+            navigate('/loading', {
                 state: {
                     uploadedFiles: uploadedFiles,
                     analysisResults: analysisResults,
@@ -64,18 +104,26 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
                 }
             });
         } else {
-            alert('분석 결과를 찾을 수 없습니다. 다시 시도해주세요.');
+            alert('분석 결과를 사용할 수 없습니다.\n\n다시 분석을 진행해주세요.');
             navigate('/disease-analysis-step1');
         }
     };
 
     const handleResultViewClick = () => {
-        // 첫 번째 성공한 분석 결과 찾기
-        const successfulResult = analysisResults.find((result: AnalysisResult) => result.result && !result.error);
+        if (!hasValidResults) {
+            alert('분석이 아직 진행 중이거나 실패했습니다.\n\n잠시 후 다시 시도하거나 새로운 이미지로 분석을 시작해주세요.');
+            navigate('/disease-analysis-step1');
+            return;
+        }
+
+        // 성공한 분석 결과 찾기
+        const successfulResult = analysisResults.find((result: AnalysisResult) => 
+            result.success === true && result.taskId
+        );
         
         if (successfulResult) {
-            // 추가 정보와 함께 바로 Step3로 이동
-            navigate('/disease-analysis-step3', {
+            // LoadingPage로 이동 (추가 정보와 함께)
+            navigate('/loading', {
                 state: {
                     uploadedFiles: uploadedFiles,
                     analysisResults: analysisResults,
@@ -89,16 +137,48 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
                 }
             });
         } else {
-            alert('분석 결과를 찾을 수 없습니다. 다시 시도해주세요.');
+            alert('분석 결과를 사용할 수 없습니다.\n\n다시 분석을 진행해주세요.');
             navigate('/disease-analysis-step1');
         }
     };
+
+    // 분석 결과가 없거나 모두 실패한 경우 경고 메시지 표시
+    const getStatusMessage = () => {
+        if (!analysisResults || analysisResults.length === 0) {
+            return '분석 결과가 없습니다. 이전 단계로 돌아가서 다시 시도해주세요.';
+        }
+        
+        const failedResults = analysisResults.filter((result: AnalysisResult) => result.success === false);
+        const successResults = analysisResults.filter((result: AnalysisResult) => result.success === true);
+        
+        if (failedResults.length > 0 && successResults.length === 0) {
+            return '이미지 분석에 실패했습니다. 네트워크 상태를 확인하고 다시 시도해주세요.';
+        }
+        
+        return null;
+    };
+
+    const statusMessage = getStatusMessage();
 
     return (
         <ContentWrapper style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
             <StepProgress currentStep={2} />
             <MainContent>
                 <PageTitle>2단계: 증상에 대한 정보를 알려주세요</PageTitle>
+                
+                {statusMessage && (
+                    <div style={{ 
+                        padding: '1rem', 
+                        margin: '1rem 0', 
+                        backgroundColor: '#fff3cd', 
+                        border: '1px solid #ffeaa7', 
+                        borderRadius: '0.5rem',
+                        color: '#856404'
+                    }}>
+                        ⚠️ {statusMessage}
+                    </div>
+                )}
+                
                 <SymptomInput
                     symptoms={SYMPTOMS}
                     selectedSymptoms={selectedSymptoms}
