@@ -31,34 +31,40 @@ const DiseaseAnalysisStep1: React.FC = () => {
                 try {
                     const diagnosisData = {
                         user_id: userId,
-                        file: file,
-                        symptoms: [],
-                        affected_areas: [],
-                        duration: 'unknown',
-                        severity: 0,
-                        additional_info: 'Step1에서 업로드된 이미지'
+
+                        file: file
+
                     };
                     
                     const response = await api.diagnoses.create(diagnosisData);
                     analysisResults.push({
-                        file: file,
-                        result: response
+
+                        fileName: file.name,
+                        fileSize: file.size,
+                        fileType: file.type,
+                        success: true,
+                        taskId: response.task_id,
+                        status: response.status,
+                        message: response.message
+
                     });
                 } catch (error) {
                     console.error('이미지 분석 실패:', file.name, error);
                     // 실패한 경우에도 파일 정보는 유지
                     analysisResults.push({
-                        file: file,
-                        result: null,
-                        error: error
+
+                        fileName: file.name,
+                        fileSize: file.size,
+                        fileType: file.type,
+                        success: false,
+                        errorMessage: error instanceof Error ? error.message : '알 수 없는 오류'
                     });
                 }
             }
 
-            // 분석 완료 후 Step2로 이동
+            // 분석 완료 후 Step2로 이동 (직렬화 가능한 데이터만 전달)
             navigate('/disease-analysis-step2', {
                 state: { 
-                    uploadedFiles: uploadedFiles,
                     analysisResults: analysisResults
                 }
             });

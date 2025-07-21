@@ -82,6 +82,26 @@ export interface AsyncDiagnosisResponse {
   status: string;
 }
 
+
+// Task 상태 조회 응답
+export interface TaskStatusResponse {
+  code: number;
+  message: string;
+  task_id: string;
+  state: string;
+  progress: {
+    current: number;
+    total: number;
+    status: string;
+  };
+  result?: {
+    code: number;
+    message: string;
+    data: DiagnosisRecord[];
+  };
+  error?: string;
+}
+
 // 진단 기록
 export interface DiagnosisRecord {
   id: number;
@@ -140,6 +160,7 @@ export interface SaveDiagnosisResponse {
   diagnosis_id: number;
   message: string;
 }
+
 
 // SSE 스트림 이벤트 타입 - 백엔드 구조에 맞게 확장
 export interface StreamEvent {

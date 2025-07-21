@@ -2,6 +2,7 @@ import apiClient from './apiClient';
 import type { 
   DiagnosisRequest, 
   AsyncDiagnosisResponse,
+  TaskStatusResponse,
   UserDiagnosesResponse,
   DiagnosisDetailResponse,
   SaveDiagnosisRequest,
@@ -19,8 +20,14 @@ export const createDiagnosis = async (diagnosisData: DiagnosisRequest): Promise<
     // FormData 형태로 전송
     const formData = new FormData();
     
-    formData.append('user_id', diagnosisData.user_id.toString());
+    // user_id를 integer로 변환 (Clerk ID를 해시하거나 매핑된 숫자 ID 사용)
+    // 임시로 user_id 문자열을 숫자로 해시 변환
+    const numericUserId = Math.abs(diagnosisData.user_id.split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0));
     
+    formData.append('user_id', numericUserId.toString());
     if (diagnosisData.file) {
       formData.append('file', diagnosisData.file);
     }
@@ -85,6 +92,7 @@ export const getDiagnosisById = async (diagnosisId: number): Promise<DiagnosisDe
 
 /**
  * 질병 정보 스트리밍 생성 (SSE) - Mock 구현 (서버 엔드포인트가 없어서 임시)
+
  */
 export const generateDiagnosisStream = (
   userId: string, // Clerk user ID는 string 타입
@@ -156,6 +164,7 @@ export const saveDiagnosisResult = async (diagnosisData: SaveDiagnosisRequest): 
 /**
  * 진단 보조 정보 생성
  */
+
 export const createDiagnosisAdditionalInfo = async (
   diagnosisId: number, 
   additionalData: CreateDiagnosisAdditionalRequest
@@ -181,8 +190,22 @@ export const getDiagnosisAdditionalInfo = async (diagnosisId: number): Promise<D
       `/api/diagnoses/${diagnosisId}/additional`
     );
     return response.data;
+
   } catch (error) {
     console.error(`Failed to fetch additional info for diagnosis ${diagnosisId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * 진단 작업 상태 조회
+ */
+export const getDiagnosisTaskStatus = async (taskId: string): Promise<TaskStatusResponse> => {
+  try {
+    const response = await apiClient.get<TaskStatusResponse>(`/api/diagnoses/tasks/${taskId}/status`);
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch task status for task ${taskId}:`, error);
     throw error;
   }
 };
@@ -197,6 +220,9 @@ export const diagnosesApi = {
   saveResult: saveDiagnosisResult,
   createAdditionalInfo: createDiagnosisAdditionalInfo,
   getAdditionalInfo: getDiagnosisAdditionalInfo,
+
+  getTaskStatus: getDiagnosisTaskStatus,
+
 };
 
 export default diagnosesApi; 

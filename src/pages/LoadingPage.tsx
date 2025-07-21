@@ -6,6 +6,7 @@ import LoadingAnimation from '../components/LoadingPage/LoadingAnimation';
 import AnalysisStatusDisplay from '../components/LoadingPage/AnalysisStatusDisplay';
 import InfoTipCard from '../components/LoadingPage/InfoTipCard';
 import CompletionDisplay from '../components/LoadingPage/CompletionDisplay';
+import { api } from '../services';
 
 // --- 타입 정의 ---
 interface SkinInfoItem {
@@ -14,14 +15,27 @@ interface SkinInfoItem {
 }
 
 interface AnalysisResult {
-  file: File;
-  result: unknown;
+
+  fileName?: string;
+  fileSize?: number;
+  fileType?: string;
+  success?: boolean;
+  taskId?: string;
+  status?: string;
+  message?: string;
+  errorMessage?: string;
+  file?: File;
+  result?: unknown;
+
   error?: unknown;
 }
 
 interface LocationState {
   uploadedFiles: File[];
   analysisResults: AnalysisResult[];
+
+  selectedResult: AnalysisResult;
+
   additionalInfo?: {
     symptoms: string[];
     itchLevel: number;
@@ -53,16 +67,28 @@ const LoadingPage: React.FC = () => {
 
   // Step2에서 전달받은 데이터
   const locationState = location.state as LocationState | null;
-  const { uploadedFiles, analysisResults, additionalInfo } = locationState || { uploadedFiles: [], analysisResults: [], additionalInfo: undefined };
+
+  const { uploadedFiles, analysisResults, selectedResult, additionalInfo } = locationState || { 
+    uploadedFiles: [], 
+    analysisResults: [], 
+    selectedResult: null, 
+    additionalInfo: undefined 
+  };
 
   // 유효하지 않은 상태일 때 Step1으로 리다이렉트
   useEffect(() => {
-    if (!locationState || !uploadedFiles || uploadedFiles.length === 0 || !analysisResults || analysisResults.length === 0) {
+    if (!locationState || !selectedResult || !selectedResult.taskId) {
       console.log('❌ LoadingPage: 유효하지 않은 상태 - Step1으로 이동');
+      console.log('locationState:', !!locationState);
+      console.log('selectedResult:', selectedResult);
+      console.log('taskId:', selectedResult?.taskId);
       navigate('/disease-analysis-step1', { replace: true });
       return;
     }
-  }, [locationState, uploadedFiles, analysisResults, navigate]);
+    
+    console.log('✅ LoadingPage: 유효한 상태 - taskId:', selectedResult.taskId);
+  }, [locationState, selectedResult, navigate]);
+
 
   useEffect(() => {
     if (isComplete) return;
@@ -98,30 +124,60 @@ const LoadingPage: React.FC = () => {
   }, [isComplete]);
 
   const startSSEStreaming = () => {
-    if (sseStarted || uploadedFiles.length === 0 || analysisResults.length === 0) return;
+
+    if (sseStarted || !selectedResult || !selectedResult.taskId) return;
     
     setSseStarted(true);
+    console.log('🚀 분석 완료 확인 시작 - taskId:', selectedResult.taskId);
     
-    // 0.3초 후에 Step3로 이동
-    setTimeout(() => {
-      // 첫 번째 성공한 분석 결과 찾기
-      const successfulResult = analysisResults.find((result: AnalysisResult) => result.result && !result.error);
-      
-      if (successfulResult) {
-        navigate('/disease-analysis-step3', {
-          state: {
-            uploadedFiles: uploadedFiles,
-            analysisResults: analysisResults,
-            selectedResult: successfulResult,
-            additionalInfo: additionalInfo
-          }
-        });
-      } else {
-        // 모든 분석이 실패한 경우 에러 처리
-        alert('모든 이미지 분석에 실패했습니다. 다시 시도해주세요.');
-        navigate('/disease-analysis-step1');
+    // 실제 task 상태를 폴링
+    const pollTaskStatus = async () => {
+      try {
+        const taskStatus = await api.diagnoses.getTaskStatus(selectedResult.taskId!);
+        console.log('📊 Task 상태:', taskStatus);
+        
+        // task가 완료되었고 결과가 있는 경우
+        if (taskStatus.state === 'SUCCESS' && taskStatus.result) {
+          console.log('✅ 분석 완료 - Step3로 이동');
+          
+          navigate('/disease-analysis-step3', {
+            state: {
+              uploadedFiles: uploadedFiles,
+              analysisResults: analysisResults,
+              selectedResult: {
+                ...selectedResult,
+                result: taskStatus.result
+              },
+              additionalInfo: additionalInfo
+            }
+          });
+          return;
+        }
+        
+        // task가 실패한 경우
+        if (taskStatus.state === 'FAILURE') {
+          console.error('❌ 분석 실패:', taskStatus.error);
+          alert('이미지 분석에 실패했습니다.\n\n다시 시도해주세요.');
+          navigate('/disease-analysis-step1');
+          return;
+        }
+        
+        // 아직 진행 중인 경우 2초 후 다시 확인
+        if (taskStatus.state === 'PENDING' || taskStatus.state === 'PROGRESS') {
+          console.log('⏳ 분석 진행 중..., 2초 후 재확인');
+          setTimeout(pollTaskStatus, 2000);
+        }
+        
+      } catch (error) {
+        console.error('❌ Task 상태 확인 실패:', error);
+        // 네트워크 오류 등의 경우 2초 후 재시도
+        setTimeout(pollTaskStatus, 2000);
       }
-    }, 300); // 0.3초
+    };
+    
+    // 폴링 시작
+    pollTaskStatus();
+
   };
 
   const handleResultClick = () => {
