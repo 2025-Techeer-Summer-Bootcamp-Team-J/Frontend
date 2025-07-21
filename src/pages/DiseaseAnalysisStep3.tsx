@@ -7,7 +7,7 @@ import ChartPanel from '../components/DiseaseAnalysisStep3/ChartPanel';
 import DetailsPanel from '../components/DiseaseAnalysisStep3/DetailsPanel';
 import AdditionalInfoDisplay from '../components/DiseaseAnalysisStep3/AdditionalInfoDisplay';
 import { MainContent } from '../components/DiseaseAnalysisStep3/SharedStyles';
-import { createDiagnosis, generateDiagnosisStream, saveDiagnosisResult, fileToBase64 } from '../services';
+import { generateDiagnosisStream, saveDiagnosisResult, fileToBase64 } from '../services';
 
 // 타입 정의
 interface AnalysisResult {
@@ -83,55 +83,22 @@ const DiseaseAnalysisStep3: React.FC = () => {
       return;
     }
 
-    console.log('🚀 POST 진단 요청 시작!');
-    startDiagnosisFlow();
+    console.log('🚀 분석 결과가 준비됨 - SSE 스트리밍 시작!');
+    // 이미 완료된 분석 결과가 있으므로 바로 SSE 스트리밍 시작
+    const eventSource = startSSEStreaming();
     
     // Cleanup 함수: 컴포넌트 unmount 시 EventSource 정리
     return () => {
-      if (eventSourceRef.current) {
+      if (eventSource) {
         console.log('🧹 useEffect cleanup - EventSource 연결 종료');
+        eventSource.close();
+      }
+      if (eventSourceRef.current) {
         eventSourceRef.current.close();
         eventSourceRef.current = null;
       }
     };
-  }, [selectedResult, isLoaded, user]);
-
-  // POST 요청 후 SSE 스트리밍 시작
-  const startDiagnosisFlow = async () => {
-    try {
-      console.log('📤 POST /api/diagnoses 요청 시작');
-      
-      // POST 요청으로 진단 요청
-      const diagnosisRequest = {
-        user_id: user!.id,
-        file: selectedResult!.file
-      };
-
-      const postResponse = await createDiagnosis(diagnosisRequest);
-      console.log('✅ POST 응답 성공:', postResponse);
-
-      // POST 응답이 200이면 바로 기본 정보 표시하고 SSE 스트리밍 시작
-      if (postResponse) {
-        console.log('🎯 POST 응답 성공 - SSE 스트리밍 시작');
-        const eventSource = startSSEStreaming();
-        
-        // Cleanup 함수 등록
-        const cleanup = () => {
-          if (eventSource) {
-            console.log('🧹 EventSource cleanup - 연결 종료');
-            eventSource.close();
-          }
-        };
-
-        // 컴포넌트 unmount 시 cleanup
-        return cleanup;
-      }
-    } catch (error) {
-      console.error('❌ POST 요청 실패:', error);
-      alert('진단 요청에 실패했습니다. 다시 시도해주세요.');
-      navigate('/disease-analysis-step1');
-    }
-  };
+  }, [selectedResult, isLoaded, user, isStreaming]);
 
   const startSSEStreaming = (): EventSource | null => {
     if (isStreaming || !selectedResult || !selectedResult.result) {

@@ -65,7 +65,6 @@ const DiseaseAnalysisStep1: React.FC = () => {
             // 분석 완료 후 Step2로 이동 (직렬화 가능한 데이터만 전달)
             navigate('/disease-analysis-step2', {
                 state: { 
-
                     analysisResults: analysisResults
                 }
             });
