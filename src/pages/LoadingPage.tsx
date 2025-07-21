@@ -15,6 +15,7 @@ interface SkinInfoItem {
 }
 
 interface AnalysisResult {
+
   fileName?: string;
   fileSize?: number;
   fileType?: string;
@@ -25,13 +26,16 @@ interface AnalysisResult {
   errorMessage?: string;
   file?: File;
   result?: unknown;
+
   error?: unknown;
 }
 
 interface LocationState {
   uploadedFiles: File[];
   analysisResults: AnalysisResult[];
+
   selectedResult: AnalysisResult;
+
   additionalInfo?: {
     symptoms: string[];
     itchLevel: number;
@@ -63,6 +67,7 @@ const LoadingPage: React.FC = () => {
 
   // Step2에서 전달받은 데이터
   const locationState = location.state as LocationState | null;
+
   const { uploadedFiles, analysisResults, selectedResult, additionalInfo } = locationState || { 
     uploadedFiles: [], 
     analysisResults: [], 
@@ -83,6 +88,7 @@ const LoadingPage: React.FC = () => {
     
     console.log('✅ LoadingPage: 유효한 상태 - taskId:', selectedResult.taskId);
   }, [locationState, selectedResult, navigate]);
+
 
   useEffect(() => {
     if (isComplete) return;
@@ -118,6 +124,7 @@ const LoadingPage: React.FC = () => {
   }, [isComplete]);
 
   const startSSEStreaming = () => {
+
     if (sseStarted || !selectedResult || !selectedResult.taskId) return;
     
     setSseStarted(true);
@@ -170,6 +177,7 @@ const LoadingPage: React.FC = () => {
     
     // 폴링 시작
     pollTaskStatus();
+
   };
 
   const handleResultClick = () => {

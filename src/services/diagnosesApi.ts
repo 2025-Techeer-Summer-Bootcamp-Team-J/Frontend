@@ -28,7 +28,6 @@ export const createDiagnosis = async (diagnosisData: DiagnosisRequest): Promise<
     }, 0));
     
     formData.append('user_id', numericUserId.toString());
-    
     if (diagnosisData.file) {
       formData.append('file', diagnosisData.file);
     }
@@ -93,6 +92,7 @@ export const getDiagnosisById = async (diagnosisId: number): Promise<DiagnosisDe
 
 /**
  * 질병 정보 스트리밍 생성 (SSE) - Mock 구현 (서버 엔드포인트가 없어서 임시)
+
  */
 export const generateDiagnosisStream = (
   userId: string, // Clerk user ID는 string 타입
@@ -164,6 +164,7 @@ export const saveDiagnosisResult = async (diagnosisData: SaveDiagnosisRequest): 
 /**
  * 진단 보조 정보 생성
  */
+
 export const createDiagnosisAdditionalInfo = async (
   diagnosisId: number, 
   additionalData: CreateDiagnosisAdditionalRequest
@@ -189,6 +190,7 @@ export const getDiagnosisAdditionalInfo = async (diagnosisId: number): Promise<D
       `/api/diagnoses/${diagnosisId}/additional`
     );
     return response.data;
+
   } catch (error) {
     console.error(`Failed to fetch additional info for diagnosis ${diagnosisId}:`, error);
     throw error;
@@ -218,7 +220,9 @@ export const diagnosesApi = {
   saveResult: saveDiagnosisResult,
   createAdditionalInfo: createDiagnosisAdditionalInfo,
   getAdditionalInfo: getDiagnosisAdditionalInfo,
+
   getTaskStatus: getDiagnosisTaskStatus,
+
 };
 
 export default diagnosesApi; 

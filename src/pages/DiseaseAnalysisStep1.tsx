@@ -31,11 +31,14 @@ const DiseaseAnalysisStep1: React.FC = () => {
                 try {
                     const diagnosisData = {
                         user_id: userId,
+
                         file: file
+
                     };
                     
                     const response = await api.diagnoses.create(diagnosisData);
                     analysisResults.push({
+
                         fileName: file.name,
                         fileSize: file.size,
                         fileType: file.type,
@@ -43,11 +46,13 @@ const DiseaseAnalysisStep1: React.FC = () => {
                         taskId: response.task_id,
                         status: response.status,
                         message: response.message
+
                     });
                 } catch (error) {
                     console.error('이미지 분석 실패:', file.name, error);
                     // 실패한 경우에도 파일 정보는 유지
                     analysisResults.push({
+
                         fileName: file.name,
                         fileSize: file.size,
                         fileType: file.type,
@@ -60,6 +65,7 @@ const DiseaseAnalysisStep1: React.FC = () => {
             // 분석 완료 후 Step2로 이동 (직렬화 가능한 데이터만 전달)
             navigate('/disease-analysis-step2', {
                 state: { 
+
                     analysisResults: analysisResults
                 }
             });

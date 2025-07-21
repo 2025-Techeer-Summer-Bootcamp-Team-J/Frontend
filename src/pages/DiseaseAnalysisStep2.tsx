@@ -16,6 +16,7 @@ const DURATIONS = ['오늘', '2-3일 전', '1주일 이상', '오래 전'];
 
 // 타입 정의
 interface AnalysisResult {
+
   fileName?: string;
   fileSize?: number;
   fileType?: string;
@@ -26,6 +27,7 @@ interface AnalysisResult {
   errorMessage?: string;
   file?: File;
   result?: unknown;
+
   error?: unknown;
 }
 
@@ -40,6 +42,7 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
 
     // Step1에서 전달받은 데이터
     const { uploadedFiles = [], analysisResults = [] } = location.state || {};
+
 
     useEffect(() => {
         // 페이지 로드 시 분석 결과 유효성 검사
@@ -64,6 +67,7 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
         }
     }, [analysisResults]);
 
+
     const handleSymptomToggle = (symptom: string) => {
         setSelectedSymptoms(prev => 
             prev.includes(symptom) 
@@ -77,6 +81,7 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
     };
 
     const handleSkipButtonClick = () => {
+
         if (!hasValidResults) {
             alert('분석이 아직 진행 중이거나 실패했습니다.\n\n잠시 후 다시 시도하거나 새로운 이미지로 분석을 시작해주세요.');
             navigate('/disease-analysis-step1');
@@ -91,6 +96,7 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
         if (successfulResult) {
             // LoadingPage로 이동 (추가 정보 없이)
             navigate('/loading', {
+
                 state: {
                     uploadedFiles: uploadedFiles,
                     analysisResults: analysisResults,
@@ -104,12 +110,15 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
                 }
             });
         } else {
+
             alert('분석 결과를 사용할 수 없습니다.\n\n다시 분석을 진행해주세요.');
+
             navigate('/disease-analysis-step1');
         }
     };
 
     const handleResultViewClick = () => {
+
         if (!hasValidResults) {
             alert('분석이 아직 진행 중이거나 실패했습니다.\n\n잠시 후 다시 시도하거나 새로운 이미지로 분석을 시작해주세요.');
             navigate('/disease-analysis-step1');
@@ -124,6 +133,7 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
         if (successfulResult) {
             // LoadingPage로 이동 (추가 정보와 함께)
             navigate('/loading', {
+
                 state: {
                     uploadedFiles: uploadedFiles,
                     analysisResults: analysisResults,
@@ -137,7 +147,9 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
                 }
             });
         } else {
+
             alert('분석 결과를 사용할 수 없습니다.\n\n다시 분석을 진행해주세요.');
+
             navigate('/disease-analysis-step1');
         }
     };
