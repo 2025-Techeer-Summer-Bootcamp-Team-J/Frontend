@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ContentWrapper } from '../components/Layout';
 
-
 import StepProgress from '../components/DiseaseAnalysisStep2/StepProgress';
 import SymptomInput from '../components/DiseaseAnalysisStep2/SymptomInput';
 import ItchLevelSlider from '../components/DiseaseAnalysisStep2/ItchLevelSlider';
@@ -10,9 +9,7 @@ import DurationInput from '../components/DiseaseAnalysisStep2/DurationInput';
 import AdditionalInfoInput from '../components/DiseaseAnalysisStep2/AdditionalInfoInput';
 import NavigationButtons from '../components/DiseaseAnalysisStep2/NavigationButtons';
 import { MainContent, PageTitle } from '../components/DiseaseAnalysisStep2/SharedStyles';
-
-const SYMPTOMS = ['가려움', '따가움/통증', '붉은 반점', '각질/비늘', '진물/수포', '피부 건조', '뾰루지/여드름'];
-const DURATIONS = ['오늘', '2-3일 전', '1주일 이상', '오래 전'];
+import { SYMPTOMS, DURATIONS } from '../constants/diseaseAnalysis';
 
 // 타입 정의
 interface AnalysisResult {

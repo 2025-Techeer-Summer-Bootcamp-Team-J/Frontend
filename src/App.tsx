@@ -10,7 +10,6 @@ import MainPage from './pages/MainPage';
 import TodaysCare from './pages/TodaysCare';
 import Dashboard from './pages/Dashboard';
 import SkinAnalysis from './pages/SkinAnalysis';
-import LoadingPage from './pages/LoadingPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import UserInfoPage from './pages/UserInfoPage';
 import RedirectPage from './pages/RedirectPage';
@@ -49,10 +48,6 @@ function App() {
           <Route
             path="/skin-analysis"
             element={<ProtectedRoute><SkinAnalysis /></ProtectedRoute>}
-          />
-          <Route
-            path="/loading"
-            element={<ProtectedRoute><LoadingPage /></ProtectedRoute>}
           />
         </Route>
 
