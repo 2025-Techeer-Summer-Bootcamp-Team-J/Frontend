@@ -87,7 +87,7 @@ export const getDiagnosisById = async (diagnosisId: number): Promise<DiagnosisDe
  * 질병 정보 스트리밍 생성 (SSE) - Mock 구현 (서버 엔드포인트가 없어서 임시)
  */
 export const generateDiagnosisStream = (
-  userId: number,
+  userId: string, // Clerk user ID는 string 타입
   diseaseName: string,
   image: File,
   onEvent: (event: StreamEvent) => void,

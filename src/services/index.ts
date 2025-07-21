@@ -4,6 +4,9 @@ export { default as apiClient } from './apiClient';
 // 타입 정의
 export * from './types';
 
+// 유틸리티 함수들
+export { fileToBase64 } from './utils';
+
 // 개별 함수들 import 및 export
 import {
   getAllSkinTypes,

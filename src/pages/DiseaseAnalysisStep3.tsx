@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
 import { ContentWrapper } from '../components/Layout';
 import StepIndicator from '../components/DiseaseAnalysisStep3/StepIndicator';
 import ChartPanel from '../components/DiseaseAnalysisStep3/ChartPanel';
 import DetailsPanel from '../components/DiseaseAnalysisStep3/DetailsPanel';
 import AdditionalInfoDisplay from '../components/DiseaseAnalysisStep3/AdditionalInfoDisplay';
 import { MainContent } from '../components/DiseaseAnalysisStep3/SharedStyles';
-import { createDiagnosis, generateDiagnosisStream, saveDiagnosisResult } from '../services';
+import { createDiagnosis, generateDiagnosisStream, saveDiagnosisResult, fileToBase64 } from '../services';
 
 // 타입 정의
 interface AnalysisResult {
@@ -42,6 +43,8 @@ interface StreamingContent {
 const DiseaseAnalysisStep3: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, isLoaded } = useUser();
+  const eventSourceRef = useRef<EventSource | null>(null);
   
   // 상태 관리
   const [streamingContent, setStreamingContent] = useState<StreamingContent>({
@@ -70,6 +73,11 @@ const DiseaseAnalysisStep3: React.FC = () => {
       return;
     }
 
+    if (!isLoaded || !user) {
+      console.log('⏳ 사용자 정보 로딩 중...');
+      return;
+    }
+
     if (isStreaming) {
       console.log('⚠️ 이미 스트리밍 중');
       return;
@@ -78,7 +86,15 @@ const DiseaseAnalysisStep3: React.FC = () => {
     console.log('🚀 POST 진단 요청 시작!');
     startDiagnosisFlow();
     
-  }, [selectedResult]);
+    // Cleanup 함수: 컴포넌트 unmount 시 EventSource 정리
+    return () => {
+      if (eventSourceRef.current) {
+        console.log('🧹 useEffect cleanup - EventSource 연결 종료');
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
+      }
+    };
+  }, [selectedResult, isLoaded, user]);
 
   // POST 요청 후 SSE 스트리밍 시작
   const startDiagnosisFlow = async () => {
@@ -87,7 +103,7 @@ const DiseaseAnalysisStep3: React.FC = () => {
       
       // POST 요청으로 진단 요청
       const diagnosisRequest = {
-        user_id: 1, // TODO: 실제 사용자 ID로 교체
+        user_id: user!.id,
         file: selectedResult!.file
       };
 
@@ -159,9 +175,9 @@ const DiseaseAnalysisStep3: React.FC = () => {
       
       console.log('🏥 최종 추출된 병명:', diseaseName);
       
-      const userId = 1; // TODO: 실제 사용자 ID로 교체
+      const userId = user!.id;
 
-      return generateDiagnosisStream(
+      const eventSource = generateDiagnosisStream(
         userId,
         diseaseName,
         selectedResult.file,
@@ -203,6 +219,11 @@ const DiseaseAnalysisStep3: React.FC = () => {
           setIsComplete(true);
         }
       );
+
+      // EventSource를 ref에 저장하여 cleanup에서 사용할 수 있도록 함
+      eventSourceRef.current = eventSource;
+      
+      return eventSource;
     } catch (error) {
       console.error('SSE 스트리밍 시작 실패:', error);
       setIsStreaming(false);
@@ -213,7 +234,7 @@ const DiseaseAnalysisStep3: React.FC = () => {
 
   const handleSaveResult = async () => {
     const hasContent = Object.values(streamingContent).some(content => content.trim().length > 0);
-    if (!finalResult || !hasContent || isSaved || isSaving) return;
+    if (!finalResult || !hasContent || isSaved || isSaving || !user || !selectedResult?.file) return;
 
     setIsSaving(true);
     try {
@@ -236,9 +257,12 @@ const DiseaseAnalysisStep3: React.FC = () => {
         `관리법: ${streamingContent.management}`
       ].join('\n\n');
 
+      // 이미지를 base64로 변환
+      const imageBase64 = await fileToBase64(selectedResult.file);
+
       const saveData = {
-        user_id: 1, // TODO: 실제 사용자 ID로 교체
-        image_base64: '', // TODO: 이미지를 base64로 변환 필요
+        user_id: user.id,
+        image_base64: imageBase64,
         image_analysis: {
           disease_name: (firstResult?.disease_name as string) || (result?.disease_name as string) || 'unknown',
           confidence: (firstResult?.confidence as number) || (result?.confidence as number) || 0

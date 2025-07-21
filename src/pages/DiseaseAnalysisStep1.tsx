@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
 import { ContentWrapper } from '../components/Layout';
 import StepIndicator from '../components/DiseaseAnalysisStep1/StepIndicator';
 import GuidePanel from '../components/DiseaseAnalysisStep1/GuidePanel';
@@ -9,14 +10,20 @@ import { api } from '../services';
 
 const DiseaseAnalysisStep1: React.FC = () => {
     const navigate = useNavigate();
+    const { user, isLoaded } = useUser();
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
     const handleNext = async (uploadedFiles: File[]) => {
         if (uploadedFiles.length === 0) return;
 
+        if (!isLoaded || !user) {
+            alert('사용자 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+            return;
+        }
+
         setIsAnalyzing(true);
         try {
-            const userId = 1; // TODO: 실제 사용자 ID로 교체 필요
+            const userId = user.id;
             const analysisResults = [];
 
             // 각 이미지에 대해 개별적으로 분석 API 호출

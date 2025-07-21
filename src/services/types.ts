@@ -48,7 +48,7 @@ export interface SkinTypeAnalysisResponse {
   status_code: number;
   message: string;
   data: {
-    user_id: number;
+    user_id: string; // Clerk user ID는 string 타입
     skin_type_code: number;
     skin_type_name: string;
   };
@@ -65,7 +65,7 @@ export interface Disease {
 
 // Diagnoses 관련 타입 - API 스펙에 맞게 수정
 export interface DiagnosisRequest {
-  user_id: number;
+  user_id: string; // Clerk user ID는 string 타입
   file?: File;
   symptoms?: string[];
   affected_areas?: string[];
@@ -85,7 +85,7 @@ export interface AsyncDiagnosisResponse {
 // 진단 기록
 export interface DiagnosisRecord {
   id: number;
-  user_id: number;
+  user_id: string; // Clerk user ID는 string 타입
   disease_name: string;
   confidence?: number;
   image?: string;
@@ -102,7 +102,7 @@ export interface UserDiagnosesResponse {
 // 진단 상세 정보
 export interface DiagnosisDetail {
   diagnosis_id: number;
-  user_id: number;
+  user_id: string; // Clerk user ID는 string 타입
   image_base64: string;
   image_analysis: {
     disease_name: string;
@@ -123,7 +123,7 @@ export interface DiagnosisDetailResponse {
 
 // 진단 결과 저장 요청
 export interface SaveDiagnosisRequest {
-  user_id: number;
+  user_id: string; // Clerk user ID는 string 타입
   image_base64: string;
   image_analysis: {
     disease_name: string;
