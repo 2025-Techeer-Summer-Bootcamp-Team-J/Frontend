@@ -15,28 +15,46 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const chartData = {
-  labels: ['아토피 피부염', '접촉성 피부염', '지루성 피부염', '기타'],
-  datasets: [{
-    data: [55, 25, 15, 5],
-    backgroundColor: ['#2563eb', '#60a5fa', '#93c5fd', '#dbeafe'],
-    borderColor: 'white',
-    borderWidth: 4,
-    hoverOffset: 8,
-  }],
-};
+interface ChartPanelProps {
+  analysisResult?: {
+    disease_name: string;
+    confidence: number;
+  };
+}
 
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  cutout: '60%',
-  plugins: {
-    legend: { display: false },
-    tooltip: { callbacks: { label: (context: TooltipItem<'doughnut'>) => `${context.label}: ${context.parsed}%` } },
-  },
-};
+const ChartPanel: React.FC<ChartPanelProps> = ({ analysisResult }) => {
+  // 실제 분석 결과가 있으면 사용, 없으면 기본값
+  const mainDisease = analysisResult?.disease_name || '분석 중';
+  const mainConfidence = analysisResult?.confidence || 0;
+  
+  // 나머지 확률들은 추정값으로 계산
+  const remainingConfidence = 100 - mainConfidence;
+  const otherDiseases = [
+    { name: '접촉성 피부염', confidence: Math.round(remainingConfidence * 0.4) },
+    { name: '지루성 피부염', confidence: Math.round(remainingConfidence * 0.3) },
+    { name: '기타', confidence: remainingConfidence - Math.round(remainingConfidence * 0.4) - Math.round(remainingConfidence * 0.3) }
+  ];
 
-const ChartPanel: React.FC = () => {
+  const chartData = {
+    labels: [mainDisease, ...otherDiseases.map(d => d.name)],
+    datasets: [{
+      data: [mainConfidence, ...otherDiseases.map(d => d.confidence)],
+      backgroundColor: ['#2563eb', '#60a5fa', '#93c5fd', '#dbeafe'],
+      borderColor: 'white',
+      borderWidth: 4,
+      hoverOffset: 8,
+    }],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '60%',
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: (context: TooltipItem<'doughnut'>) => `${context.label}: ${context.parsed}%` } },
+    },
+  };
   return (
     <StyledChartPanel>
       <SectionTitle>예상 질환 통계</SectionTitle>

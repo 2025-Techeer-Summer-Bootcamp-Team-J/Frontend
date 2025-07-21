@@ -18,9 +18,10 @@ import {
 
 interface UploaderPanelProps {
   onNext: (files: File[]) => void;
+  isAnalyzing?: boolean;
 }
 
-const UploaderPanel: React.FC<UploaderPanelProps> = ({ onNext }) => {
+const UploaderPanel: React.FC<UploaderPanelProps> = ({ onNext, isAnalyzing = false }) => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -145,8 +146,8 @@ const UploaderPanel: React.FC<UploaderPanelProps> = ({ onNext }) => {
           multiple
         />
       </UploadWrapper>
-      <NextButton onClick={handleNextButtonClick} disabled={imagePreviews.length === 0}>
-        다음 단계로
+      <NextButton onClick={handleNextButtonClick} disabled={imagePreviews.length === 0 || isAnalyzing}>
+        {isAnalyzing ? '분석 중...' : '다음 단계로'}
       </NextButton>
     </StyledUploaderPanel>
   );

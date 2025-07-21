@@ -4,6 +4,9 @@ export { default as apiClient } from './apiClient';
 // 타입 정의
 export * from './types';
 
+// 유틸리티 함수들
+export { fileToBase64 } from './utils';
+
 // 개별 함수들 import 및 export
 import {
   getAllSkinTypes,
@@ -22,10 +25,21 @@ import {
   createDiagnosis,
   getUserDiagnoses,
   getDiagnosisById,
-  updateDiagnosisStatus,
+  deleteDiagnosis,
+  generateDiagnosisStream,
+  saveDiagnosisResult,
+  createDiagnosisAdditionalInfo,
+  getDiagnosisAdditionalInfo,
 } from './diagnosesApi';
 
-import { createUser } from './usersApi';
+import { 
+  createUser, 
+  signup,
+  getUserDashboard,
+  getUserById,
+  updateUser
+} from './usersApi';
+import { getUVIndex } from './uv_indexApi';
 
 // 개별 함수들 re-export
 export {
@@ -39,8 +53,17 @@ export {
   createDiagnosis,
   getUserDiagnoses,
   getDiagnosisById,
-  updateDiagnosisStatus,
+  deleteDiagnosis,
+  generateDiagnosisStream,
+  saveDiagnosisResult,
+  createDiagnosisAdditionalInfo,
+  getDiagnosisAdditionalInfo,
   createUser,
+  signup,
+  getUserDashboard,
+  getUserById,
+  updateUser,
+  getUVIndex,
 };
 
 // API 서비스들
@@ -48,7 +71,7 @@ export { default as skintypeApi } from './skintypeApi';
 export { default as diseasesApi } from './diseasesApi';
 export { default as diagnosesApi } from './diagnosesApi';
 export { default as usersApi } from './usersApi';
-export { default as dashboardApi } from './dashboardApi';
+export { default as uvIndexApi } from './uv_indexApi';
 
 // 통합 API 객체
 export const api = {
@@ -67,16 +90,22 @@ export const api = {
     create: createDiagnosis,
     getByUserId: getUserDiagnoses,
     getById: getDiagnosisById,
-    updateStatus: updateDiagnosisStatus,
-  },
-  dashboard: {
-    getDashboard: dashboardApi.getDashboard,
+    delete: deleteDiagnosis,
+    generateStream: generateDiagnosisStream,
+    saveResult: saveDiagnosisResult,
+    createAdditionalInfo: createDiagnosisAdditionalInfo,
+    getAdditionalInfo: getDiagnosisAdditionalInfo,
   },
   users: {
     create: createUser,
+    signup: signup,
+    getDashboard: getUserDashboard,
+    getById: getUserById,
+    update: updateUser,
+  },
+  uvIndex: {
+    get: getUVIndex,
   },
 };
 
 export default api;
-
-import dashboardApi from './dashboardApi';

@@ -64,9 +64,9 @@ const MainPage: React.FC = () => {
        <Section>
         <Footer>
             <CustomContainer className="text-center">
-                <p className="text-2xl font-bold md:text-3xl">
-                  <SectionHeading><NotoSansBlack>지금 바로 PPIKA과 함께 건강한 피부 변화를 시작하세요.</NotoSansBlack></SectionHeading>
-                </p>
+                <SectionHeading className="text-2xl font-bold md:text-3xl">
+                  <NotoSansBlack>지금 바로 PPIKA과 함께 건강한 피부 변화를 시작하세요.</NotoSansBlack>
+                </SectionHeading>
                 <div style={{ marginTop: '2rem' }}>
                 <NeumorphicButton onClick={() => navigate('/disease-analysis-step1')}>
                         AI 진단 시작하기

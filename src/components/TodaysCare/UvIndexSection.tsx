@@ -8,7 +8,7 @@ import {
   LocationStatus,
   UvSummary,
 } from './SharedStyles';
-import type { UVIndexResponse } from '../../services/types';
+import type { UVIndexData } from '../../services/types';
 
 interface Tip {
   icon: string;
@@ -28,7 +28,7 @@ interface CareLevelData {
 }
 
 interface UvIndexSectionProps {
-  uvData: UVIndexResponse | null;
+  uvData: UVIndexData | null;
   isLoading: boolean;
   error: string | null;
   isRealTimeData: boolean;

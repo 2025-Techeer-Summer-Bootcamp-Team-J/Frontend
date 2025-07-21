@@ -22,7 +22,7 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
           {isSubmitting ? '분석 중...' : '건너뛰기'}
         </SkipButton>
         <NextButton onClick={onNext} disabled={isSubmitting}>
-          {isSubmitting ? '분석 중...' : '다음 단계'}
+          {isSubmitting ? '분석 중...' : '결과보기'}
         </NextButton>
       </ButtonGroup>
     </ButtonContainer>

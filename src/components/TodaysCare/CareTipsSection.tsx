@@ -8,7 +8,7 @@ import {
   TipCard,
 } from './SharedStyles';
 import { ContentWrapper } from '../../components/Layout';
-import type { UVIndexResponse } from '../../services/types';
+import type { UVIndexData } from '../../services/types';
 
 interface Tip {
   icon: string;
@@ -35,7 +35,7 @@ interface CareTipsSectionProps {
   careData: CareData;
   activeTab: string;
   isRealTimeData: boolean;
-  uvData: UVIndexResponse | null;
+  uvData: UVIndexData | null;
   handleRealTimeClick: () => void;
   handleTabClick: (level: string) => void;
 }
