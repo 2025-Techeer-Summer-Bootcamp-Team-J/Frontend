@@ -1,7 +1,6 @@
 import { useAuth, useClerk } from "@clerk/clerk-react";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import LoadingPage from "../pages/LoadingPage";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isSignedIn, isLoaded } = useAuth();
@@ -23,9 +22,9 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     // (예: 헤더에서 같은 메뉴를 다시 클릭) 이 효과가 다시 실행되도록 합니다.
   }, [isLoaded, isSignedIn, openSignIn, location.key, location.hash, location.pathname, location.search]);
 
-  // Clerk가 로드되는 동안 로딩 화면을 표시합니다.
+  // Clerk가 로드되는 동안은 아무것도 표시하지 않습니다 (빠른 로딩)
   if (!isLoaded) {
-    return <LoadingPage />;
+    return null;
   }
 
   // 사용자가 로그인했다면, 요청된 페이지의 콘텐츠를 렌더링합니다.
