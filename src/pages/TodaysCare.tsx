@@ -49,12 +49,29 @@ function TodaysCare() {
     setIsRealTimeData(false);
   };
 
-  const handleRealTimeClick = () => {
-    if (uvData && uvData.now) {
-      const uvIndex = parseInt(uvData.now, 10);
-      const careLevel = getCareLevelFromUVIndex(uvIndex);
-      setActiveTab(careLevel);
-      setIsRealTimeData(true);
+  // 🌡️ 실시간 버튼 클릭 시 최신 UV 지수 재조회
+  const handleRealTimeClick = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // 최신 UV 지수 조회
+      const data = await getUVIndex();
+      setUvData(data);
+
+      if (data && data.now) {
+        const uvIndex = parseInt(data.now, 10);
+        const careLevel = getCareLevelFromUVIndex(uvIndex);
+        setActiveTab(careLevel);
+        setIsRealTimeData(true);
+      } else {
+        setError('실시간 UV 지수 데이터를 가져오지 못했습니다.');
+      }
+    } catch (err) {
+      console.error('실시간 UV 지수를 불러오는데 실패했습니다:', err);
+      setError('실시간 UV 지수를 불러오는데 실패했습니다.');
+    } finally {
+      setIsLoading(false);
     }
   };
 

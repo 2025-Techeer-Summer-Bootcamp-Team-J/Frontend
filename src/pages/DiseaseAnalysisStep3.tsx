@@ -6,7 +6,7 @@ import ChartPanel from '../components/DiseaseAnalysisStep3/ChartPanel';
 import DetailsPanel from '../components/DiseaseAnalysisStep3/DetailsPanel';
 
 import { MainContent } from '../components/DiseaseAnalysisStep3/SharedStyles';
-import { api } from '../services';
+import { api, apiClient } from '../services';
 import { fileToBase64 } from '../services/utils';
 import type { SaveDiagnosisRequest } from '../services/types';
 
@@ -67,6 +67,12 @@ const DiseaseAnalysisStep3: React.FC = () => {
   const hasInitializedRef = useRef<boolean>(false); // 초기화 여부 추적
   
   // 상태 관리
+
+// selectedResult.result 타입 (필요한 필드만 정의)
+interface BasicAnalysisResult {
+  data?: Array<{ image?: string }>;
+  image?: string;
+}
   const [streamingContent, setStreamingContent] = useState<StreamingContent>({
     summary: '',
     description: '',
@@ -124,7 +130,7 @@ const DiseaseAnalysisStep3: React.FC = () => {
   
   // 이전 페이지에서 전달받은 데이터
   const locationState = location.state as LocationState | null;
-  const { uploadedFiles = [], selectedResult = null, additionalInfo } = locationState || {};
+  const { uploadedFiles = [], selectedResult = null } = locationState || {};
 
   // selectedResult에서 질병 정보 추출 (타입 안정성 강화)
   const resultData = selectedResult?.result as { data?: { disease_name: string; confidence: number }[] } | null;
@@ -374,22 +380,50 @@ const DiseaseAnalysisStep3: React.FC = () => {
   };
 
   const handleSaveResult = async () => {
-    if (!finalResult || isSaved || isSaving || !user || !selectedResult?.file) return;
+    if (isSaved || isSaving) return;
+
+    if (!user) return;
+
+    // 이미지 파일 결정: 선택된 결과의 파일이 없으면 업로드된 첫 이미지 사용
+    let imageFile = selectedResult?.file || uploadedFiles?.[0];
+    if (!imageFile) {
+      // selectedResult.result에서 base64 추출 시도
+      const resultObj = selectedResult?.result as BasicAnalysisResult | undefined;
+      const base64Str = resultObj?.data?.[0]?.image || resultObj?.image;
+
+      if (typeof base64Str === 'string') {
+        try {
+          const byteCharacters = atob(base64Str);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: 'image/jpeg' });
+          imageFile = new File([blob], 'analysis-image.jpg', { type: 'image/jpeg' });
+        } catch (e) {
+          console.error('base64 → File 변환 실패:', e);
+        }
+      }
+    }
+
+    if (!imageFile) {
+      alert('저장할 이미지 파일을 찾을 수 없습니다. 다시 시도해주세요.');
+      return;
+    }
 
     setIsSaving(true);
     try {
-      const imageBase64 = await fileToBase64(selectedResult.file);
+      const imageBase64 = await fileToBase64(imageFile);
       
-      // API 스키마에 맞는 데이터 구조로 변환
-      const fullResult = finalResult as FullAnalysisResult;
+      // API 스키마에 맞는 데이터 구조로 변환 (finalResult가 없더라도 안전하게 처리)
+      const fullResult = (finalResult || {}) as Partial<FullAnalysisResult>;
       const saveData: SaveDiagnosisRequest = {
         user_id: user.id,
         image_base64: imageBase64,
         image_analysis: {
-          // 초기 분석 결과에서 병명과 신뢰도 가져오기
           disease_name: diseaseInfo.disease_name,
           confidence: diseaseInfo.confidence,
-          // 상세 분석 결과 추가
           skin_score: fullResult.image_analysis?.skin_score,
           severity: fullResult.image_analysis?.severity,
           estimated_treatment_period: fullResult.image_analysis?.estimated_treatment_period,
@@ -398,12 +432,28 @@ const DiseaseAnalysisStep3: React.FC = () => {
           ai_opinion: fullResult.text_analysis?.ai_opinion || '',
           detailed_description: fullResult.text_analysis?.detailed_description || '',
         },
-        additional_info: additionalInfo,
       };
 
-      await api.diagnoses.saveResult(saveData);
+      // FormData 구성 (multipart/form-data)
+      // user.id는 문자열이므로 백엔드가 요구하는 정수 ID로 해시 변환
+      const numericUserId = Math.abs(
+        user.id
+          .split('')
+          .reduce((acc, ch) => ((acc << 5) - acc) + ch.charCodeAt(0), 0)
+      );
+      const formData = new FormData();
+      formData.append('image', imageFile);
+      formData.append('image_analysis', JSON.stringify(saveData.image_analysis));
+      formData.append('text_analysis', JSON.stringify(saveData.text_analysis));
+
+      console.log('📤 진단 결과 저장 FormData:', formData);
+      alert('진단 결과를 저장하는 중입니다...');
+      await apiClient.post(`/api/diagnoses/save?user_id=${numericUserId}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       setIsSaved(true);
       alert('진단 결과가 성공적으로 저장되었습니다!');
+      navigate('/');
     } catch (error) {
       console.error('결과 저장 실패:', error);
       alert('결과 저장에 실패했습니다.');
