@@ -5,7 +5,7 @@ import { ContentWrapper } from '../components/Layout';
 import StepIndicator from '../components/DiseaseAnalysisStep1/StepIndicator';
 import GuidePanel from '../components/DiseaseAnalysisStep1/GuidePanel';
 import UploaderPanel from '../components/DiseaseAnalysisStep1/UploaderPanel';
-import { MainContent } from '../components/DiseaseAnalysisStep1/SharedStyles';
+import { MainContent, Frame, PageWrapper, MainTitlePanel, MainTitle } from '../components/DiseaseAnalysisStep1/SharedStyles';
 import { api } from '../services';
 
 const DiseaseAnalysisStep1: React.FC = () => {
@@ -77,13 +77,21 @@ const DiseaseAnalysisStep1: React.FC = () => {
     };
 
     return (
-        <ContentWrapper style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
+        <PageWrapper>
+        <ContentWrapper style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
             <StepIndicator currentStep={1} />
-            <MainContent>
-                <GuidePanel />
-                <UploaderPanel onNext={handleNext} isAnalyzing={isAnalyzing} />
-            </MainContent>
+            <Frame>
+                <MainTitlePanel>
+                    <MainTitle>1단계 피부 사진 업로드</MainTitle>
+                </MainTitlePanel>
+                
+                <MainContent>
+                    <GuidePanel />
+                    <UploaderPanel onNext={handleNext} isAnalyzing={isAnalyzing} />
+                </MainContent>
+            </Frame>
         </ContentWrapper>
+        </PageWrapper>
     );
 };
 

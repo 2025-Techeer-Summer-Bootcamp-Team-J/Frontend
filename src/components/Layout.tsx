@@ -29,7 +29,7 @@ export const ContentWrapper = styled.div`
   }
 `;
 
-const HeaderWrapper = styled.header`
+export const HeaderWrapper = styled.header`
   width: 100%;
   height: 4rem;
   background-color: white;
@@ -174,7 +174,6 @@ const UserButtonWrapper = styled.div`
 const Main = styled.main`
   flex-grow: 1;
   width: 100%;
-  padding: 2.5rem 0; 
 `;
 
 const FooterWrapper = styled.footer`
