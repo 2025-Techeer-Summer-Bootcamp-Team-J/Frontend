@@ -25,3 +25,6 @@ dist-ssr
 .env
 
 install.sh
+
+# Windsurf Rules
+.windsurfrules

@@ -20,9 +20,14 @@ interface ChartPanelProps {
     disease_name: string;
     confidence: number;
   };
+  metrics?: {
+    skin_score?: number;
+    severity?: string;
+    estimated_treatment_period?: string;
+  } | null;
 }
 
-const ChartPanel: React.FC<ChartPanelProps> = ({ analysisResult }) => {
+const ChartPanel: React.FC<ChartPanelProps> = ({ analysisResult, metrics }) => {
   // 실제 분석 결과가 있으면 사용, 없으면 기본값
   const mainDisease = analysisResult?.disease_name || '분석 중';
   const mainConfidence = analysisResult?.confidence || 0;
@@ -57,7 +62,7 @@ const ChartPanel: React.FC<ChartPanelProps> = ({ analysisResult }) => {
   };
   return (
     <StyledChartPanel>
-      <SectionTitle>예상 질환 통계</SectionTitle>
+      <SectionTitle>피부 질환 비율</SectionTitle>
       <ChartWrapper>
         <Doughnut data={chartData} options={chartOptions} />
       </ChartWrapper>
@@ -72,6 +77,26 @@ const ChartPanel: React.FC<ChartPanelProps> = ({ analysisResult }) => {
           </LegendItem>
         ))}
       </LegendContainer>
+
+      {metrics && (
+        <div style={{ marginTop: '1.5rem' }}>
+          <SectionTitle>AI 분석 지표</SectionTitle>
+          <div style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center', marginTop: '1rem' }}>
+            <div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2563eb' }}>{metrics.skin_score ?? 'N/A'}</div>
+              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>피부 점수</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2563eb' }}>{metrics.severity ?? 'N/A'}</div>
+              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>심각도</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2563eb' }}>{metrics.estimated_treatment_period ?? 'N/A'}</div>
+              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>예상 기간</div>
+            </div>
+          </div>
+        </div>
+      )}
     </StyledChartPanel>
   );
 };
