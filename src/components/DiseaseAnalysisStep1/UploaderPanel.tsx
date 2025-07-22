@@ -147,7 +147,7 @@ const UploaderPanel: React.FC<UploaderPanelProps> = ({ onNext, isAnalyzing = fal
         />
       </UploadWrapper>
       <NextButton onClick={handleNextButtonClick} disabled={imagePreviews.length === 0 || isAnalyzing}>
-        {isAnalyzing ? '분석 중...' : '다음 단계로'}
+        {isAnalyzing ? '분석 중...' : '다음 단계'}
       </NextButton>
     </StyledUploaderPanel>
   );

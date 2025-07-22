@@ -79,12 +79,12 @@ const DiseaseAnalysisStep1: React.FC = () => {
     return (
         <PageWrapper>
         <ContentWrapper style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
-            <StepIndicator currentStep={1} />
-            <Frame>
-                <MainTitlePanel>
-                    <MainTitle>1단계 피부 사진 업로드</MainTitle>
+            <MainTitlePanel>
+                    <MainTitle>피부 사진 업로드</MainTitle>
                 </MainTitlePanel>
                 
+            <Frame>
+                <StepIndicator currentStep={1} />
                 <MainContent>
                     <GuidePanel />
                     <UploaderPanel onNext={handleNext} isAnalyzing={isAnalyzing} />
