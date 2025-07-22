@@ -21,7 +21,8 @@ interface CareLevelData {
   color: string;
   range: string;
   summary: {
-    title: string;
+    mainTitle: string;    // h2에 사용할 주 제목
+    summaryTitle: string; // strong에 사용할 요약 제목
     description: string;
   };
   tips: Tip[];
@@ -68,7 +69,7 @@ const UvIndexSection: React.FC<UvIndexSectionProps> = ({
             <LocationStatus $isRealTime={isRealTimeData}>
               {isRealTimeData ? `${uvData?.location || '현재 위치'} (실시간)` : '케어 단계별 정보'}
             </LocationStatus>
-            <h2>{currentCareData.summary.title}</h2>
+            <h2 style={{ margin: '0rem 0 0 0rem' }}>{currentCareData.summary.mainTitle}</h2>
             {isRealTimeData && uvData?.date && (
               <p style={{ fontSize: '0.875rem', color: '#64748B', margin: '0.25rem 0 0 0' }}>
                 측정 시간: {uvData.date}
@@ -78,7 +79,7 @@ const UvIndexSection: React.FC<UvIndexSectionProps> = ({
           </UvIndexText>
         </UvIndexDisplay>
         <UvSummary>
-          <p><strong>{currentCareData.summary.title}</strong></p>
+          <p style={{ margin: '0rem 0 0 0rem' }}><strong>{currentCareData.summary.summaryTitle}</strong></p>
           <p>{currentCareData.summary.description}</p>
         </UvSummary>
       </UvInfoInnerWrapper>
