@@ -128,7 +128,8 @@ export const GuideItem = styled.div`
   border: 1px solid #e2e8f0;
   border-radius: 1rem;
   background-color: #F7FCFF;
-box-shadow: 0.2rem 0.4rem 1.2rem rgba(71, 69, 179, 0.15);`;
+  box-shadow: 0.2rem 0.4rem 1.2rem rgba(71, 69, 179, 0.15);
+`;
 
 export const GuideIcon = styled.div`
   flex-shrink: 0;
@@ -167,7 +168,7 @@ export const UploadWrapper = styled.div`
   transition: border-color 0.2s;
   box-shadow: 0.2rem 0.4rem 1.2rem rgba(71, 69, 179, 0.15);
   &:hover {
-    border-color: #3b82f6; /* hover:border-blue-500 */
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%233b82f6' stroke-width='2.5' stroke-dasharray='4, 6' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
   }
   
   @media (min-width: 1024px) {
