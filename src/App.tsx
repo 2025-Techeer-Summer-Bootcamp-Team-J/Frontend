@@ -4,6 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import SkinAnalysisStep1 from './pages/DiseaseAnalysisStep1'; 
 import DiseaseAnalysisStep2Page from './pages/DiseaseAnalysisStep2';
 import AnalysisResultPage from './pages/DiseaseAnalysisStep3';
+import LoadingPage from './pages/LoadingPage';
 import { GlobalStyle } from './styles/GlobalStyle';
 import Layout from './components/Layout';
 import MainPage from './pages/MainPage';
@@ -36,6 +37,10 @@ function App() {
           <Route
             path="/disease-analysis-step3"
             element={<ProtectedRoute><AnalysisResultPage /></ProtectedRoute>}
+          />
+          <Route
+            path="/loading"
+            element={<ProtectedRoute><LoadingPage /></ProtectedRoute>}
           />
           <Route
             path="/todays-care"

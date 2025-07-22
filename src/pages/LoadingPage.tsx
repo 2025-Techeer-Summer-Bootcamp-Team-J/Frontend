@@ -111,15 +111,19 @@ const LoadingPage: React.FC = () => {
     setSseStarted(true);
     console.log('🚀 분석 완료 확인 시작 - taskId:', selectedResult.taskId);
     
+    // 폴링 시작 시간 기록
+    const pollingStartTime = Date.now();
+    
     // 실제 task 상태를 폴링
     const pollTaskStatus = async () => {
       try {
         const taskStatus = await api.diagnoses.getTaskStatus(selectedResult.taskId!);
         console.log('📊 Task 상태:', taskStatus);
         
-        // task가 완료되었고 결과가 있는 경우
-        if (taskStatus.state === 'SUCCESS' && taskStatus.result) {
+        // task가 완료된 경우 (결과 있음/없음 상관없이)
+        if (taskStatus.state === 'SUCCESS') {
           console.log('✅ 분석 완료 - Step3로 이동');
+          console.log('📋 Task 결과:', taskStatus.result || '결과 없음');
           
           navigate('/disease-analysis-step3', {
             state: {
@@ -127,7 +131,8 @@ const LoadingPage: React.FC = () => {
               analysisResults: analysisResults,
               selectedResult: {
                 ...selectedResult,
-                result: taskStatus.result
+                file: uploadedFiles[0], // Step1에서 업로드한 원본 이미지 포함
+                result: taskStatus.result || taskStatus // result가 없으면 taskStatus 전체 사용
               },
               additionalInfo: additionalInfo
             }
@@ -143,16 +148,23 @@ const LoadingPage: React.FC = () => {
           return;
         }
         
-        // 아직 진행 중인 경우 2초 후 다시 확인
+        // 아직 진행 중인 경우 - 4초 후부터는 더 자주 폴링
         if (taskStatus.state === 'PENDING' || taskStatus.state === 'PROGRESS') {
-          console.log('⏳ 분석 진행 중..., 2초 후 재확인');
-          setTimeout(pollTaskStatus, 2000);
+          const elapsedTime = Date.now() - pollingStartTime;
+          const intervalTime = elapsedTime > 4000 ? 1000 : 2000; // 4초 후부터는 1초마다
+          
+          console.log(`⏳ 분석 진행 중..., ${intervalTime/1000}초 후 재확인 (경과시간: ${Math.floor(elapsedTime/1000)}초)`);
+          setTimeout(pollTaskStatus, intervalTime);
         }
         
       } catch (error) {
         console.error('❌ Task 상태 확인 실패:', error);
-        // 네트워크 오류 등의 경우 2초 후 재시도
-        setTimeout(pollTaskStatus, 2000);
+        // 네트워크 오류 시에도 동일한 간격 적용
+        const elapsedTime = Date.now() - pollingStartTime;
+        const intervalTime = elapsedTime > 4000 ? 1000 : 2000;
+        
+        console.log(`🔄 네트워크 오류로 인한 재시도 - ${intervalTime/1000}초 후`);
+        setTimeout(pollTaskStatus, intervalTime);
       }
     };
     

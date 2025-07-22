@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ContentWrapper } from '../components/Layout';
+import { api } from '../services';
 
 import StepProgress from '../components/DiseaseAnalysisStep2/StepProgress';
 import SymptomInput from '../components/DiseaseAnalysisStep2/SymptomInput';
@@ -36,6 +37,9 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
     const [selectedDuration, setSelectedDuration] = useState<string | null>(null);
     const [additionalInfo, setAdditionalInfo] = useState<string>('');
     const [hasValidResults, setHasValidResults] = useState<boolean>(false);
+    const [isAnalyzing, setIsAnalyzing] = useState<boolean>(true);
+    // 분석 완료 후 전체 결과를 저장
+    const [completedResult, setCompletedResult] = useState<AnalysisResult | null>(null);
 
     // Step1에서 전달받은 데이터
     const { uploadedFiles = [], analysisResults = [] } = location.state || {};
@@ -64,6 +68,48 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
         }
     }, [analysisResults]);
 
+    // 분석 Task 상태를 주기적으로 확인하여 완료되면 버튼을 활성화한다
+    useEffect(() => {
+        if (!hasValidResults) return;
+
+        // 첫 번째 성공한 task 선택
+        const target = (analysisResults as AnalysisResult[]).find(r => r.success === true && r.taskId);
+        if (!target?.taskId) return;
+
+        let isCancelled = false;
+
+        const pollTaskStatus = async () => {
+            try {
+                const status = await api.diagnoses.getTaskStatus(target.taskId!);
+                if (isCancelled) return;
+
+                if (status.state === 'SUCCESS') {
+                    setIsAnalyzing(false);
+                    setCompletedResult({ ...target, result: status.result || target.result });
+                    return; // stop polling
+                }
+                if (status.state === 'FAILURE') {
+                    setIsAnalyzing(false);
+                    alert('이미지 분석에 실패했습니다. 다시 시도해주세요.');
+                    return;
+                }
+                // 여전히 진행 중인 경우 1초 후 재시도
+                setTimeout(pollTaskStatus, 1000);
+            } catch (error) {
+                if (isCancelled) return;
+                console.error('❌ Task 상태 확인 실패:', error);
+                setTimeout(pollTaskStatus, 1000);
+            }
+        };
+
+        // 초기 폴링 시작
+        pollTaskStatus();
+
+        return () => {
+            isCancelled = true;
+        };
+    }, [hasValidResults, analysisResults]);
+
 
     const handleSymptomToggle = (symptom: string) => {
         setSelectedSymptoms(prev => 
@@ -86,13 +132,13 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
         }
 
         // 성공한 분석 결과 찾기
-        const successfulResult = analysisResults.find((result: AnalysisResult) => 
+        const successfulResult = completedResult ?? analysisResults.find((result: AnalysisResult) => 
             result.success === true && result.taskId
         );
         
         if (successfulResult) {
             // LoadingPage로 이동 (추가 정보 없이)
-            navigate('/loading', {
+            navigate('/disease-analysis-step3', {
 
                 state: {
                     uploadedFiles: uploadedFiles,
@@ -123,13 +169,13 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
         }
 
         // 성공한 분석 결과 찾기
-        const successfulResult = analysisResults.find((result: AnalysisResult) => 
+        const successfulResult = completedResult ?? analysisResults.find((result: AnalysisResult) => 
             result.success === true && result.taskId
         );
         
         if (successfulResult) {
             // LoadingPage로 이동 (추가 정보와 함께)
-            navigate('/loading', {
+            navigate('/disease-analysis-step3', {
 
                 state: {
                     uploadedFiles: uploadedFiles,
@@ -210,7 +256,7 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
                     onPrevious={() => navigate('/disease-analysis-step1')}
                     onSkip={handleSkipButtonClick}
                     onNext={handleResultViewClick}
-                    isSubmitting={false}
+                    isSubmitting={isAnalyzing}
                 />
             </MainContent>
         </ContentWrapper>

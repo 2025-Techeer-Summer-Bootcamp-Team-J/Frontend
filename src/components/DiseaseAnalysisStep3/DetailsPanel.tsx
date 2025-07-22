@@ -3,6 +3,39 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo, faDownload, faSave } from '@fortawesome/free-solid-svg-icons';
 import { FaCommentMedical } from 'react-icons/fa';
 import styled from 'styled-components';
+import ReactMarkdown from 'react-markdown';
+
+// 라인 배열을 마크다운 리스트로 변환
+
+const convertLinesToMarkdown = (text?: string): string => {
+  if (!text) return '';
+  // "정의:", "특징:", "원인:" 등 주요 구분 키워드 앞에 줄바꿈 삽입
+  const preSection = text.replace(/\s*(?=(정의|특징|원인|증상)\s*[:：])/g, '\n');
+  // 마침표/물음표/느낌표 뒤에 줄바꿈 추가해 문장 단위 분리
+  const preProcessed = preSection.replace(/([.!?])\s+/g, '$1\n');
+  const lines = preProcessed.split('\n').filter(l => l.trim() !== '');
+  return lines
+    .map((line) => {
+      const trimmed = line.trim();
+      // 이미 번호가 있는 경우(1. 또는 ① 등) 그대로 사용
+      if (/^(\d+\.|[①②③④⑤⑥⑦⑧⑨⑩])/.test(trimmed)) {
+        return trimmed;
+      }
+      // key: value 구조 → **key**: value
+      if (trimmed.includes(':')) {
+        const splitIndex = trimmed.indexOf(':');
+        const key = trimmed.slice(0, splitIndex).trim();
+        const value = trimmed.slice(splitIndex + 1).trim();
+        // 값이 없으면 키만 볼드 처리하여 반환
+        if (!value) {
+          return `- **${key}**`;
+        }
+        return `- **${key}**:\n  ${value}`;
+      }
+      return `- ${trimmed}`;
+    })
+    .join('\n');
+};
 import {
   DetailsPanelContainer,
   DetailsBox,
@@ -83,14 +116,7 @@ const AIOpinionBox = styled.div`
 `;
 
 const StreamingTabContent = styled(TabContent)`
-  .cursor {
-    animation: blink 1s infinite;
-  }
-  
-  @keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0; }
-  }
+  /* 커서 애니메이션 제거 */
 
   h3 {
     font-size: 1.25rem;
@@ -104,10 +130,9 @@ const StreamingTabContent = styled(TabContent)`
     padding-left: 1.5rem;
   }
 
-  li {
-    margin-bottom: 0.5rem;
-  }
 `;
+
+type TabType = 'summary' | 'description' | 'precautions' | 'management';
 
 interface DiseaseInfo {
   disease_name: string;
@@ -121,56 +146,63 @@ interface StreamingContent {
   management: string;
 }
 
-interface AdditionalInfo {
-  symptoms: string[];
-  itchLevel: number;
-  duration: string;
-  additionalInfo: string;
+interface AnalysisMetrics {
+  skin_score?: number;
+  severity?: string;
+  estimated_treatment_period?: string;
 }
+
+
 
 interface DetailsPanelProps {
   diseaseInfo: DiseaseInfo;
   streamingContent: StreamingContent;
-  additionalInfo?: AdditionalInfo;
-  activeTab: string;
+  analysisMetrics: AnalysisMetrics | null;
+  activeTab: TabType;
   isStreaming: boolean;
   isComplete: boolean;
   isSaved: boolean;
-  onTabChange: (tab: string) => void;
-  onSaveResult: () => void;
-  onDownloadReport: () => void;
-  onRestartAnalysis: () => void;
+  isSaving: boolean;
+  setActiveTab: (tab: TabType) => void;
+  onSave: () => void;
+  onDownload: () => void;
+  onRestart: () => void;
 }
 
 const DetailsPanel: React.FC<DetailsPanelProps> = ({
   diseaseInfo,
   streamingContent,
-  additionalInfo,
+  analysisMetrics,
   activeTab,
   isStreaming,
   isComplete,
   isSaved,
-  onTabChange,
-  onSaveResult,
-  onDownloadReport,
-  onRestartAnalysis,
+  isSaving,
+  setActiveTab,
+  onSave,
+  onDownload,
+  onRestart,
 }) => {
+  // 개발 시 스트리밍 상태 확인용 (프로덕션에서 제거 가능)
+  console.log('🎭 DetailsPanel 스트리밍 상태:', isStreaming);
+  console.log('🎭 DetailsPanel streamingContent:', streamingContent);
+  console.log('🎭 DetailsPanel activeTab:', activeTab);
   return (
     <DetailsPanelContainer>
       <SectionTitle>AI 진단 결과</SectionTitle>
       
       <DetailsBox>
         <TabNav>
-          <TabButton $isActive={activeTab === 'summary'} onClick={() => onTabChange('summary')}>
+          <TabButton $isActive={activeTab === 'summary'} onClick={() => setActiveTab('summary')}>
             요약
           </TabButton>
-          <TabButton $isActive={activeTab === 'description'} onClick={() => onTabChange('description')}>
+          <TabButton $isActive={activeTab === 'description'} onClick={() => setActiveTab('description')}>
             상세 설명
           </TabButton>
-          <TabButton $isActive={activeTab === 'precautions'} onClick={() => onTabChange('precautions')}>
+          <TabButton $isActive={activeTab === 'precautions'} onClick={() => setActiveTab('precautions')}>
             주의사항
           </TabButton>
-          <TabButton $isActive={activeTab === 'management'} onClick={() => onTabChange('management')}>
+          <TabButton $isActive={activeTab === 'management'} onClick={() => setActiveTab('management')}>
             관리법
           </TabButton>
         </TabNav>
@@ -186,36 +218,45 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                 <span className="label">확률</span>
                 <span className="value">{diseaseInfo.confidence}%</span>
               </SummaryItem>
-              <SummaryItem>
-                <span className="label">심각도</span>
-                <SeverityBar>
-                  <SeverityBarInner $severity={diseaseInfo.confidence} />
-                </SeverityBar>
-              </SummaryItem>
-              <SummaryItem>
-                <span className="label">예상 치료 기간</span>
-                <span className="value">
-                  {diseaseInfo.confidence >= 70 ? '2-3주' : diseaseInfo.confidence >= 40 ? '3-4주' : '4-6주'}
-                </span>
-              </SummaryItem>
+              {analysisMetrics && (
+                <>
+                  <SummaryItem>
+                    <span className="label">피부 점수</span>
+                    <span className="value">{analysisMetrics.skin_score}점</span>
+                  </SummaryItem>
+                  <SummaryItem>
+                    <span className="label">심각도</span>
+                    <span className="value">{analysisMetrics.severity || '중등도'}</span>
+                  </SummaryItem>
+                  <SummaryItem>
+                    <span className="label">예상 치료 기간</span>
+                    <span className="value">{analysisMetrics.estimated_treatment_period || '2-4주'}</span>
+                  </SummaryItem>
+                </>
+              )}
+              {!analysisMetrics && (
+                <>
+                  <SummaryItem>
+                    <span className="label">심각도</span>
+                    <SeverityBar>
+                      <SeverityBarInner $severity={diseaseInfo.confidence} />
+                    </SeverityBar>
+                  </SummaryItem>
+                  <SummaryItem>
+                    <span className="label">예상 치료 기간</span>
+                    <span className="value">
+                      {diseaseInfo.confidence >= 70 ? '2-3주' : diseaseInfo.confidence >= 40 ? '3-4주' : '4-6주'}
+                    </span>
+                  </SummaryItem>
+                </>
+              )}
               
               <AIOpinionBox>
                 <h4><FaCommentMedical style={{ marginRight: '0.5rem' }} />AI 소견 및 주의사항</h4>
                 {streamingContent.summary ? (
-                  <div style={{ whiteSpace: 'pre-wrap' }}>
-                    {streamingContent.summary}
-                    {isStreaming && activeTab === 'summary' && <span className="cursor">|</span>}
-                  </div>
+                  <ReactMarkdown>{convertLinesToMarkdown(streamingContent.summary)}</ReactMarkdown>
                 ) : (
-                  <p>
-                    {diseaseInfo.confidence >= 70 
-                      ? `${diseaseInfo.disease_name}의 가능성이 매우 높습니다. 전문의 상담을 통해 정확한 진단과 치료를 받으시기 바랍니다.`
-                      : diseaseInfo.confidence >= 40 
-                      ? `${diseaseInfo.disease_name}의 가능성이 있습니다. 추가적인 검사와 전문의 상담을 권장드립니다.`
-                      : '여러 가능성이 있어 정확한 진단이 필요합니다. 피부과 전문의의 직접적인 진료를 받으시기 바랍니다.'
-                    }
-                    {isStreaming && activeTab === 'summary' && <span className="cursor">|</span>}
-                  </p>
+                  <p>AI가 상세 소견을 분석중입니다. 잠시만 기다려주세요...</p>
                 )}
               </AIOpinionBox>
             </StreamingTabContent>
@@ -226,17 +267,9 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               <h3>{diseaseInfo.disease_name}이란?</h3>
               <div style={{ marginBottom: '1rem' }}>
                 {streamingContent.description ? (
-                  <div style={{ whiteSpace: 'pre-wrap' }}>
-                    {streamingContent.description}
-                    {isStreaming && activeTab === 'description' && <span className="cursor">|</span>}
-                  </div>
+                  <ReactMarkdown>{convertLinesToMarkdown(streamingContent.description)}</ReactMarkdown>
                 ) : (
-                  <div>
-                    <p><strong>정의:</strong> '{diseaseInfo.disease_name}'는 피부에 발생하는 염증성 질환으로, 다양한 원인에 의해 발생할 수 있습니다.</p>
-                    <p><strong>특징:</strong> 발진, 가려움증, 홍반, 피부 건조 등의 증상이 나타날 수 있으며, 적절한 치료와 관리가 필요합니다.</p>
-                    <p><strong>원인:</strong> 유전적 요인, 환경적 요인, 면역학적 이상 등이 복합적으로 작용하여 발생합니다. 연령에 따라 발생하는 부위가 다를 수 있습니다.</p>
-                    {isStreaming && activeTab === 'description' && <span className="cursor">|</span>}
-                  </div>
+                  <p>분석중입니다. 잠시만 기다려주세요...</p>
                 )}
               </div>
             </StreamingTabContent>
@@ -246,26 +279,9 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
             <StreamingTabContent>
               <h3>{diseaseInfo.disease_name} 주의사항</h3>
               {streamingContent.precautions ? (
-                <div style={{ whiteSpace: 'pre-wrap' }}>
-                  {streamingContent.precautions}
-                  {isStreaming && activeTab === 'precautions' && <span className="cursor">|</span>}
-                </div>
+                <ReactMarkdown>{convertLinesToMarkdown(streamingContent.precautions)}</ReactMarkdown>
               ) : (
-                <div>
-                  <ul>
-                    <li>피부를 긁거나 문지르는 등 물리적 자극을 최소화하세요.</li>
-                    <li>뜨거운 물 목욕, 찜질 사우나는 피부를 더 건조하게 만들 수 있으니 피하세요.</li>
-                    <li>스트레스는 증상을 악화시킬 수 있으니 충분한 휴식과 수면이 중요합니다.</li>
-                    <li>세정력이 너무 강한 비누나 세제 사용을 피하고 순한 제품을 사용하세요.</li>
-                    {additionalInfo && additionalInfo.symptoms.length > 0 && (
-                      <li><strong>입력하신 증상 ({additionalInfo.symptoms.join(', ')})에 대해 특히 주의하세요.</strong></li>
-                    )}
-                    {additionalInfo && additionalInfo.itchLevel > 7 && (
-                      <li><strong>가려움 정도가 높으니 절대 긁지 마시고 냉찜질로 진정시키세요.</strong></li>
-                    )}
-                  </ul>
-                  {isStreaming && activeTab === 'precautions' && <span className="cursor">|</span>}
-                </div>
+                <p>분석중입니다. 잠시만 기다려주세요...</p>
               )}
             </StreamingTabContent>
           )}
@@ -274,23 +290,9 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
             <StreamingTabContent>
               <h3>{diseaseInfo.disease_name} 관리법</h3>
               {streamingContent.management ? (
-                <div style={{ whiteSpace: 'pre-wrap' }}>
-                  {streamingContent.management}
-                  {isStreaming && activeTab === 'management' && <span className="cursor">|</span>}
-                </div>
+                <ReactMarkdown>{convertLinesToMarkdown(streamingContent.management)}</ReactMarkdown>
               ) : (
-                <div>
-                  <ul>
-                    <li><strong>보습:</strong> 하루 2회 이상, 목욕 후 3분 이내에 전신에 보습제를 충분히 발라주세요.</li>
-                    <li><strong>청정:</strong> 미지근한 물로 10분 이내에 짧게 샤워하고, 약산성 클렌저를 사용하세요.</li>
-                    <li><strong>환경:</strong> 실내 온도 18-21°C, 습도 40-50%를 유지하여 쾌적한 환경을 만드세요.</li>
-                    <li><strong>의복:</strong> 부드러운 면 소재의 옷을 입고, 꽉 끼는 옷은 피해주세요.</li>
-                    {additionalInfo && additionalInfo.duration !== 'unknown' && (
-                      <li><strong>지속 기간 고려:</strong> {additionalInfo.duration} 지속되고 있으니 꾸준한 관리가 필요합니다.</li>
-                    )}
-                  </ul>
-                  {isStreaming && activeTab === 'management' && <span className="cursor">|</span>}
-                </div>
+                <p>분석중입니다. 잠시만 기다려주세요...</p>
               )}
             </StreamingTabContent>
           )}
@@ -299,20 +301,17 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
 
       <ButtonGroup>
         {isComplete && !isSaved && (
-          <StyledButton $variant="primary" onClick={onSaveResult}>
-            <FontAwesomeIcon icon={faSave} />
-            진단 결과 저장
+          <StyledButton $variant="primary" onClick={onSave} disabled={isSaving}>
+            <FontAwesomeIcon icon={faSave} /> {isSaving ? '저장 중...' : isSaved ? '저장됨' : '결과 저장'}
           </StyledButton>
         )}
         {isSaved && (
-          <StyledButton $variant="secondary" onClick={onDownloadReport}>
-            <FontAwesomeIcon icon={faDownload} />
-            결과 리포트 다운로드
+          <StyledButton $variant="secondary" onClick={onDownload}>
+            <FontAwesomeIcon icon={faDownload} /> 결과 리포트 다운로드
           </StyledButton>
         )}
-        <StyledButton onClick={onRestartAnalysis}>
-          <FontAwesomeIcon icon={faRedo} />
-          다시 분석하기
+        <StyledButton onClick={onRestart}>
+          <FontAwesomeIcon icon={faRedo} /> 다시 분석하기
         </StyledButton>
       </ButtonGroup>
     </DetailsPanelContainer>

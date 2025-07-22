@@ -2,12 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import { ContentWrapper } from '../components/Layout';
-import StepIndicator from '../components/DiseaseAnalysisStep3/StepIndicator';
 import ChartPanel from '../components/DiseaseAnalysisStep3/ChartPanel';
 import DetailsPanel from '../components/DiseaseAnalysisStep3/DetailsPanel';
-import AdditionalInfoDisplay from '../components/DiseaseAnalysisStep3/AdditionalInfoDisplay';
+
 import { MainContent } from '../components/DiseaseAnalysisStep3/SharedStyles';
-import { generateDiagnosisStream, saveDiagnosisResult, fileToBase64 } from '../services';
+import { api } from '../services';
+import { fileToBase64 } from '../services/utils';
+import type { SaveDiagnosisRequest } from '../services/types';
 
 // 타입 정의
 interface AnalysisResult {
@@ -40,11 +41,30 @@ interface StreamingContent {
   management: string;
 }
 
+// 전체 분석 결과(JSON) 타입
+export interface FullAnalysisResult {
+  image_analysis?: {
+    skin_score?: number;
+    severity?: string;
+    estimated_treatment_period?: string;
+  };
+  text_analysis?: {
+    disease_name?: string;
+    ai_opinion?: string;
+    detailed_description?: string;
+    precautions?: string[];
+    management?: Record<string, string>;
+  };
+}
+
+type TabType = 'summary' | 'description' | 'precautions' | 'management';
+
 const DiseaseAnalysisStep3: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isLoaded } = useUser();
   const eventSourceRef = useRef<EventSource | null>(null);
+  const hasInitializedRef = useRef<boolean>(false); // 초기화 여부 추적
   
   // 상태 관리
   const [streamingContent, setStreamingContent] = useState<StreamingContent>({
@@ -58,60 +78,89 @@ const DiseaseAnalysisStep3: React.FC = () => {
   const [finalResult, setFinalResult] = useState<unknown>(null);
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState('summary');
+  const [activeTab, setActiveTab] = useState<TabType>('summary');
+  const [analysisMetrics, setAnalysisMetrics] = useState<{
+    skin_score?: number;
+    severity?: string;
+    estimated_treatment_period?: string;
+  } | null>(null);
+
+  // 전체 결과(JSON)를 상태에 반영하는 헬퍼
+  const processFullResult = (full: FullAnalysisResult) => {
+    if (!full) return;
+
+    const { image_analysis, text_analysis } = full;
+
+    if (image_analysis) {
+      setAnalysisMetrics({
+        skin_score: image_analysis.skin_score,
+        severity: image_analysis.severity,
+        estimated_treatment_period: image_analysis.estimated_treatment_period,
+      });
+    }
+
+    if (text_analysis) {
+      setStreamingContent({
+        summary: text_analysis.ai_opinion || '',
+        description: text_analysis.detailed_description || '',
+        // 배열을 줄바꿈 두 번으로 연결하여 문단처럼 보이게 함
+        precautions: (text_analysis.precautions || []).join('\n\n'),
+        // 객체를 "key: value" 형태의 문자열로 변환하고 줄바꿈 두 번으로 연결
+        management: text_analysis.management
+          ? Object.entries(text_analysis.management)
+              .map(([k, v]) => `${k}: ${v}`)
+              .join('\n\n')
+          : '',
+      });
+    }
+  };
+
+  // finalResult가 업데이트되면 전체 결과를 처리
+  useEffect(() => {
+    if (finalResult) {
+      processFullResult(finalResult as FullAnalysisResult);
+    }
+  }, [finalResult]);
   
   // 이전 페이지에서 전달받은 데이터
   const locationState = location.state as LocationState | null;
-  const { selectedResult, additionalInfo } = locationState || { selectedResult: null, additionalInfo: undefined };
+  const { uploadedFiles = [], selectedResult = null, additionalInfo } = locationState || {};
+
+  // selectedResult에서 질병 정보 추출 (타입 안정성 강화)
+  const resultData = selectedResult?.result as { data?: { disease_name: string; confidence: number }[] } | null;
+  const [diseaseInfo, setDiseaseInfo] = useState<DiseaseInfo>({
+    disease_name: '분석 중...',
+    confidence: resultData?.data?.[0]?.confidence || 0,
+  });
 
   useEffect(() => {
-    console.log('🎯 useEffect 실행 - selectedResult 체크:', !!selectedResult);
-    
+    if (hasInitializedRef.current) return;
     if (!selectedResult || !selectedResult.result) {
-      console.log('❌ 분석 결과 없음 - Step1로 이동');
       navigate('/disease-analysis-step1');
       return;
     }
+    if (!isLoaded || !user) return;
 
-    if (!isLoaded || !user) {
-      console.log('⏳ 사용자 정보 로딩 중...');
-      return;
-    }
-
-    if (isStreaming) {
-      console.log('⚠️ 이미 스트리밍 중');
-      return;
-    }
-
-    console.log('🚀 분석 결과가 준비됨 - SSE 스트리밍 시작!');
-    // 이미 완료된 분석 결과가 있으므로 바로 SSE 스트리밍 시작
+    hasInitializedRef.current = true;
     const eventSource = startSSEStreaming();
-    
-    // Cleanup 함수: 컴포넌트 unmount 시 EventSource 정리
+
     return () => {
-      if (eventSource) {
-        console.log('🧹 useEffect cleanup - EventSource 연결 종료');
-        eventSource.close();
-      }
+      if (eventSource) eventSource.close();
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
         eventSourceRef.current = null;
       }
     };
-  }, [selectedResult, isLoaded, user, isStreaming]);
+    // eslint-disable-next-line
+  }, [selectedResult, isLoaded, user]);
 
   const startSSEStreaming = (): EventSource | null => {
-    if (isStreaming || !selectedResult || !selectedResult.result) {
-      console.log('⚠️ 스트리밍 시작 방지:', { 
-        isStreaming, 
-        hasResult: !!selectedResult?.result
-      });
+    // 중복 실행 완전 차단
+    if (isStreaming || !selectedResult?.result || eventSourceRef.current) {
       return null;
     }
 
-    console.log('🚀 SSE 스트리밍 시작!');
-    
-    // 모든 상태 초기화
+    // 즉시 상태 변경으로 중복 호출 차단
     setIsStreaming(true);
     setIsComplete(false);
     setFinalResult(null);
@@ -129,51 +178,175 @@ const DiseaseAnalysisStep3: React.FC = () => {
     try {
       // 분석 결과에서 질병명 추출
       const result = selectedResult.result as Record<string, unknown>;
-      console.log('🔎 SSE용 API 응답 구조 확인:', result);
+      
       
       const dataArray = result?.data as unknown[];
       const firstResult = (dataArray?.[0] as Record<string, unknown>) || {};
-      console.log('🔎 첫 번째 결과:', firstResult);
+      
       
       // 여러 경로에서 병명 찾기 시도
-      const diseaseName = (firstResult?.disease_name as string) || 
-                         (result?.disease_name as string) || 
-                         '아토피 피부염'; // 기본값
+      const diseaseName: string = ((firstResult?.disease_name as string) || (result?.disease_name as string) || '아토피 피부염');
       
-      console.log('🏥 최종 추출된 병명:', diseaseName);
+      // API 응답에서 base64 이미지 추출
+      const base64Image = firstResult?.image as string;
+      
+      
+      // base64를 File 객체로 변환
+      let imageFile = selectedResult.file || uploadedFiles?.[0];
+      if (!imageFile && base64Image) {
+        try {
+          // base64를 Blob으로 변환
+          const byteCharacters = atob(base64Image);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: 'image/jpeg' });
+          
+          // Blob을 File로 변환
+          imageFile = new File([blob], 'analysis-image.jpg', { type: 'image/jpeg' });
+          
+        } catch (error) {
+          console.error('🔍 base64 변환 오류:', error);
+        }
+      }
+      
+      
+      
+      // 이미지 파일이 없으면 에러 처리
+      if (!imageFile) {
+        console.error('❌ 이미지 파일을 찾을 수 없습니다');
+        setIsStreaming(false);
+        alert('이미지 파일을 찾을 수 없습니다. Step1부터 다시 시작해주세요.');
+        navigate('/disease-analysis-step1');
+        return null;
+      }
       
       const userId = user!.id;
 
-      const eventSource = generateDiagnosisStream(
+      const eventSource = api.diagnoses.generateStream(
         userId,
         diseaseName,
-        selectedResult.file,
         (event) => {
-          console.log('🎯 받은 이벤트:', event);
           
-          if (event.type === 'progress' && event.tab && event.content) {
-            const tabKey = event.tab as keyof typeof streamingContent;
-            console.log(`📥 [${tabKey}] 받은 내용: "${event.content}"`);
-            
-            // 현재 탭으로 전환
-            setActiveTab(event.tab);
-            
-            // 간단한 내용 추가
+          // 질병명 스트리밍
+          // 질병명 / 진단명 스트리밍
+          if (event.type === 'disease_name_start' || event.type === 'diagnosed_name_start') {
+            setDiseaseInfo(prev => ({ ...prev, disease_name: '' }));
+          } else if (event.type === 'disease_name_chunk' || event.type === 'diagnosed_name_chunk') {
+            setDiseaseInfo(prev => ({
+              ...prev,
+              disease_name: (prev.disease_name ? prev.disease_name : '') + (event.data || '')
+            }));
+          }
+          
+          // AI 의견 (요약) 스트리밍
+          if (event.type === 'ai_opinion_start') {
+            console.log('📝 AI 의견 시작 - summary 탭으로 전환');
+            setActiveTab('summary');
+            setStreamingContent(prev => ({ ...prev, summary: '' }));
+          } else if (event.type === 'ai_opinion_chunk') {
+            console.log('📝 AI 의견 chunk 추가:', event.data);
             setStreamingContent(prev => {
-              const newContent = {
+              const newContent = prev.summary + (prev.summary ? ' ' : '') + (event.data || '');
+              console.log('📝 업데이트된 summary:', newContent);
+              return {
                 ...prev,
-                [tabKey]: prev[tabKey] + (event.content || '')
+                summary: newContent
               };
-              
-              console.log(`💾 [${tabKey}] 현재 내용:`, newContent[tabKey]);
-              return newContent;
             });
-            
-          } else if (event.type === 'complete') {
-            console.log('🏁 스트리밍 완료');
-            setIsComplete(true);
+          }
+          
+          // 상세 설명 스트리밍
+          else if (event.type === 'detailed_description_start') {
+            setActiveTab('description');
+            setStreamingContent(prev => ({ ...prev, description: '' }));
+          } else if (event.type === 'detailed_description_chunk') {
+            setStreamingContent(prev => {
+              const chunk = event.data || '';
+              let formattedChunk = chunk;
+              
+              // 숫자로 시작하는 항목 앞에 줄바꿈 추가 (예: "1.", "2.", "3." 등)
+              if (/^\d+\./.test(chunk.trim()) && prev.description) {
+                formattedChunk = '\n\n' + chunk;
+              }
+              // ①, ②, ③ 같은 번호 앞에 줄바꿈 추가
+              else if (/^[①②③④⑤⑥⑦⑧⑨⑩]/.test(chunk.trim()) && prev.description) {
+                formattedChunk = '\n' + chunk;
+              }
+              // 일반적인 경우 띄어쓰기 추가
+              else if (prev.description) {
+                formattedChunk = ' ' + chunk;
+              }
+              
+              return {
+                ...prev,
+                description: prev.description + formattedChunk
+              };
+            });
+          }
+          
+          // 주의사항 스트리밍
+          else if (event.type === 'precautions_start') {
+            setActiveTab('precautions');
+            setStreamingContent(prev => ({ ...prev, precautions: '' }));
+          } else if (event.type === 'precautions_chunk') {
+            setStreamingContent(prev => ({
+              ...prev,
+              precautions: prev.precautions + (prev.precautions ? ' ' : '') + (event.data || '')
+            }));
+          } else if (event.type === 'precautions_item_end') {
+            setStreamingContent(prev => ({
+              ...prev,
+              precautions: prev.precautions + '\n\n'
+            }));
+          }
+          
+          // 진행 중 스트리밍 (백엔드 'progress' 타입 처리)
+          else if (event.type === 'progress') {
+            const tab = event.tab as TabType | undefined;
+            if (tab && event.content) {
+              // 탭이 명시되어 있으면 해당 탭 콘텐츠 업데이트
+              setStreamingContent(prev => ({
+                ...prev,
+                [tab]: event.content,
+              }));
+            }
+          }
+          
+          // 관리방법 스트리밍
+          else if (event.type === 'management_start') {
+            setActiveTab('management');
+            setStreamingContent(prev => ({ ...prev, management: '' }));
+          } else if (event.type === 'management_chunk') {
+            setStreamingContent(prev => ({
+              ...prev,
+              management: prev.management + (prev.management ? ' ' : '') + (event.data || '')
+            }));
+          } else if (event.type === 'management_item_end') {
+            setStreamingContent(prev => ({
+              ...prev,
+              management: prev.management + '\n\n'
+            }));
+          }
+          
+          // 완료 처리: event.data에 전체 JSON 결과가 담겨옴
+          else if (event.type === 'complete' || event.type === 'tab_complete') {
+            // 전체 스트리밍 완료(백엔드 단일 섹션 완료 포함)
             setIsStreaming(false);
-            setFinalResult(event);
+            // 진행 중이던 탭 콘텐츠가 마지막 값으로 확정되도록 이미 업데이트된 상태 사용
+            // 'tab_complete'의 경우 추가 로직이 필요하면 여기에 작성
+          }
+          else if (event.type === 'done') {
+            
+            if (event.data) {
+              const fullResult = JSON.parse(event.data) as FullAnalysisResult;
+              setIsComplete(true);
+              setIsStreaming(false);
+              setFinalResult(fullResult);
+            }
+            return;
           }
         },
         (error) => {
@@ -184,7 +357,8 @@ const DiseaseAnalysisStep3: React.FC = () => {
         () => {
           setIsStreaming(false);
           setIsComplete(true);
-        }
+        },
+        imageFile // 원본 이미지 또는 base64에서 변환된 이미지 사용
       );
 
       // EventSource를 ref에 저장하여 cleanup에서 사용할 수 있도록 함
@@ -200,47 +374,34 @@ const DiseaseAnalysisStep3: React.FC = () => {
   };
 
   const handleSaveResult = async () => {
-    const hasContent = Object.values(streamingContent).some(content => content.trim().length > 0);
-    if (!finalResult || !hasContent || isSaved || isSaving || !user || !selectedResult?.file) return;
+    if (!finalResult || isSaved || isSaving || !user || !selectedResult?.file) return;
 
     setIsSaving(true);
     try {
-      const result = selectedResult?.result as Record<string, unknown>;
-      console.log('저장용 API 응답 구조 확인:', result);
-      
-      const dataArray = result?.data as unknown[];
-      const firstResult = (dataArray?.[0] as Record<string, unknown>) || {};
-      
-      // Step2에서 입력된 추가 정보 포함
-      const additionalInfoText = additionalInfo ? 
-        `증상: ${additionalInfo.symptoms.join(', ') || '없음'}, 가려움 정도: ${additionalInfo.itchLevel}/10, 기간: ${additionalInfo.duration}, 추가 정보: ${additionalInfo.additionalInfo}` :
-        '추가 정보 없음';
-
-      // 스트리밍 내용을 하나의 문자열로 합치기
-      const combinedContent = [
-        `요약: ${streamingContent.summary}`,
-        `상세 설명: ${streamingContent.description}`,
-        `주의사항: ${streamingContent.precautions}`,
-        `관리법: ${streamingContent.management}`
-      ].join('\n\n');
-
-      // 이미지를 base64로 변환
       const imageBase64 = await fileToBase64(selectedResult.file);
-
-      const saveData = {
+      
+      // API 스키마에 맞는 데이터 구조로 변환
+      const fullResult = finalResult as FullAnalysisResult;
+      const saveData: SaveDiagnosisRequest = {
         user_id: user.id,
         image_base64: imageBase64,
         image_analysis: {
-          disease_name: (firstResult?.disease_name as string) || (result?.disease_name as string) || 'unknown',
-          confidence: (firstResult?.confidence as number) || (result?.confidence as number) || 0
+          // 초기 분석 결과에서 병명과 신뢰도 가져오기
+          disease_name: diseaseInfo.disease_name,
+          confidence: diseaseInfo.confidence,
+          // 상세 분석 결과 추가
+          skin_score: fullResult.image_analysis?.skin_score,
+          severity: fullResult.image_analysis?.severity,
+          estimated_treatment_period: fullResult.image_analysis?.estimated_treatment_period,
         },
         text_analysis: {
-          ai_opinion: combinedContent,
-          detailed_description: `${combinedContent}\n\n[사용자 입력 정보]\n${additionalInfoText}`
-        }
+          ai_opinion: fullResult.text_analysis?.ai_opinion || '',
+          detailed_description: fullResult.text_analysis?.detailed_description || '',
+        },
+        additional_info: additionalInfo,
       };
 
-      await saveDiagnosisResult(saveData);
+      await api.diagnoses.saveResult(saveData);
       setIsSaved(true);
       alert('진단 결과가 성공적으로 저장되었습니다!');
     } catch (error) {
@@ -252,81 +413,33 @@ const DiseaseAnalysisStep3: React.FC = () => {
   };
 
   const handleDownloadReport = () => {
-    // TODO: 리포트 다운로드 기능 구현 예정
-    alert('리포트 다운로드 기능을 준비 중입니다.');
+    alert('리포트 다운로드 기능은 추후 제공될 예정입니다.');
   };
 
-  const handleRestartAnalysis = () => {
+  const handleRestart = () => {
     navigate('/disease-analysis-step1');
   };
 
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-  };
-
-  // 분석 결과가 없는 경우
-  if (!selectedResult) {
-    return (
-      <ContentWrapper style={{ paddingTop: '3rem', paddingBottom: '3rem' }}>
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
-          <h2>분석 결과를 찾을 수 없습니다.</h2>
-          <button 
-            onClick={handleRestartAnalysis}
-            style={{ 
-              marginTop: '1rem',
-              padding: '0.75rem 1.5rem',
-              borderRadius: '0.5rem',
-              border: 'none',
-              backgroundColor: '#2563eb',
-              color: 'white',
-              cursor: 'pointer'
-            }}
-          >
-            다시 분석하기
-          </button>
-        </div>
-      </ContentWrapper>
-    );
-  }
-
-  // 분석 결과에서 질병 정보 추출
-  const result = selectedResult?.result as Record<string, unknown>;
-  const dataArray = result?.data as unknown[];
-  const firstResult = (dataArray?.[0] as Record<string, unknown>) || {};
-  
-  // API 응답 구조 디버깅
-  console.log('🔍 API 응답 전체:', selectedResult);
-  console.log('🔍 result 객체:', result);
-  console.log('🔍 dataArray:', dataArray);
-  console.log('🔍 firstResult:', firstResult);
-  
-  const diseaseInfo: DiseaseInfo = {
-    disease_name: (firstResult?.disease_name as string) || (result?.disease_name as string) || '알 수 없는 질환',
-    confidence: Math.round(((firstResult?.confidence as number) || (result?.confidence as number) || 0))
-  };
-  
-  console.log('🏥 최종 diseaseInfo:', diseaseInfo);
-
   return (
-    <ContentWrapper style={{ paddingTop: '3rem', paddingBottom: '3rem' }}>
-      <StepIndicator />
+    <ContentWrapper>
       <MainContent>
-        <ChartPanel analysisResult={diseaseInfo} />
-        
-        {additionalInfo && <AdditionalInfoDisplay additionalInfo={additionalInfo} />}
-        
+        <ChartPanel 
+          analysisResult={diseaseInfo} 
+          metrics={analysisMetrics} 
+        />
         <DetailsPanel
-          diseaseInfo={diseaseInfo}
-          streamingContent={streamingContent}
-          additionalInfo={additionalInfo}
-          activeTab={activeTab}
           isStreaming={isStreaming}
           isComplete={isComplete}
           isSaved={isSaved}
-          onTabChange={handleTabChange}
-          onSaveResult={handleSaveResult}
-          onDownloadReport={handleDownloadReport}
-          onRestartAnalysis={handleRestartAnalysis}
+          isSaving={isSaving}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          streamingContent={streamingContent}
+          onSave={handleSaveResult}
+          diseaseInfo={diseaseInfo}
+          analysisMetrics={analysisMetrics}
+          onDownload={handleDownloadReport}
+          onRestart={handleRestart}
         />
       </MainContent>
     </ContentWrapper>

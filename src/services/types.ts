@@ -52,6 +52,12 @@ export interface SkinTypeAnalysisResponse {
     skin_type_code: number;
     skin_type_name: string;
   };
+  additional_info?: {
+    symptoms?: string[];
+    itchLevel?: number;
+    duration?: string;
+    additionalInfo?: string;
+  };
 }
 
 // Disease 관련 타입 - API 스펙에 맞게 수정
@@ -127,10 +133,19 @@ export interface DiagnosisDetail {
   image_analysis: {
     disease_name: string;
     confidence: number;
+    skin_score?: number;
+    severity?: string;
+    estimated_treatment_period?: string;
   };
   text_analysis: {
     ai_opinion: string;
     detailed_description: string;
+  };
+  additional_info?: {
+    symptoms?: string[];
+    itchLevel?: number;
+    duration?: string;
+    additionalInfo?: string;
   };
 }
 
@@ -148,10 +163,19 @@ export interface SaveDiagnosisRequest {
   image_analysis: {
     disease_name: string;
     confidence: number;
+    skin_score?: number;
+    severity?: string;
+    estimated_treatment_period?: string;
   };
   text_analysis: {
     ai_opinion: string;
     detailed_description: string;
+  };
+  additional_info?: {
+    symptoms?: string[];
+    itchLevel?: number;
+    duration?: string;
+    additionalInfo?: string;
   };
 }
 
@@ -166,16 +190,34 @@ export interface SaveDiagnosisResponse {
 export interface StreamEvent {
   type: 
     // 기존 타입들
-    | 'progress' | 'result' | 'complete' | 'tab_complete'
+    | 'progress' | 'result' | 'complete' | 'tab_complete' | 'error'
     // 백엔드 섹션 타입들
     | 'ai_opinion_start' | 'ai_opinion_chunk' | 'ai_opinion_end'
     | 'detailed_description_start' | 'detailed_description_chunk' | 'detailed_description_end'  
-    | 'precautions_start' | 'precautions_chunk' | 'precautions_end'
-    | 'management_start' | 'management_chunk' | 'management_end';
+    | 'precautions_start' | 'precautions_chunk' | 'precautions_item_start' | 'precautions_item_end' | 'precautions_end'
+    | 'management_start' | 'management_chunk' | 'management_item_start' | 'management_item_end' | 'management_end'
+    // 질병명 스트리밍 타입
+    | 'disease_name_start' | 'disease_name_chunk' | 'disease_name_end'
+    // 진단명 스트리밍 타입 (백엔드 변경)
+    | 'diagnosed_name_start' | 'diagnosed_name_chunk' | 'diagnosed_name_end'
+    // 완료 타입
+    | 'done';
   message?: string;
   content?: string;
   data?: string; // 백엔드에서 사용하는 data 필드
   tab?: string;
+  save_data?: {
+    skin_score?: number;
+    severity?: string;
+    estimated_treatment_period?: string;
+    [key: string]: unknown; // 추가적인 데이터를 위해
+  };
+  additional_info?: {
+    symptoms?: string[];
+    itchLevel?: number;
+    duration?: string;
+    additionalInfo?: string;
+  };
 }
 
 // Dashboard 관련 타입
