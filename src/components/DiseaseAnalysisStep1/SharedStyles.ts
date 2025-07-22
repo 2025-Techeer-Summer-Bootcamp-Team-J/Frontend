@@ -1,5 +1,21 @@
 import styled, { css } from 'styled-components';
 
+// New !!
+export const PageWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #F7FCFF;
+`;
+
+export const Frame = styled.div`
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 2rem;
+  padding: 1.5rem 3rem 2.5rem 3rem;
+  box-shadow: 0.2rem 0.4rem 1.2rem rgba(71, 69, 179, 0.15);
+`;
+
 // --- Step Indicator ---
 export const StepIndicatorContainer = styled.div`
   display: flex;
@@ -43,13 +59,27 @@ export const StepLine = styled.div`
 export const MainContent = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 4rem; /* gap-16 */
+  gap: 4rem; 
   flex-grow: 1;
+  align-items: stretch;
 
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
     gap: 2rem;
   }
+`;
+
+export const MainTitlePanel = styled.div`
+    display: flex;
+    justify-content: center;
+    margin: 0 0 2rem 0;
+`;
+
+export const MainTitle = styled.h1`
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    text-align: center;
 `;
 
 // --- Left Panel: Guide ---
@@ -60,9 +90,10 @@ export const GuidePanel = styled.div`
 `;
 
 export const Title = styled.h1`
-  font-size: 1.5rem; /* text-2xl */
+  font-size: 1.5rem; 
   font-weight: 700;
-  color: #1e293b; /* slate-800 */
+  color: #1e293b;
+  text-align: center;
 
   @media (max-width: 768px) {
     font-size: 1.25rem; /* text-xl */
@@ -70,12 +101,21 @@ export const Title = styled.h1`
 `;
 
 export const Subtitle = styled.p`
-  margin-top: 0.5rem; /* mt-2 */
-  color: #64748b; /* slate-500 */
+  margin-top: 0.5rem; 
+  color: #64748b;
+  text-align: center;
+
+`;
+
+export const TitleLine = styled.div`
+  flex-grow: 1;
+  height: 1.5px;
+  margin-top: 0.8rem;
+  background-color: #e2e8f0;
 `;
 
 export const GuideList = styled.div`
-  margin-top: 2rem; /* mt-8 */
+  margin-top: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1rem; /* space-y-4 */
@@ -86,8 +126,9 @@ export const GuideItem = styled.div`
   align-items: center;
   padding: 1rem;
   border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
-`;
+  border-radius: 1rem;
+  background-color: #F7FCFF;
+box-shadow: 0.2rem 0.4rem 1.2rem rgba(71, 69, 179, 0.15);`;
 
 export const GuideIcon = styled.div`
   flex-shrink: 0;
@@ -112,24 +153,26 @@ export const UploaderPanel = styled.div`
 export const UploadWrapper = styled.div`
   position: relative;
   width: 100%;
-  max-width: 28rem; /* max-w-md */
-  height: 24rem; /* h-96 */
-  background-color: #f1f5f9; /* slate-100 */
-  border-radius: 1rem; /* rounded-2xl */
+  max-width: 28rem;
+  height: 24rem;
+  background-color: #f1f5f9; 
+  border-radius: 1.5rem; 
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25'
+  xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24'
+  stroke='%23D0D8E8' stroke-width='2.5' stroke-dasharray='4, 6' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  border: 2px dashed #cbd5e1; /* border-slate-300 */
   transition: border-color 0.2s;
-
+  box-shadow: 0.2rem 0.4rem 1.2rem rgba(71, 69, 179, 0.15);
   &:hover {
     border-color: #3b82f6; /* hover:border-blue-500 */
   }
   
   @media (min-width: 1024px) {
     max-width: 36rem;
-    height: 28rem;
+    height: 22rem;
   }
 `;
 
@@ -163,9 +206,10 @@ export const NextButton = styled.button`
   max-width: 28rem; /* max-w-md */
   font-weight: 700;
   padding: 1rem 0; /* py-4 */
-  border-radius: 0.5rem; /* rounded-lg */
+  border-radius: 1rem; /* rounded-lg */
   font-size: 1.125rem; /* text-lg */
   transition: background-color 0.2s;
+  box-shadow: 0.2rem 0.4rem 1.2rem rgba(71, 69, 179, 0.15);
   
   &:disabled {
     background-color: #cbd5e1; /* bg-slate-300 */

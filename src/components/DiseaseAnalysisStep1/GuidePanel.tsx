@@ -8,14 +8,16 @@ import {
   GuideList,
   GuideItem,
   GuideIcon,
+  TitleLine
 } from './SharedStyles';
 
 const GuidePanel: React.FC = () => {
   return (
     <StyledGuidePanel>
       <div>
-        <Title>AI 피부 분석을 위해 사진을 업로드해주세요</Title>
-        <Subtitle>정확한 분석을 위해 가이드라인을 따라주세요.</Subtitle>
+        <Title>촬영 가이드</Title>
+        <Subtitle>정확한 분석을 위해 아래 가이드를 확인해주세요</Subtitle>
+        <TitleLine></TitleLine>
       </div>
       <GuideList>
         <GuideItem>

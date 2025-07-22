@@ -147,8 +147,10 @@ export const GuidelineItem = styled.div`
 export const UploadArea = styled.div`
     width: 100%;
     height: 18.75rem;
-    border: 2px dashed #d0d8e8;
     border-radius: 1.2rem;
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25'
+    xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='19' ry='19'
+    stroke='%23D0D8E8' stroke-width='2.5' stroke-dasharray='4, 6' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
     display: flex;
     justify-content: center;
     align-items: center;
