@@ -83,14 +83,7 @@ const AIOpinionBox = styled.div`
 `;
 
 const StreamingTabContent = styled(TabContent)`
-  .cursor {
-    animation: blink 1s infinite;
-  }
-  
-  @keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0; }
-  }
+  /* 커서 애니메이션 제거 */
 
   h3 {
     font-size: 1.25rem;
@@ -136,6 +129,11 @@ interface DetailsPanelProps {
   isStreaming: boolean;
   isComplete: boolean;
   isSaved: boolean;
+  analysisMetrics?: {
+    skin_score?: number;
+    severity?: string;
+    estimated_treatment_period?: string;
+  } | null;
   onTabChange: (tab: string) => void;
   onSaveResult: () => void;
   onDownloadReport: () => void;
@@ -147,14 +145,19 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   streamingContent,
   additionalInfo,
   activeTab,
-  isStreaming,
+  isStreaming, // 향후 스트리밍 상태 표시용으로 보존
   isComplete,
   isSaved,
+  analysisMetrics,
   onTabChange,
   onSaveResult,
   onDownloadReport,
   onRestartAnalysis,
 }) => {
+  // 개발 시 스트리밍 상태 확인용 (프로덕션에서 제거 가능)
+  console.log('🎭 DetailsPanel 스트리밍 상태:', isStreaming);
+  console.log('🎭 DetailsPanel streamingContent:', streamingContent);
+  console.log('🎭 DetailsPanel activeTab:', activeTab);
   return (
     <DetailsPanelContainer>
       <SectionTitle>AI 진단 결과</SectionTitle>
@@ -186,25 +189,44 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                 <span className="label">확률</span>
                 <span className="value">{diseaseInfo.confidence}%</span>
               </SummaryItem>
-              <SummaryItem>
-                <span className="label">심각도</span>
-                <SeverityBar>
-                  <SeverityBarInner $severity={diseaseInfo.confidence} />
-                </SeverityBar>
-              </SummaryItem>
-              <SummaryItem>
-                <span className="label">예상 치료 기간</span>
-                <span className="value">
-                  {diseaseInfo.confidence >= 70 ? '2-3주' : diseaseInfo.confidence >= 40 ? '3-4주' : '4-6주'}
-                </span>
-              </SummaryItem>
+              {analysisMetrics && (
+                <>
+                  <SummaryItem>
+                    <span className="label">피부 점수</span>
+                    <span className="value">{analysisMetrics.skin_score}점</span>
+                  </SummaryItem>
+                  <SummaryItem>
+                    <span className="label">심각도</span>
+                    <span className="value">{analysisMetrics.severity || '중등도'}</span>
+                  </SummaryItem>
+                  <SummaryItem>
+                    <span className="label">예상 치료 기간</span>
+                    <span className="value">{analysisMetrics.estimated_treatment_period || '2-4주'}</span>
+                  </SummaryItem>
+                </>
+              )}
+              {!analysisMetrics && (
+                <>
+                  <SummaryItem>
+                    <span className="label">심각도</span>
+                    <SeverityBar>
+                      <SeverityBarInner $severity={diseaseInfo.confidence} />
+                    </SeverityBar>
+                  </SummaryItem>
+                  <SummaryItem>
+                    <span className="label">예상 치료 기간</span>
+                    <span className="value">
+                      {diseaseInfo.confidence >= 70 ? '2-3주' : diseaseInfo.confidence >= 40 ? '3-4주' : '4-6주'}
+                    </span>
+                  </SummaryItem>
+                </>
+              )}
               
               <AIOpinionBox>
                 <h4><FaCommentMedical style={{ marginRight: '0.5rem' }} />AI 소견 및 주의사항</h4>
                 {streamingContent.summary ? (
-                  <div style={{ whiteSpace: 'pre-wrap' }}>
+                  <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
                     {streamingContent.summary}
-                    {isStreaming && activeTab === 'summary' && <span className="cursor">|</span>}
                   </div>
                 ) : (
                   <p>
@@ -214,7 +236,6 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                       ? `${diseaseInfo.disease_name}의 가능성이 있습니다. 추가적인 검사와 전문의 상담을 권장드립니다.`
                       : '여러 가능성이 있어 정확한 진단이 필요합니다. 피부과 전문의의 직접적인 진료를 받으시기 바랍니다.'
                     }
-                    {isStreaming && activeTab === 'summary' && <span className="cursor">|</span>}
                   </p>
                 )}
               </AIOpinionBox>
@@ -226,16 +247,14 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               <h3>{diseaseInfo.disease_name}이란?</h3>
               <div style={{ marginBottom: '1rem' }}>
                 {streamingContent.description ? (
-                  <div style={{ whiteSpace: 'pre-wrap' }}>
+                  <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
                     {streamingContent.description}
-                    {isStreaming && activeTab === 'description' && <span className="cursor">|</span>}
                   </div>
                 ) : (
                   <div>
                     <p><strong>정의:</strong> '{diseaseInfo.disease_name}'는 피부에 발생하는 염증성 질환으로, 다양한 원인에 의해 발생할 수 있습니다.</p>
                     <p><strong>특징:</strong> 발진, 가려움증, 홍반, 피부 건조 등의 증상이 나타날 수 있으며, 적절한 치료와 관리가 필요합니다.</p>
                     <p><strong>원인:</strong> 유전적 요인, 환경적 요인, 면역학적 이상 등이 복합적으로 작용하여 발생합니다. 연령에 따라 발생하는 부위가 다를 수 있습니다.</p>
-                    {isStreaming && activeTab === 'description' && <span className="cursor">|</span>}
                   </div>
                 )}
               </div>
@@ -246,9 +265,8 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
             <StreamingTabContent>
               <h3>{diseaseInfo.disease_name} 주의사항</h3>
               {streamingContent.precautions ? (
-                <div style={{ whiteSpace: 'pre-wrap' }}>
+                <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
                   {streamingContent.precautions}
-                  {isStreaming && activeTab === 'precautions' && <span className="cursor">|</span>}
                 </div>
               ) : (
                 <div>
@@ -264,7 +282,6 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                       <li><strong>가려움 정도가 높으니 절대 긁지 마시고 냉찜질로 진정시키세요.</strong></li>
                     )}
                   </ul>
-                  {isStreaming && activeTab === 'precautions' && <span className="cursor">|</span>}
                 </div>
               )}
             </StreamingTabContent>
@@ -274,9 +291,8 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
             <StreamingTabContent>
               <h3>{diseaseInfo.disease_name} 관리법</h3>
               {streamingContent.management ? (
-                <div style={{ whiteSpace: 'pre-wrap' }}>
+                <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
                   {streamingContent.management}
-                  {isStreaming && activeTab === 'management' && <span className="cursor">|</span>}
                 </div>
               ) : (
                 <div>
@@ -289,7 +305,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                       <li><strong>지속 기간 고려:</strong> {additionalInfo.duration} 지속되고 있으니 꾸준한 관리가 필요합니다.</li>
                     )}
                   </ul>
-                  {isStreaming && activeTab === 'management' && <span className="cursor">|</span>}
+
                 </div>
               )}
             </StreamingTabContent>

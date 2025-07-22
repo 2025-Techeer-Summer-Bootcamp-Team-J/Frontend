@@ -166,16 +166,24 @@ export interface SaveDiagnosisResponse {
 export interface StreamEvent {
   type: 
     // 기존 타입들
-    | 'progress' | 'result' | 'complete' | 'tab_complete'
+    | 'progress' | 'result' | 'complete' | 'tab_complete' | 'error'
     // 백엔드 섹션 타입들
     | 'ai_opinion_start' | 'ai_opinion_chunk' | 'ai_opinion_end'
     | 'detailed_description_start' | 'detailed_description_chunk' | 'detailed_description_end'  
-    | 'precautions_start' | 'precautions_chunk' | 'precautions_end'
-    | 'management_start' | 'management_chunk' | 'management_end';
+    | 'precautions_start' | 'precautions_chunk' | 'precautions_item_start' | 'precautions_item_end' | 'precautions_end'
+    | 'management_start' | 'management_chunk' | 'management_item_start' | 'management_item_end' | 'management_end'
+    // 완료 타입
+    | 'done';
   message?: string;
   content?: string;
   data?: string; // 백엔드에서 사용하는 data 필드
   tab?: string;
+  save_data?: {
+    skin_score?: number;
+    severity?: string;
+    estimated_treatment_period?: string;
+    [key: string]: unknown; // 추가적인 데이터를 위해
+  };
 }
 
 // Dashboard 관련 타입
