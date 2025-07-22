@@ -5,24 +5,27 @@ export const PageWrapper = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #F7FCFF;
+  background-color: #fbfdffff;
 `;
 
 export const Frame = styled.div`
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(10px);
-  border-radius: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 3.2rem;
   padding: 1.5rem 3rem 2.5rem 3rem;
-  box-shadow: 0.2rem 0.4rem 1.2rem rgba(71, 69, 179, 0.15);
+  box-shadow: 0.25rem 0.25rem 0.5rem rgba(71, 69, 179, 0.2);
 `;
+    
 
 // --- Step Indicator ---
 export const StepIndicatorContainer = styled.div`
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 32rem; /* lg */
-  margin: 0 auto 3rem; /* mb-12 */
+  max-width: 32rem;
+  margin: 0 auto 2rem; 
 
   @media (max-width: 768px) {
     margin-bottom: 2rem;
@@ -43,8 +46,8 @@ export const StepCircle = styled.div<{ $active?: boolean }>`
   ${(props) =>
     props.$active &&
     css`
-      border-color: #3b82f6;
-      background-color: #3b82f6;
+      border-color: #00A6FD;
+      background-color: #00A6FD;
       color: white;
     `}
 `;
@@ -72,21 +75,20 @@ export const MainContent = styled.div`
 export const MainTitlePanel = styled.div`
     display: flex;
     justify-content: center;
-    margin: 0 0 2rem 0;
+    margin: 0 0 1rem 0;
 `;
 
 export const MainTitle = styled.h1`
-    font-size: 2rem;
+    font-size: clamp(2rem, 5vw, 2.5rem);
     font-weight: 700;
-    color: #1e293b;
-    text-align: center;
+    color: #1a1a1a;
+    margin-bottom: 0.625rem;
 `;
 
 // --- Left Panel: Guide ---
 export const GuidePanel = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
 `;
 
 export const Title = styled.h1`
@@ -101,24 +103,17 @@ export const Title = styled.h1`
 `;
 
 export const Subtitle = styled.p`
-  margin-top: 0.5rem; 
+  margin: 0.3rem 0.5rem; 
   color: #64748b;
   text-align: center;
-
-`;
-
-export const TitleLine = styled.div`
-  flex-grow: 1;
-  height: 1.5px;
-  margin-top: 0.8rem;
-  background-color: #e2e8f0;
+  padding-bottom: 1rem;
 `;
 
 export const GuideList = styled.div`
-  margin-top: 1.5rem;
+  margin-top: auto;
   display: flex;
   flex-direction: column;
-  gap: 1rem; /* space-y-4 */
+  gap: 1.3rem; 
 `;
 
 export const GuideItem = styled.div`
@@ -126,16 +121,16 @@ export const GuideItem = styled.div`
   align-items: center;
   padding: 1rem;
   border: 1px solid #e2e8f0;
-  border-radius: 1rem;
-  background-color: #F7FCFF;
-  box-shadow: 0.2rem 0.4rem 1.2rem rgba(71, 69, 179, 0.15);
+  border-radius: 1.4rem;
+  background-color: #F0F9FF;
+  box-shadow: 0.1rem 0.1rem 0.4rem rgba(71, 69, 179, 0.15);
 `;
 
 export const GuideIcon = styled.div`
   flex-shrink: 0;
   width: 2.5rem;
   height: 2.5rem;
-  color: #475569;
+  color: #1e293b;
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
@@ -148,7 +143,7 @@ export const UploaderPanel = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
 `;
 
 export const UploadWrapper = styled.div`
@@ -156,7 +151,7 @@ export const UploadWrapper = styled.div`
   width: 100%;
   max-width: 28rem;
   height: 24rem;
-  background-color: #f1f5f9; 
+  background-color: #F2F5FA; 
   border-radius: 1.5rem; 
   background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25'
   xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24'
@@ -166,14 +161,13 @@ export const UploadWrapper = styled.div`
   justify-content: center;
   cursor: pointer;
   transition: border-color 0.2s;
-  box-shadow: 0.2rem 0.4rem 1.2rem rgba(71, 69, 179, 0.15);
   &:hover {
     background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%233b82f6' stroke-width='2.5' stroke-dasharray='4, 6' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
   }
   
   @media (min-width: 1024px) {
     max-width: 36rem;
-    height: 22rem;
+    height: 23rem;
   }
 `;
 
@@ -202,15 +196,15 @@ export const HiddenFileInput = styled.input`
 `;
 
 export const NextButton = styled.button`
-  margin-top: 2rem; /* mt-8 */
+  margin-top: 1rem;
   width: 100%;
-  max-width: 28rem; /* max-w-md */
+  max-width: 28rem;
   font-weight: 700;
-  padding: 1rem 0; /* py-4 */
-  border-radius: 1rem; /* rounded-lg */
-  font-size: 1.125rem; /* text-lg */
+  padding: 1rem 0;
+  border-radius: 1.2rem; 
+  font-size: 1.125rem; 
   transition: background-color 0.2s;
-  box-shadow: 0.2rem 0.4rem 1.2rem rgba(71, 69, 179, 0.15);
+  border: 1.5px solid #bbc1cdff;
   
   &:disabled {
     background-color: #cbd5e1; /* bg-slate-300 */
