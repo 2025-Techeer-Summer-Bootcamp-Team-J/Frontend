@@ -37,7 +37,7 @@ export const GlobalStyle = createGlobalStyle`
 `;
 
 export const PageWrapper = styled.div`
-  background-color: #F0F9FF;
+  background-color: ${() => theme.bgColor};
   width: 100%;
   min-height: 100vh;
   padding: 0.1px; /* 👈 [추가된 부분] 자식 margin 상쇄를 방지하는 트릭 */
