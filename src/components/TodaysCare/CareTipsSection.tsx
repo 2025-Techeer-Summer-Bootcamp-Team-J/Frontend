@@ -21,7 +21,7 @@ interface CareLevelData {
   color: string;
   range: string;
   summary: {
-    tmainTitle: string;    // h2에 사용할 주 제목
+    mainTitle: string;    // h2에 사용할 주 제목
     summaryTitle: string; // strong에 사용할 요약 제목
     description: string;
   };
