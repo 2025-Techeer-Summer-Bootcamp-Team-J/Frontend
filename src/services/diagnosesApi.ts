@@ -20,14 +20,9 @@ export const createDiagnosis = async (diagnosisData: DiagnosisRequest): Promise<
     // FormData 형태로 전송
     const formData = new FormData();
     
-    // user_id를 integer로 변환 (Clerk ID를 해시하거나 매핑된 숫자 ID 사용)
-    // 임시로 user_id 문자열을 숫자로 해시 변환
-    const numericUserId = Math.abs(diagnosisData.user_id.split('').reduce((a, b) => {
-      a = ((a << 5) - a) + b.charCodeAt(0);
-      return a & a;
-    }, 0));
+    // Clerk 문자열 ID 그대로 사용 - 숫자 변환 제거
     
-    formData.append('user_id', numericUserId.toString());
+    formData.append('user_id', diagnosisData.user_id);
     if (diagnosisData.file) {
       formData.append('file', diagnosisData.file);
     }
@@ -52,7 +47,7 @@ export const createDiagnosis = async (diagnosisData: DiagnosisRequest): Promise<
 /**
  * 유저의 모든 진단 조회
  */
-export const getUserDiagnoses = async (userId: number): Promise<UserDiagnosesResponse> => {
+export const getUserDiagnoses = async (userId: string): Promise<UserDiagnosesResponse> => {
   try {
     const response = await apiClient.get<UserDiagnosesResponse>(`/api/diagnoses/users/${userId}/diagnoses`);
     return response.data;
@@ -65,7 +60,7 @@ export const getUserDiagnoses = async (userId: number): Promise<UserDiagnosesRes
 /**
  * 진단 삭제
  */
-export const deleteDiagnosis = async (diagnosisId: number, userId: number): Promise<UserDiagnosesResponse> => {
+export const deleteDiagnosis = async (diagnosisId: number, userId: string): Promise<UserDiagnosesResponse> => {
   try {
     const response = await apiClient.delete<UserDiagnosesResponse>(
       `/api/diagnoses/${diagnosisId}?user_id=${userId}`
@@ -121,18 +116,13 @@ export const generateDiagnosisStream = (
   // POST 요청을 위한 FormData 준비
   const formData = new FormData();
   
-  // user_id를 integer로 변환 (Clerk ID를 해시 변환)
-  const numericUserId = Math.abs(userId.split('').reduce((a, b) => {
-    a = ((a << 5) - a) + b.charCodeAt(0);
-    return a & a;
-  }, 0));
-  
-  formData.append('user_id', numericUserId.toString());
+  // Clerk 문자열 ID 그대로 사용
+  formData.append('user_id', userId);
   formData.append('disease_name', diseaseName);
   formData.append('image', image);
 
   console.log('📤 POST 데이터 준비:', {
-    user_id: numericUserId,
+    user_id: userId,
     disease_name: diseaseName,
     image_name: image.name,
     image_size: image.size
