@@ -1,5 +1,5 @@
 import React from 'react';
-import { InputSection, SectionHeading, SliderContainer, ItchSlider } from './SharedStyles';
+import { InputSection, SectionHeading, SliderContainer, ItchSlider, ItchSliderLabel, ItchSliderLabelRight } from './SharedStyles';
 
 interface ItchLevelSliderProps {
   itchLevel: number;
@@ -14,7 +14,7 @@ const ItchLevelSlider: React.FC<ItchLevelSliderProps> = ({
     <InputSection>
       <SectionHeading>가려움의 정도는 어떤가요?</SectionHeading>
       <SliderContainer>
-        <span>없음</span>
+        <ItchSliderLabel>없음</ItchSliderLabel>
         <ItchSlider
           type="range"
           min="0"
@@ -22,7 +22,7 @@ const ItchLevelSlider: React.FC<ItchLevelSliderProps> = ({
           value={itchLevel}
           onChange={(e) => onChange(Number(e.target.value))}
         />
-        <span>매우 심함 ({itchLevel})</span>
+        <ItchSliderLabelRight>매우 심함 ({itchLevel})</ItchSliderLabelRight>
       </SliderContainer>
     </InputSection>
   );
