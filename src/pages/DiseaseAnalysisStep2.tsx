@@ -9,7 +9,7 @@ import ItchLevelSlider from '../components/DiseaseAnalysisStep2/ItchLevelSlider'
 import DurationInput from '../components/DiseaseAnalysisStep2/DurationInput';
 import AdditionalInfoInput from '../components/DiseaseAnalysisStep2/AdditionalInfoInput';
 import NavigationButtons from '../components/DiseaseAnalysisStep2/NavigationButtons';
-import { MainContent, PageTitle } from '../components/DiseaseAnalysisStep2/SharedStyles';
+import { MainContent, Frame, PageWrapper, MainTitlePanel, MainTitle } from '../components/DiseaseAnalysisStep2/SharedStyles';
 import { SYMPTOMS, DURATIONS } from '../constants/diseaseAnalysis';
 
 // 타입 정의
@@ -216,50 +216,58 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
     const statusMessage = getStatusMessage();
 
     return (
-        <ContentWrapper style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
-            <StepProgress currentStep={2} />
-            <MainContent>
-                <PageTitle>2단계: 증상에 대한 정보를 알려주세요</PageTitle>
-                
-                {statusMessage && (
-                    <div style={{ 
-                        padding: '1rem', 
-                        margin: '1rem 0', 
-                        backgroundColor: '#fff3cd', 
-                        border: '1px solid #ffeaa7', 
-                        borderRadius: '0.5rem',
-                        color: '#856404'
-                    }}>
-                        ⚠️ {statusMessage}
-                    </div>
-                )}
-                
-                <SymptomInput
-                    symptoms={SYMPTOMS}
-                    selectedSymptoms={selectedSymptoms}
-                    onToggle={handleSymptomToggle}
-                />
-                <ItchLevelSlider
-                    itchLevel={itchLevel}
-                    onChange={setItchLevel}
-                />
-                <DurationInput
-                    durations={DURATIONS}
-                    selectedDuration={selectedDuration}
-                    onSelect={handleDurationSelect}
-                />
-                <AdditionalInfoInput
-                    value={additionalInfo}
-                    onChange={setAdditionalInfo}
-                />
-                <NavigationButtons
-                    onPrevious={() => navigate('/disease-analysis-step1')}
-                    onSkip={handleSkipButtonClick}
-                    onNext={handleResultViewClick}
-                    isSubmitting={isAnalyzing}
-                />
-            </MainContent>
-        </ContentWrapper>
+        <PageWrapper>
+            <ContentWrapper style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
+                <MainTitlePanel>
+                    <MainTitle>증상에 대한 정보를 알려주세요</MainTitle>
+                </MainTitlePanel>
+
+                <Frame>
+                    <StepProgress currentStep={2} />
+                    <MainContent>
+                        {statusMessage && (
+                            <div style={{ 
+                                padding: '0.8rem',
+                                marginBottom: '0.4rem', 
+                                backgroundColor: '#FFFAE6', 
+                                border: '1px solid #ffeaa7', 
+                                borderRadius: '1.3rem',
+                                color: '#856404',
+                                textAlign: 'center',
+                                fontSize: '18px'
+                            }}>
+                                ⚠️ {statusMessage}
+                            </div>
+                        )}
+                        
+                        <SymptomInput
+                            symptoms={SYMPTOMS}
+                            selectedSymptoms={selectedSymptoms}
+                            onToggle={handleSymptomToggle}
+                        />
+                        <ItchLevelSlider
+                            itchLevel={itchLevel}
+                            onChange={setItchLevel}
+                        />
+                        <DurationInput
+                            durations={DURATIONS}
+                            selectedDuration={selectedDuration}
+                            onSelect={handleDurationSelect}
+                        />
+                        <AdditionalInfoInput
+                            value={additionalInfo}
+                            onChange={setAdditionalInfo}
+                        />
+                        <NavigationButtons
+                            onPrevious={() => navigate('/disease-analysis-step1')}
+                            onSkip={handleSkipButtonClick}
+                            onNext={handleResultViewClick}
+                            isSubmitting={isAnalyzing}
+                        />
+                    </MainContent>
+                </Frame>
+            </ContentWrapper>
+        </PageWrapper>
     );
 };
 

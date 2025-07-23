@@ -79,9 +79,9 @@ export const MainTitlePanel = styled.div`
 `;
 
 export const MainTitle = styled.h1`
-    font-size: clamp(2rem, 5vw, 2.5rem);
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
     font-weight: 700;
-    color: #1a1a1a;
+    color: #1E293B;
     margin-bottom: 0.625rem;
 `;
 
@@ -213,11 +213,11 @@ export const NextButton = styled.button`
   }
   
   &:not(:disabled) {
-    background-color: #2563eb; /* bg-blue-600 */
+    background-color: #157FF1; /* bg-blue-600 */
     color: white;
     cursor: pointer;
     &:hover {
-      background-color: #1d4ed8; /* hover:bg-blue-700 */
+      background-color: #225FEA; /* hover:bg-blue-700 */
     }
   }
 
