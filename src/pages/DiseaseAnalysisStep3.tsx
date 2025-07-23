@@ -435,12 +435,8 @@ interface BasicAnalysisResult {
       };
 
       // FormData 구성 (multipart/form-data)
-      // user.id는 문자열이므로 백엔드가 요구하는 정수 ID로 해시 변환
-      const numericUserId = Math.abs(
-        user.id
-          .split('')
-          .reduce((acc, ch) => ((acc << 5) - acc) + ch.charCodeAt(0), 0)
-      );
+      // Clerk 문자열 ID 그대로 사용
+      const clerkId = user.id;
       const formData = new FormData();
       formData.append('image', imageFile);
       formData.append('image_analysis', JSON.stringify(saveData.image_analysis));
@@ -448,7 +444,7 @@ interface BasicAnalysisResult {
 
       console.log('📤 진단 결과 저장 FormData:', formData);
       alert('진단 결과를 저장하는 중입니다...');
-      await apiClient.post(`/api/diagnoses/save?user_id=${numericUserId}`, formData, {
+      await apiClient.post(`/api/diagnoses/save?user_id=${clerkId}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setIsSaved(true);
