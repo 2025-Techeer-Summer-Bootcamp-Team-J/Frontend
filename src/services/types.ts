@@ -188,20 +188,18 @@ export interface SaveDiagnosisResponse {
 
 // SSE 스트림 이벤트 타입 - 백엔드 구조에 맞게 확장
 export interface StreamEvent {
-  type: 
-    // 기존 타입들
-    | 'progress' | 'result' | 'complete' | 'tab_complete' | 'error'
-    // 백엔드 섹션 타입들
-    | 'ai_opinion_start' | 'ai_opinion_chunk' | 'ai_opinion_end'
-    | 'detailed_description_start' | 'detailed_description_chunk' | 'detailed_description_end'  
-    | 'precautions_start' | 'precautions_chunk' | 'precautions_item_start' | 'precautions_item_end' | 'precautions_end'
-    | 'management_start' | 'management_chunk' | 'management_item_start' | 'management_item_end' | 'management_end'
-    // 질병명 스트리밍 타입
+  type:
+    // 공통 상태 타입
+    | 'progress' | 'result' | 'complete' | 'tab_complete' | 'error' | 'done'
+    // 질병명(모델1) 스트리밍 타입
     | 'disease_name_start' | 'disease_name_chunk' | 'disease_name_end'
-    // 진단명 스트리밍 타입 (백엔드 변경)
+    // 진단명(모델2) 스트리밍 타입 (백엔드 변경)
     | 'diagnosed_name_start' | 'diagnosed_name_chunk' | 'diagnosed_name_end'
-    // 완료 타입
-    | 'done';
+    // AI 의견, 상세 설명, 주의사항, 관리방법 스트리밍 타입
+    | 'ai_opinion_start' | 'ai_opinion_chunk' | 'ai_opinion_end'
+    | 'detailed_description_start' | 'detailed_description_chunk' | 'detailed_description_end'
+    | 'precautions_start' | 'precautions_chunk' | 'precautions_item_start' | 'precautions_item_end' | 'precautions_end'
+    | 'management_start' | 'management_chunk' | 'management_item_start' | 'management_item_end' | 'management_end';
   message?: string;
   content?: string;
   data?: string; // 백엔드에서 사용하는 data 필드

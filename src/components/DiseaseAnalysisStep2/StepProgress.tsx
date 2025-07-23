@@ -1,20 +1,20 @@
 import React from 'react';
-import { StepProgressContainer, StepIndicator, StepLine } from './SharedStyles';
+import { StepIndicatorContainer, StepCircle, StepLine } from './SharedStyles';
 
-interface StepProgressProps {
+interface StepIndicatorProps {
   currentStep: number;
 }
 
-const StepProgress: React.FC<StepProgressProps> = ({ currentStep }) => {
+const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => {
   return (
-    <StepProgressContainer>
-      <StepIndicator $completed={currentStep > 1}>1</StepIndicator>
+    <StepIndicatorContainer>
+      <StepCircle $completed={currentStep > 1}>1</StepCircle>
       <StepLine />
-      <StepIndicator $active={currentStep === 2} $completed={currentStep > 2}>2</StepIndicator>
+      <StepCircle $active={currentStep === 2} $completed={currentStep > 2}>2</StepCircle>
       <StepLine />
-      <StepIndicator $active={currentStep === 3}>3</StepIndicator>
-    </StepProgressContainer>
+      <StepCircle $active={currentStep === 3}>3</StepCircle>
+    </StepIndicatorContainer>
   );
 };
 
-export default StepProgress;
+export default StepIndicator;

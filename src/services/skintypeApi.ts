@@ -31,7 +31,7 @@ export const getSkinTypeById = async (skintypeId: number): Promise<SkinType> => 
  * 피부 유형 분석 요청
  */
 export const analyzeSkinType = async (
-  userId: number, 
+  userId: string, // Clerk 사용자 ID는 문자열
   analysisData: SkinTypeAnalysisRequest
 ): Promise<SkinTypeAnalysisResponse> => {
   try {
@@ -46,15 +46,18 @@ export const analyzeSkinType = async (
       formData.append('answers', JSON.stringify(analysisData.answers));
     }
 
+    // 사용자 ID를 FormData에 포함
+    formData.append('user_id', userId);
+
     console.log('API 요청 시작:', { userId, hasImage: !!analysisData.image });
 
     const response = await apiClient.post<SkinTypeAnalysisResponse>(
-      `/api/skintype/${userId}/analysis`,
+      `/api/skintypes/users/${userId}/image`,
       formData,
       {
         headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+          'Content-Type': 'multipart/form-data'
+        }
       }
     );
     
