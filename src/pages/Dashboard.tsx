@@ -23,10 +23,12 @@ const Dashboard = () => {
         const fetchDashboardData = async () => {
             try {
                 setLoading(true);
-                // Replace with actual user ID from authentication context
-                const userId = 1;
-                const response = await api.users.getDashboard(userId);
+                // Clerk user.id 사용
+                const userId = 1; // Clerk의 고유 ID
+                if (!userId) return;
+                const response = await api.users.getDashboard(Number(userId));
                 setDashboardData(response);
+                console.log(response);
             } catch (err) {
                 setDashboardError('Failed to fetch dashboard data.');
                 console.error(err);
@@ -35,8 +37,8 @@ const Dashboard = () => {
             }
         };
 
-        fetchDashboardData();
-    }, []);
+        if (user) fetchDashboardData();
+    }, [user]);
 
     // Clerk 로딩 중일 때만 로딩 화면 표시
     if (!isLoaded || !user) {
@@ -52,7 +54,8 @@ const Dashboard = () => {
     // API 데이터가 없거나 에러가 있어도 기본 UI 표시
     const displayData = dashboardData || {
         recent_skinType_scores: [],
-        recent_diagnosis_records: []
+        recent_diagnosis_records: [],
+        my_skin_profile: undefined
     };
 
     return (
@@ -93,7 +96,7 @@ const Dashboard = () => {
                         <Sidebar>
                             {/* 내 정보 */}
                             <Card>
-                                <UserProfile />
+                                <UserProfile mySkinProfile={displayData.my_skin_profile} />
                             </Card>
 
                             {/* 피부 지식 */}

@@ -10,9 +10,20 @@ interface Tag {
 
 interface UserProfileProps {
   className?: string;
+  mySkinProfile?: {
+    type_name: string;
+    concerns: string[];
+    managementTips: string[];
+  };
 }
 
-const UserProfile: React.FC<UserProfileProps> = ({ className }) => {
+const concernColorMap: Record<string, 'blue' | 'red'> = {
+  '아토피': 'blue',
+  '지루성 피부염': 'red',
+  // 필요시 추가
+};
+
+const UserProfile: React.FC<UserProfileProps> = ({ className, mySkinProfile }) => {
   const { user, isLoaded } = useUser();
 
   // Clerk 기본 정보
@@ -96,16 +107,14 @@ const UserProfile: React.FC<UserProfileProps> = ({ className }) => {
   }
 
   // 임시 데이터 (실제로는 API에서 가져와야 함)
-  const concerns: Tag[] = [
-    { text: '아토피', color: 'blue' },
-    { text: '지루성 피부염', color: 'red' }
-  ];
+  const concerns: Tag[] = (mySkinProfile?.concerns || []).map((c) => ({
+    text: c,
+    color: concernColorMap[c] || 'blue',
+  }));
 
-  const managementTips = [
-    '세라마이드 성분 보습제 사용 권장',
-    '약산성 클렌저로 부드럽게 세안',
-    '자외선 차단제 필수 사용'
-  ];
+  const managementTips = (mySkinProfile?.managementTips || []).map((tip, index) => (
+    <li key={index}>{tip}</li>
+  ));
 
   return (
     <div className={className}>
@@ -159,22 +168,28 @@ const UserProfile: React.FC<UserProfileProps> = ({ className }) => {
         <hr style={{ border: 'none', borderTop: '1px solid #e5e7eb', margin: '0.5rem 0' }} />
         <div>
           <ProfileLabel>피부 타입</ProfileLabel>
-          <ProfileValue>민감성 수부지</ProfileValue>
+          <ProfileValue>{mySkinProfile?.type_name || '미입력'}</ProfileValue>
         </div>
         <div>
           <ProfileLabel>주요 고민 부위</ProfileLabel>
           <TagContainer>
-            {concerns.map((concern, index) => (
-              <Tag key={index} color={concern.color}>{concern.text}</Tag>
-            ))}
+            {mySkinProfile && concerns.length > 0 ? (
+              concerns.map((concern, index) => (
+                <Tag key={index} color={concern.color}>{concern.text}</Tag>
+              ))
+            ) : (
+              <span style={{color: '#aaa'}}>미입력</span>
+            )}
           </TagContainer>
         </div>
         <div>
           <ProfileLabel style={{ marginBottom: '0.5rem' }}>주의사항 및 관리 팁</ProfileLabel>
           <TipList>
-            {managementTips.map((tip, index) => (
-              <li key={index}>{tip}</li>
-            ))}
+            {mySkinProfile && mySkinProfile.managementTips && mySkinProfile.managementTips.length > 0 ? (
+              mySkinProfile.managementTips.map((tip, i) => <li key={i}>{tip}</li>)
+            ) : (
+              <li style={{color: '#aaa'}}>미입력</li>
+            )}
           </TipList>
         </div>
       </ProfileContent>
