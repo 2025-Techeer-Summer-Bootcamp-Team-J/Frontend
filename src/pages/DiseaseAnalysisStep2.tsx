@@ -264,3 +264,4 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
 };
 
 export default DiseaseAnalysisStep2Page;
+
