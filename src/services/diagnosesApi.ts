@@ -28,7 +28,7 @@ export const createDiagnosis = async (diagnosisData: DiagnosisRequest): Promise<
     }
 
     const response = await apiClient.post<AsyncDiagnosisResponse>(
-      '/api/diagnoses',
+      '/diagnoses',
       formData,
       {
         headers: {
@@ -49,7 +49,7 @@ export const createDiagnosis = async (diagnosisData: DiagnosisRequest): Promise<
  */
 export const getUserDiagnoses = async (userId: string): Promise<UserDiagnosesResponse> => {
   try {
-    const response = await apiClient.get<UserDiagnosesResponse>(`/api/diagnoses/users/${userId}/diagnoses`);
+    const response = await apiClient.get<UserDiagnosesResponse>(`/diagnoses/users/${userId}/diagnoses`);
     return response.data;
   } catch (error) {
     console.error(`Failed to fetch diagnoses for user ${userId}:`, error);
@@ -63,7 +63,7 @@ export const getUserDiagnoses = async (userId: string): Promise<UserDiagnosesRes
 export const deleteDiagnosis = async (diagnosisId: number, userId: string): Promise<UserDiagnosesResponse> => {
   try {
     const response = await apiClient.delete<UserDiagnosesResponse>(
-      `/api/diagnoses/${diagnosisId}?user_id=${userId}`
+      `/diagnoses/${diagnosisId}?user_id=${userId}`
     );
     return response.data;
   } catch (error) {
@@ -77,7 +77,7 @@ export const deleteDiagnosis = async (diagnosisId: number, userId: string): Prom
  */
 export const getDiagnosisById = async (diagnosisId: number): Promise<DiagnosisDetailResponse> => {
   try {
-    const response = await apiClient.get<DiagnosisDetailResponse>(`/api/diagnoses/${diagnosisId}`);
+    const response = await apiClient.get<DiagnosisDetailResponse>(`/diagnoses/${diagnosisId}`);
     return response.data;
   } catch (error) {
     console.error(`Failed to fetch diagnosis ${diagnosisId}:`, error);
@@ -190,7 +190,7 @@ export const generateDiagnosisStream = (
     try {
       console.log('📡 POST 요청 전송 중...');
       
-      const response = await fetch(`${cleanBaseUrl}/api/diagnoses/generate-stream`, {
+      const response = await fetch(`${cleanBaseUrl}/diagnoses/generate-stream`, {
         method: 'POST',
         body: formData,
         headers: {
@@ -229,7 +229,7 @@ export const generateDiagnosisStream = (
           });
         },
         readyState: 1, // OPEN
-        url: `${cleanBaseUrl}/api/diagnoses/generate-stream`,
+        url: `${cleanBaseUrl}/diagnoses/generate-stream`,
         withCredentials: false,
         onopen: null, onmessage: null, onerror: null,
         addEventListener: () => {}, removeEventListener: () => {}, dispatchEvent: () => false,
@@ -349,7 +349,7 @@ export const generateDiagnosisStream = (
       return {
         close: () => {},
         readyState: 2, // CLOSED
-        url: `${cleanBaseUrl}/api/diagnoses/generate-stream`,
+        url: `${cleanBaseUrl}/diagnoses/generate-stream`,
         withCredentials: false,
         onopen: null, onmessage: null, onerror: null,
         addEventListener: () => {}, removeEventListener: () => {}, dispatchEvent: () => false,
@@ -362,7 +362,7 @@ export const generateDiagnosisStream = (
   const dummyEventSource = {
     close: () => {},
     readyState: 0, // CONNECTING
-    url: `${cleanBaseUrl}/api/diagnoses/generate-stream`,
+    url: `${cleanBaseUrl}/diagnoses/generate-stream`,
     withCredentials: false,
     onopen: null, onmessage: null, onerror: null,
     addEventListener: () => {}, removeEventListener: () => {}, dispatchEvent: () => false,
@@ -386,7 +386,7 @@ export const generateDiagnosisStream = (
 export const saveDiagnosisResult = async (diagnosisData: SaveDiagnosisRequest): Promise<SaveDiagnosisResponse> => {
   try {
     const response = await apiClient.post<SaveDiagnosisResponse>(
-      '/api/diagnoses/save',
+      '/diagnoses/save',
       diagnosisData
     );
     return response.data;
@@ -406,7 +406,7 @@ export const createDiagnosisAdditionalInfo = async (
 ): Promise<DiagnosisAdditionalResponse> => {
   try {
     const response = await apiClient.post<DiagnosisAdditionalResponse>(
-      `/api/diagnoses/${diagnosisId}/additional`,
+      `/diagnoses/${diagnosisId}/additional`,
       additionalData
     );
     return response.data;
@@ -422,7 +422,7 @@ export const createDiagnosisAdditionalInfo = async (
 export const getDiagnosisAdditionalInfo = async (diagnosisId: number): Promise<DiagnosisAdditionalResponse> => {
   try {
     const response = await apiClient.get<DiagnosisAdditionalResponse>(
-      `/api/diagnoses/${diagnosisId}/additional`
+      `/diagnoses/${diagnosisId}/additional`
     );
     return response.data;
 
@@ -437,7 +437,7 @@ export const getDiagnosisAdditionalInfo = async (diagnosisId: number): Promise<D
  */
 export const getDiagnosisTaskStatus = async (taskId: string): Promise<TaskStatusResponse> => {
   try {
-    const response = await apiClient.get<TaskStatusResponse>(`/api/diagnoses/tasks/${taskId}/status`);
+    const response = await apiClient.get<TaskStatusResponse>(`/diagnoses/tasks/${taskId}/status`);
     return response.data;
   } catch (error) {
     console.error(`Failed to fetch task status for task ${taskId}:`, error);
