@@ -1,8 +1,11 @@
 import axios from 'axios';
 
 // 개발 환경에서는 프록시 사용, 프로덕션에서는 실제 API URL 사용
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 
-    (import.meta.env.DEV ? '/api' : 'http://localhost');
+// 기본 BASE_URL 설정
+// 1) .env 에서 VITE_API_BASE_URL 이 설정되어 있으면 절대 URL 사용
+// 2) 없으면 상대 경로("")를 사용해 모든 서비스 파일의 "/api" 프리픽스를 그대로 유지
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 
 // axios 인스턴스 생성
 export const apiClient = axios.create({
