@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useUser } from '@clerk/clerk-react'; // 🔑 Clerk 훅으로 유저 정보 가져오기
 import { analyzeSkinType } from '../services/skintypeApi';
 import { AxiosError } from 'axios';
 
@@ -10,6 +11,8 @@ import ErrorSection from '../components/SkinAnalysis/ErrorSection';
 import { skinCareTips, convertApiResponseToSkinResult, type SkinResult } from '../utils/skinAnalysis';
 
 const SkinAnalysis: React.FC = () => {
+    // 🔑 현재 로그인한 유저 정보 가져오기
+    const { user } = useUser();
     type Section = 'upload' | 'analyzing' | 'result' | 'error';
     const [currentSection, setCurrentSection] = useState<Section>('upload');
     const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
@@ -27,7 +30,8 @@ const SkinAnalysis: React.FC = () => {
     const errorSectionRef = useRef<HTMLElement>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-    const userId = 1;
+        // Clerk에서 제공하는 유저 ID(문자열) — 로그인되지 않았으면 빈 문자열
+    const userId = user?.id ?? '';
 
     const performSkinAnalysis = useCallback(async (imageFile: File) => {
         try {
