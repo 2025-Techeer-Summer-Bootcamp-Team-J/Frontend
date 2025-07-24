@@ -271,6 +271,15 @@ export interface DiagnosisAdditionalInfo {
   additional_notes: string;
 }
 
+// 진단 이미지 조회 응답
+export interface DiagnosisImageResponse {
+  status_code: number;
+  message: string;
+  data: {
+    image_url: string;
+  };
+}
+
 // 진단 보조 정보 생성 요청
 export interface CreateDiagnosisAdditionalRequest {
   diagnosis_id: number;
