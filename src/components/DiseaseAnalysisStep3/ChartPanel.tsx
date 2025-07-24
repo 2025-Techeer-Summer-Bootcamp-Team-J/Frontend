@@ -44,7 +44,7 @@ const ChartPanel: React.FC<ChartPanelProps> = ({ analysisResult, metrics }) => {
     labels: [mainDisease, ...otherDiseases.map(d => d.name)],
     datasets: [{
       data: [mainConfidence, ...otherDiseases.map(d => d.confidence)],
-      backgroundColor: ['#2563eb', '#60a5fa', '#93c5fd', '#dbeafe'],
+      backgroundColor: ['#157FF1', '#60a5fa', '#93c5fd', '#dbeafe'],
       borderColor: 'white',
       borderWidth: 4,
       hoverOffset: 8,

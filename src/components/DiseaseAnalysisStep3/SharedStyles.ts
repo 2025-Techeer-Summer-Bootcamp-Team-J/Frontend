@@ -1,15 +1,13 @@
 import styled, { css } from 'styled-components';
 
-export const MainContent = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6rem;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
-    gap: 3rem;
-  }
+export const Frame = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 3.2rem;
+  padding: 1.5rem 3rem 2.5rem 3rem;
+  box-shadow: 0.25rem 0.25rem 0.5rem rgba(71, 69, 179, 0.2);
 `;
 
 export const StepContainer = styled.div`
@@ -17,7 +15,11 @@ export const StepContainer = styled.div`
   align-items: center;
   width: 100%;
   max-width: 32rem;
-  margin: 0 auto 2.5rem;
+  margin: 0 auto 2rem; 
+
+  @media (max-width: 768px) {
+    margin-bottom: 2rem;
+  }
 `;
 
 export const StepItem = styled.div<{ $status: 'completed' | 'active' }>`
@@ -33,8 +35,8 @@ export const StepItem = styled.div<{ $status: 'completed' | 'active' }>`
   ${({ $status }) =>
     ($status === 'completed' || $status === 'active') &&
     css`
-      border-color: #3b82f6;
-      background-color: #3b82f6;
+      border-color: #00A6FD;
+      background-color: #00A6FD;
       color: white;
     `}
 `;
@@ -43,6 +45,32 @@ export const StepLine = styled.div`
   flex-grow: 1;
   height: 2px;
   background-color: #e2e8f0;
+`;
+
+export const MainContent = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4rem; 
+  flex-grow: 1;
+  align-items: stretch;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+`;
+
+export const MainTitlePanel = styled.div`
+    display: flex;
+    justify-content: center;
+    margin: 0 0 1rem 0;
+`;
+
+export const MainTitle = styled.h1`
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    font-weight: 700;
+    color: #1E293B;
+    margin-bottom: 0.625rem;
 `;
 
 export const ChartPanel = styled.div`
@@ -55,16 +83,11 @@ export const ChartPanel = styled.div`
 export const ChartWrapper = styled.div`
   width: 100%;
   max-width: 28rem;
-  height: 20rem;
+  height: 18rem;
 
   @media (max-width: 768px) {
     height: 16rem;
     max-width: 100%;
-  }
-
-  @media (min-width: 1024px) {
-    max-width: 32rem;
-    height: 24rem;
   }
 `;
 
@@ -109,26 +132,34 @@ export const SectionTitle = styled.h2`
   }
 `;
 
-export const DetailsPanelContainer = styled.div` display: flex; flex-direction: column; `;
+export const DetailsPanelContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
 export const DetailsBox = styled.div`
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   border: 1px solid #e2e8f0;
-  border-radius: 1rem;
+  border-radius: 2rem;
   background-color: #f8fafc;
 `;
 
 export const TabNav = styled.nav`
   display: flex;
+  width: 100%;
   padding: 0 1rem;
   border-bottom: 1px solid #e2e8f0;
   background-color: white;
-  border-top-left-radius: 1rem;
-  border-top-right-radius: 1rem;
+  border-top-left-radius: 2rem;
+  border-top-right-radius: 2rem;
+  overflow: hidden;
 `;
 
 export const TabButton = styled.button<{ $isActive: boolean }>`
+  flex: 1;
+  text-align: center;
   padding: 0.75rem 1.5rem;
   font-weight: 600;
   color: #64748b;
@@ -137,13 +168,13 @@ export const TabButton = styled.button<{ $isActive: boolean }>`
   cursor: pointer;
   border-bottom: 3px solid transparent;
   transition: all 0.2s ease;
-  ${({ $isActive }) => $isActive && css` color: #2563eb; border-bottom-color: #2563eb; `}
+  ${({ $isActive }) => $isActive && css` color: #157FF1; border-bottom-color: #157FF1; `}
 `;
 
-export const TabContentContainer = styled.div` padding: 2rem; flex-grow: 1; `;
+export const TabContentContainer = styled.div` padding: 1rem 2rem; flex-grow: 1; `;
 export const TabContent = styled.div`
   h3 { font-weight: 700; font-size: 1.125rem; color: #1e293b; margin: 0 0 0.75rem; }
-  ul { list-style: disc; list-style-position: inside; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.75rem; color: #475569; line-height: 1.6; }
+  ul { list-style: disc; list-style-position: inside; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; color: #475569; line-height: 1.6; }
   strong { font-weight: 700; }
 `;
 
@@ -159,11 +190,11 @@ export const TwoButtonGrid = styled.div`
 `;
 export const StyledButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-  width: 100%; font-weight: 700; padding: 0.625rem 0; border-radius: 0.5rem;
+  width: 100%; font-weight: 700; padding: 0.625rem 0; border-radius: 1rem;
   font-size: 1rem; border: none; cursor: pointer; transition: background-color 0.2s ease;
   ${({ $variant }) => {
     switch ($variant) {
-      case 'primary': return css` background-color: #2563eb; color: white; &:hover { background-color: #1d4ed8; }`;
+      case 'primary': return css` background-color: #157FF1; color: white; &:hover { background-color: #2563eb; }`;
       case 'secondary': return css` background-color: #475569; color: white; &:hover { background-color: #334155; }`;
       default: return css` background-color: #e2e8f0; color: #334155; &:hover { background-color: #cbd5e1; }`;
     }

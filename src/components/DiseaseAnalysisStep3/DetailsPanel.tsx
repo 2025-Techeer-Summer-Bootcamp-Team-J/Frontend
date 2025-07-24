@@ -44,8 +44,7 @@ import {
   TabContentContainer,
   TabContent,
   ButtonGroup,
-  StyledButton,
-  SectionTitle,
+  StyledButton
 } from './SharedStyles';
 
 // 새로운 스타일 컴포넌트들
@@ -71,7 +70,7 @@ const SummaryItem = styled.div`
   }
 
   .disease-name {
-    color: #2563eb;
+    color: #2B57E5;
     font-weight: 700;
   }
 `;
@@ -96,13 +95,13 @@ const SeverityBarInner = styled.div<{ $severity: number }>`
 
 const AIOpinionBox = styled.div`
   background: #f0f9ff;
-  border-left: 4px solid #2563eb;
-  padding: 1rem;
+  border-left: 4px solid #157FF1;
+  padding: 1rem 1rem 0.3rem 1rem;
   margin: 1rem 0;
-  border-radius: 0 0.5rem 0.5rem 0;
+  border-radius: 0 1rem 1rem 0;
 
   h4 {
-    color: #1e40af;
+    color: #2B57E5;
     font-weight: 600;
     margin-bottom: 0.5rem;
     display: flex;
@@ -192,7 +191,6 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   console.log('🎭 DetailsPanel activeTab:', activeTab);
   return (
     <DetailsPanelContainer>
-      <SectionTitle>AI 진단 결과</SectionTitle>
       
       <DetailsBox>
         <TabNav>

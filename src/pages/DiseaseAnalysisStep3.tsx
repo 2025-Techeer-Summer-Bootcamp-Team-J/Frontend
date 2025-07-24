@@ -4,12 +4,14 @@ import { useUser } from '@clerk/clerk-react';
 import { ContentWrapper } from '../components/Layout';
 import ChartPanel from '../components/DiseaseAnalysisStep3/ChartPanel';
 import DetailsPanel from '../components/DiseaseAnalysisStep3/DetailsPanel';
+import StepIndicator from '../components/DiseaseAnalysisStep3/StepIndicator';
 
-import { MainContent } from '../components/DiseaseAnalysisStep3/SharedStyles';
+import { MainContent, MainTitlePanel, MainTitle, Frame } from '../components/DiseaseAnalysisStep3/SharedStyles';
 import { api, apiClient } from '../services';
 import { fileToBase64 } from '../services/utils';
 import ImageModal from '../components/ImageModal';
 import type { SaveDiagnosisRequest } from '../services/types';
+import { PageWrapper } from '../components/DiseaseAnalysisStep1/SharedStyles';
 
 // 타입 정의
 interface AnalysisResult {
@@ -516,32 +518,41 @@ interface BasicAnalysisResult {
   };
 
   return (
-    <ContentWrapper>
-      <MainContent>
-        <ChartPanel 
-          analysisResult={diseaseInfo} 
-          metrics={analysisMetrics} 
-        />
-        <DetailsPanel
-          isStreaming={isStreaming}
-          isComplete={isComplete}
-          isSaved={isSaved}
-          isSaving={isSaving}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          streamingContent={streamingContent}
-          onSave={handleSaveResult}
-          diseaseInfo={diseaseInfo}
-          analysisMetrics={analysisMetrics}
-          onRestart={handleRestart}
-          onViewImage={handleViewImage}
-          canViewImage={canViewImage}
-        />
-      </MainContent>
-      {modalImageUrl && (
-        <ImageModal imageUrl={modalImageUrl} onClose={() => setModalImageUrl(null)} />
-      )}
-    </ContentWrapper>
+    <PageWrapper>
+        <ContentWrapper style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
+          <MainTitlePanel>
+              <MainTitle>AI 진단 결과</MainTitle>
+          </MainTitlePanel>
+
+          <Frame>
+              <StepIndicator/> 
+              <MainContent>
+                <ChartPanel 
+                  analysisResult={diseaseInfo} 
+                  metrics={analysisMetrics}  
+                />
+                <DetailsPanel
+                  isStreaming={isStreaming}
+                  isComplete={isComplete}
+                  isSaved={isSaved}
+                  isSaving={isSaving}
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                  streamingContent={streamingContent}
+                  onSave={handleSaveResult}
+                  diseaseInfo={diseaseInfo}
+                  analysisMetrics={analysisMetrics}
+                  onRestart={handleRestart}
+                  onViewImage={handleViewImage}
+                  canViewImage={canViewImage}
+                />
+              </MainContent>
+          </Frame>
+          {modalImageUrl && (
+          <ImageModal imageUrl={modalImageUrl} onClose={() => setModalImageUrl(null)} />
+          )}
+        </ContentWrapper>
+    </PageWrapper>
   );
 }
 
