@@ -1,6 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRedo, faDownload, faSave, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faRedo, faSave, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FaCommentMedical } from 'react-icons/fa';
 import styled from 'styled-components';
 import ReactMarkdown from 'react-markdown';
@@ -131,7 +131,7 @@ const StreamingTabContent = styled(TabContent)`
 
 `;
 
-type TabType = 'summary' | 'description' | 'precautions' | 'management';
+export type TabType = 'photos' | 'summary' | 'description' | 'precautions' | 'management';
 
 interface DiseaseInfo {
   disease_name: string;
@@ -151,11 +151,8 @@ interface AnalysisMetrics {
   estimated_treatment_period?: string;
 }
 
-
-
 interface DetailsPanelProps {
-  canViewImage: boolean;
-  onViewImage: () => void;
+  imageUrls?: string[];
   diseaseInfo: DiseaseInfo;
   streamingContent: StreamingContent;
   analysisMetrics: AnalysisMetrics | null;
@@ -164,7 +161,7 @@ interface DetailsPanelProps {
   isComplete: boolean;
   isSaved: boolean;
   isSaving: boolean;
-  setActiveTab: (tab: TabType) => void;
+  setActiveTab: React.Dispatch<React.SetStateAction<TabType>>;
   onSave: () => void;
   onRestart: () => void;
 }
@@ -180,10 +177,8 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   isSaving,
   setActiveTab,
   onSave,
-
   onRestart,
-  onViewImage,
-  canViewImage,
+  imageUrls = [],
 }) => {
   // 개발 시 스트리밍 상태 확인용 (프로덕션에서 제거 가능)
   console.log('🎭 DetailsPanel 스트리밍 상태:', isStreaming);
@@ -194,6 +189,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       
       <DetailsBox>
         <TabNav>
+        <TabButton $isActive={activeTab==='photos'} onClick={()=>setActiveTab('photos')}>사진</TabButton>
           <TabButton $isActive={activeTab === 'summary'} onClick={() => setActiveTab('summary')}>
             요약
           </TabButton>
@@ -209,6 +205,16 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
         </TabNav>
 
         <TabContentContainer>
+          {activeTab === 'photos' && (
+            <StreamingTabContent>
+              {imageUrls.length === 0 ? (
+                <p>이미지가 없습니다.</p>
+              ) : (
+                <PhotoCarousel imageUrls={imageUrls} />
+              )}
+            </StreamingTabContent>
+          )}
+
           {activeTab === 'summary' && (
             <StreamingTabContent>
               <SummaryItem>
@@ -316,14 +322,50 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
           </StyledButton>
         )}
 
-        <StyledButton onClick={onViewImage} $variant="secondary" disabled={!canViewImage}>
-          <FontAwesomeIcon icon={faDownload} /> 진단 사진 보기
-        </StyledButton>
+
         <StyledButton onClick={onRestart}>
           <FontAwesomeIcon icon={faRedo} /> 다시 분석하기
         </StyledButton>
       </ButtonGroup>
     </DetailsPanelContainer>
+  );
+};
+
+// 간단한 캐러셀 컴포넌트
+const CarouselWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+const CarouselImg = styled.img`
+  max-width: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+  border-radius: 0.5rem;
+`;
+const NavBtns = styled.div`
+  margin-top: 0.5rem;
+  button {
+    margin: 0 0.5rem;
+    padding: 0.25rem 0.75rem;
+  }
+`;
+const PhotoCarousel: React.FC<{imageUrls:string[]}> = ({ imageUrls }) => {
+  const [idx,setIdx]=React.useState(0);
+  if(imageUrls.length===0) return null;
+  const prev=()=>setIdx((idx-1+imageUrls.length)%imageUrls.length);
+  const next=()=>setIdx((idx+1)%imageUrls.length);
+  return (
+    <CarouselWrapper>
+      <CarouselImg src={imageUrls[idx]} alt={`photo-${idx+1}`} />
+      {imageUrls.length>1 && (
+        <NavBtns>
+          <button onClick={prev}>이전</button>
+          <span>{idx+1}/{imageUrls.length}</span>
+          <button onClick={next}>다음</button>
+        </NavBtns>
+      )}
+    </CarouselWrapper>
   );
 };
 

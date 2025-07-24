@@ -27,28 +27,48 @@ const UploaderPanel: React.FC<UploaderPanelProps> = ({ onNext, isAnalyzing = fal
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUploadWrapperClick = () => {
-    fileInputRef.current?.click();
+    // 미리보기가 존재하면 클릭 시 다음 이미지로 순환, 없으면 파일 선택창 열기
+    if (imagePreviews.length > 0) {
+      setCurrentImageIndex(prev => (prev + 1) % imagePreviews.length);
+    } else {
+      fileInputRef.current?.click();
+    }
   };
 
+  const MAX_IMAGES = 5;
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+    const fileList = event.target.files;
+    if (!fileList || fileList.length === 0) return;
 
-    // 첫 번째 파일만 허용하여 선택된 파일을 교체합니다.
-    const file = files[0];
-    setSelectedFiles([file]);
+    // FileList → Array 변환 후 중복 제거 (파일 이름 기준)
+    const newFiles = Array.from(fileList).filter(
+      f => !selectedFiles.some(prev => prev.name === f.name)
+    );
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreviews([reader.result as string]);
-    };
-    reader.onerror = () => {
-      console.error("Error reading file");
-      alert("파일을 읽는 중 오류가 발생했습니다.");
-    };
-    reader.readAsDataURL(file);
+    // 업로드 제한 수 초과 시 경고
+    if (selectedFiles.length + newFiles.length > MAX_IMAGES) {
+      alert(`최대 ${MAX_IMAGES}장까지 업로드할 수 있습니다.`);
+      event.target.value = '';
+      return;
+    }
 
-    // 같은 파일을 다시 선택할 수 있도록 input을 초기화합니다.
+    const updatedFiles = [...selectedFiles, ...newFiles];
+    setSelectedFiles(updatedFiles);
+
+    // 미리보기 생성
+    newFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviews(prev => [...prev, reader.result as string]);
+      };
+      reader.onerror = () => {
+        console.error('파일을 읽는 중 오류 발생');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // 같은 파일을 다시 선택할 수 있도록 input 초기화
     event.target.value = '';
   };
 
@@ -88,9 +108,12 @@ const UploaderPanel: React.FC<UploaderPanelProps> = ({ onNext, isAnalyzing = fal
 
 
 
-            {/* 이미지가 1장뿐이므로 현재/총 이미지 표시는 생략 */}
+            {/* 현재 이미지 인덱스 / 총 이미지 수 표시 */}
+            <span style={{position:'absolute',bottom:'8px',right:'8px',color:'#fff',fontSize:'0.9rem'}}>
+              {currentImageIndex + 1} / {imagePreviews.length}
+            </span>
 
-            {imagePreviews.length === 0 && (
+            {(imagePreviews.length === 0 || imagePreviews.length < MAX_IMAGES) && (
               <AddImageButton
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
@@ -116,6 +139,7 @@ const UploaderPanel: React.FC<UploaderPanelProps> = ({ onNext, isAnalyzing = fal
         <HiddenFileInput
           type="file"
           accept="image/*"
+          multiple
           ref={fileInputRef}
           onChange={handleFileChange}
         />

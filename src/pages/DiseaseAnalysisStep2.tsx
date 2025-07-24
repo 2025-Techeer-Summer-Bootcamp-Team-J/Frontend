@@ -174,13 +174,34 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
         );
         
         if (successfulResult) {
+            // 다중 결과 confidence 집계
+            interface BasicResult { data?: Array<{ disease_name: string; confidence: number }>; }
+                const aggregateConfidence = (results: AnalysisResult[]) => {
+                    const map = new Map<string, number>();
+                    let total = 0;
+                    results.forEach((r) => {
+                        if (!r.result) return;
+                        const arr = (r.result as BasicResult).data ?? [];
+                        arr.forEach(({ disease_name, confidence }) => {
+                            const prev = map.get(disease_name) || 0;
+                            map.set(disease_name, prev + confidence);
+                            total += confidence;
+                        });
+                    });
+                const stats = Array.from(map.entries()).map(([name, sum]) => ({ name, percent: parseFloat(((sum / total) * 100).toFixed(1)) }));
+                stats.sort((a,b)=>b.percent-a.percent);
+                return stats;
+            };
+
+            const diseaseStats = aggregateConfidence(analysisResults as AnalysisResult[]);
             // LoadingPage로 이동 (추가 정보와 함께)
             navigate('/disease-analysis-step3', {
-
                 state: {
                     uploadedFiles: uploadedFiles,
                     analysisResults: analysisResults,
                     selectedResult: successfulResult,
+                    diseaseStats: diseaseStats,
+                    topDiseaseName: diseaseStats[0]?.name,
                     additionalInfo: {
                         symptoms: selectedSymptoms,
                         itchLevel: itchLevel,
