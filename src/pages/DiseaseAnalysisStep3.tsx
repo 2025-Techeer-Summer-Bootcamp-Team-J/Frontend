@@ -8,7 +8,6 @@ import DetailsPanel from '../components/DiseaseAnalysisStep3/DetailsPanel';
 import { MainContent } from '../components/DiseaseAnalysisStep3/SharedStyles';
 import { api, apiClient } from '../services';
 import { fileToBase64 } from '../services/utils';
-import ImageModal from '../components/ImageModal';
 import type { SaveDiagnosisRequest } from '../services/types';
 
 // 타입 정의
@@ -22,6 +21,9 @@ interface LocationState {
   uploadedFiles: File[];
   analysisResults: AnalysisResult[];
   selectedResult: AnalysisResult;
+  // 새로 추가: 질병별 백분율 목록
+  diseaseStats?: Array<{ name: string; percent: number }>;
+  topDiseaseName?: string;
   additionalInfo?: {
     symptoms: string[];
     itchLevel: number;
@@ -58,10 +60,11 @@ export interface FullAnalysisResult {
   };
 }
 
-type TabType = 'summary' | 'description' | 'precautions' | 'management';
+type TabType = 'summary' | 'description' | 'precautions' | 'management' | 'photos';
 
 const DiseaseAnalysisStep3: React.FC = () => {
   const location = useLocation();
+  const { diseaseStats: navDiseaseStats = [], analysisResults: navAnalysisResults = [], uploadedFiles: navUploadedFiles = [] } = (location.state || {}) as Partial<LocationState>;
   const navigate = useNavigate();
   const { user, isLoaded } = useUser();
   const eventSourceRef = useRef<EventSource | null>(null);
@@ -74,6 +77,16 @@ interface BasicAnalysisResult {
   data?: Array<{ image?: string }>;
   image?: string;
 }
+  const [diseaseStats] = useState<Array<{ name: string; percent: number }>>(navDiseaseStats);
+
+  const [diseaseInfo, setDiseaseInfo] = useState<DiseaseInfo>(() => {
+    if (diseaseStats.length > 0) {
+      const top = diseaseStats.reduce((a, b) => (b.percent > a.percent ? b : a));
+      return { disease_name: top.name, confidence: top.percent };
+    }
+    return { disease_name: '분석 중', confidence: 0 };
+  });
+
   const [streamingContent, setStreamingContent] = useState<StreamingContent>({
     summary: '',
     description: '',
@@ -96,7 +109,8 @@ interface BasicAnalysisResult {
   } | null>(null);
 
   // 이미지 모달 상태
-  const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
+  // 여러 장의 이미지를 모달로 보여주기 위해 배열로 관리
+  
 
   // 전체 결과(JSON)를 상태에 반영하는 헬퍼
   const processFullResult = (full: FullAnalysisResult) => {
@@ -139,19 +153,56 @@ interface BasicAnalysisResult {
   const locationState = location.state as LocationState | null;
   const { uploadedFiles = [], selectedResult = null } = locationState || {};
   // 이미지 보기 버튼 활성화 여부 (변수 선언 이후 계산)
-  const canViewImage = (() => {
-    if (selectedResult?.file || uploadedFiles.length > 0) return true;
-    const resultObj = selectedResult?.result as BasicAnalysisResult | undefined;
-    const base64Str = resultObj?.data?.[0]?.image || resultObj?.image;
-    return typeof base64Str === 'string' && base64Str.trim() !== '';
+  // 업로드된(또는 분석 결과 포함) 첫 번째 이미지를 URL 또는 Base64로 추출
+  const firstImageUrl = (() => {
+    // 1) navAnalysisResults에서 File 우선
+    const fileResult = navAnalysisResults.find(r => (r as AnalysisResult)?.file) as AnalysisResult | undefined;
+    if (fileResult?.file) {
+      return URL.createObjectURL(fileResult.file);
+    }
+    // 2) navUploadedFiles 배열
+    if (navUploadedFiles.length > 0) {
+      return URL.createObjectURL(navUploadedFiles[0]);
+    }
+    // 3) base64 문자열 (selectedResult.result 또는 navAnalysisResults)
+    const srcObj: BasicAnalysisResult | undefined = (selectedResult?.result as BasicAnalysisResult) || (navAnalysisResults[0]?.result as BasicAnalysisResult);
+    const rawBase64 = srcObj?.data?.[0]?.image || srcObj?.image;
+    if (typeof rawBase64 === 'string' && rawBase64.trim() !== '') {
+      // dataURI prefix가 없으면 추가
+      if (rawBase64.startsWith('data:')) return rawBase64;
+      return `data:image/jpeg;base64,${rawBase64}`;
+    }
+    return undefined;
   })();
 
-  // selectedResult에서 질병 정보 추출 (타입 안정성 강화)
-  const resultData = selectedResult?.result as { data?: { disease_name: string; confidence: number }[] } | null;
-  const [diseaseInfo, setDiseaseInfo] = useState<DiseaseInfo>({
-    disease_name: '분석 중...',
-    confidence: resultData?.data?.[0]?.confidence || 0,
-  });
+
+  // 사진 탭에서 사용할 전체 이미지 URL 배열
+  const imageUrls: string[] = React.useMemo(() => {
+    const urls: string[] = [];
+    // 분석 결과 파일
+    navAnalysisResults.forEach(r => {
+      const ar = r as AnalysisResult;
+      if (ar?.file) {
+        urls.push(URL.createObjectURL(ar.file));
+      } else if (ar?.result) {
+        const obj = ar.result as BasicAnalysisResult;
+        const raw = obj?.data?.[0]?.image || obj?.image;
+        if (typeof raw === 'string' && raw.trim() !== '') {
+          urls.push(raw.startsWith('data:') ? raw : `data:image/jpeg;base64,${raw}`);
+        }
+      }
+    });
+    // 업로드 파일
+    if (navUploadedFiles.length > 0) {
+      urls.push(...navUploadedFiles.map(f => URL.createObjectURL(f)));
+    }
+    if (firstImageUrl) urls.unshift(firstImageUrl);
+    return Array.from(new Set(urls));
+  }, [navAnalysisResults, navUploadedFiles, firstImageUrl]);
+
+
+
+
 
   useEffect(() => {
     if (hasInitializedRef.current) return;
@@ -472,45 +523,6 @@ interface BasicAnalysisResult {
     }
   };
 
-  // 진단 사진 보기
-  const handleViewImage = () => {
-    // 우선 표시할 이미지가 있는지 검사
-    if (!selectedResult && uploadedFiles.length === 0) {
-      alert('표시할 이미지가 없습니다.');
-      return;
-    }
-
-    let imageUrl: string | null = null;
-
-    // 1) 파일 객체가 있으면 Blob URL 사용
-    if (selectedResult?.file) {
-      imageUrl = URL.createObjectURL(selectedResult.file);
-    } else if (uploadedFiles[0]) {
-      imageUrl = URL.createObjectURL(uploadedFiles[0]);
-    } else {
-      // 2) base64 문자열을 data URI 로 변환
-      const resultObj = selectedResult?.result as BasicAnalysisResult | undefined;
-      const base64Str = (resultObj?.data?.[0]?.image || resultObj?.image || '').trim();
-      if (base64Str) {
-        // 이미 data:image/~ 로 시작하면 그대로 사용
-        if (base64Str.startsWith('data:image')) {
-          imageUrl = base64Str;
-        } else {
-          // 파일 시그니처로 MIME 추정 (간단히 JPEG/PNG 두 가지만 고려)
-          const guessedMime = base64Str.startsWith('/9j/') ? 'jpeg' : 'png';
-          imageUrl = `data:image/${guessedMime};base64,${base64Str}`;
-        }
-      }
-    }
-
-    if (imageUrl) {
-      setModalImageUrl(imageUrl);
-    } else {
-      alert('이미지를 표시할 수 없습니다.');
-    }
-  };
-
-
   const handleRestart = () => {
     navigate('/disease-analysis-step1');
   };
@@ -518,31 +530,24 @@ interface BasicAnalysisResult {
   return (
     <ContentWrapper>
       <MainContent>
-        <ChartPanel 
-          analysisResult={diseaseInfo} 
-          metrics={analysisMetrics} 
-        />
+        <ChartPanel />
         <DetailsPanel
+          imageUrls={imageUrls}
+          diseaseInfo={diseaseInfo}
+          streamingContent={streamingContent}
+          analysisMetrics={analysisMetrics}
+          activeTab={activeTab}
           isStreaming={isStreaming}
           isComplete={isComplete}
           isSaved={isSaved}
           isSaving={isSaving}
-          activeTab={activeTab}
           setActiveTab={setActiveTab}
-          streamingContent={streamingContent}
           onSave={handleSaveResult}
-          diseaseInfo={diseaseInfo}
-          analysisMetrics={analysisMetrics}
           onRestart={handleRestart}
-          onViewImage={handleViewImage}
-          canViewImage={canViewImage}
         />
       </MainContent>
-      {modalImageUrl && (
-        <ImageModal imageUrl={modalImageUrl} onClose={() => setModalImageUrl(null)} />
-      )}
     </ContentWrapper>
   );
-}
+};
 
 export default DiseaseAnalysisStep3;

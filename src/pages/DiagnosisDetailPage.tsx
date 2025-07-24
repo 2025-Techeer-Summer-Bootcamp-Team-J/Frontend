@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { diagnosesApi } from '../services';
-import { DiagnosisDetail } from '../services/types';
+import type { DiagnosisDetail } from '../services/types';
 import DetailsPanel from '../components/DiseaseAnalysisStep3/DetailsPanel';
-import ImageModal from '../components/ImageModal';
+import type { TabType } from '../components/DiseaseAnalysisStep3/DetailsPanel';
 import styled from 'styled-components';
 
 // 진단 상세 페이지 컨테이너
@@ -20,8 +20,8 @@ const DiagnosisDetailPage: React.FC = () => {
   const [detail, setDetail] = useState<DiagnosisDetail | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'summary' | 'description' | 'precautions' | 'management'>('summary');
-  const [showImage, setShowImage] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<TabType>('summary');
+  
 
   // id가 없으면 대시보드로
   useEffect(() => {
@@ -69,8 +69,7 @@ const DiagnosisDetailPage: React.FC = () => {
   return (
     <PageWrapper>
       <DetailsPanel
-        canViewImage={!!detail.image_base64}
-        onViewImage={() => setShowImage(true)}
+        imageUrls={detail.image_base64 ? [detail.image_base64] : []}
         diseaseInfo={diseaseInfo}
         streamingContent={streamingContent}
         analysisMetrics={analysisMetrics}
@@ -83,10 +82,6 @@ const DiagnosisDetailPage: React.FC = () => {
         onSave={() => {}}
         onRestart={() => navigate('/disease-analysis-step1')}
       />
-
-      {showImage && detail.image_base64 && (
-        <ImageModal imageUrl={`data:image/png;base64,${detail.image_base64}`} onClose={() => setShowImage(false)} />
-      )}
     </PageWrapper>
   );
 };
