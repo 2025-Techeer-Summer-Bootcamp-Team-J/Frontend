@@ -1,6 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRedo, faDownload, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faRedo, faDownload, faSave, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FaCommentMedical } from 'react-icons/fa';
 import styled from 'styled-components';
 import ReactMarkdown from 'react-markdown';
@@ -154,6 +154,8 @@ interface AnalysisMetrics {
 
 
 interface DetailsPanelProps {
+  canViewImage: boolean;
+  onViewImage: () => void;
   diseaseInfo: DiseaseInfo;
   streamingContent: StreamingContent;
   analysisMetrics: AnalysisMetrics | null;
@@ -164,7 +166,6 @@ interface DetailsPanelProps {
   isSaving: boolean;
   setActiveTab: (tab: TabType) => void;
   onSave: () => void;
-  onDownload: () => void;
   onRestart: () => void;
 }
 
@@ -179,8 +180,10 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   isSaving,
   setActiveTab,
   onSave,
-  onDownload,
+
   onRestart,
+  onViewImage,
+  canViewImage,
 }) => {
   // 개발 시 스트리밍 상태 확인용 (프로덕션에서 제거 가능)
   console.log('🎭 DetailsPanel 스트리밍 상태:', isStreaming);
@@ -298,16 +301,24 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       </DetailsBox>
 
       <ButtonGroup>
-        {isComplete && !isSaved && (
-          <StyledButton $variant="primary" onClick={onSave} disabled={isSaving}>
-            <FontAwesomeIcon icon={faSave} /> {isSaving ? '저장 중...' : isSaved ? '저장됨' : '결과 저장'}
+        {isComplete && (
+          <StyledButton 
+            $variant="primary" 
+            onClick={onSave} 
+            disabled={isSaving || isSaved}
+          >
+            {isSaving ? (
+              <FontAwesomeIcon icon={faSpinner} />
+            ) : (
+              <FontAwesomeIcon icon={faSave} />
+            )}
+            {isSaving ? '저장 중...' : isSaved ? '저장됨' : '결과 저장'}
           </StyledButton>
         )}
-        {isSaved && (
-          <StyledButton $variant="secondary" onClick={onDownload}>
-            <FontAwesomeIcon icon={faDownload} /> 결과 리포트 다운로드
-          </StyledButton>
-        )}
+
+        <StyledButton onClick={onViewImage} $variant="secondary" disabled={!canViewImage}>
+          <FontAwesomeIcon icon={faDownload} /> 진단 사진 보기
+        </StyledButton>
         <StyledButton onClick={onRestart}>
           <FontAwesomeIcon icon={faRedo} /> 다시 분석하기
         </StyledButton>

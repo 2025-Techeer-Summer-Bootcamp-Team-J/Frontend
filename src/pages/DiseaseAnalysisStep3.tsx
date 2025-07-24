@@ -9,6 +9,7 @@ import StepIndicator from '../components/DiseaseAnalysisStep3/StepIndicator';
 import { MainContent, MainTitlePanel, MainTitle, Frame } from '../components/DiseaseAnalysisStep3/SharedStyles';
 import { api, apiClient } from '../services';
 import { fileToBase64 } from '../services/utils';
+import ImageModal from '../components/ImageModal';
 import type { SaveDiagnosisRequest } from '../services/types';
 import { PageWrapper } from '../components/DiseaseAnalysisStep1/SharedStyles';
 
@@ -86,12 +87,18 @@ interface BasicAnalysisResult {
   const [finalResult, setFinalResult] = useState<unknown>(null);
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
   const [activeTab, setActiveTab] = useState<TabType>('summary');
+  
+
   const [analysisMetrics, setAnalysisMetrics] = useState<{
     skin_score?: number;
     severity?: string;
     estimated_treatment_period?: string;
   } | null>(null);
+
+  // 이미지 모달 상태
+  const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
 
   // 전체 결과(JSON)를 상태에 반영하는 헬퍼
   const processFullResult = (full: FullAnalysisResult) => {
@@ -133,6 +140,13 @@ interface BasicAnalysisResult {
   // 이전 페이지에서 전달받은 데이터
   const locationState = location.state as LocationState | null;
   const { uploadedFiles = [], selectedResult = null } = locationState || {};
+  // 이미지 보기 버튼 활성화 여부 (변수 선언 이후 계산)
+  const canViewImage = (() => {
+    if (selectedResult?.file || uploadedFiles.length > 0) return true;
+    const resultObj = selectedResult?.result as BasicAnalysisResult | undefined;
+    const base64Str = resultObj?.data?.[0]?.image || resultObj?.image;
+    return typeof base64Str === 'string' && base64Str.trim() !== '';
+  })();
 
   // selectedResult에서 질병 정보 추출 (타입 안정성 강화)
   const resultData = selectedResult?.result as { data?: { disease_name: string; confidence: number }[] } | null;
@@ -445,13 +459,13 @@ interface BasicAnalysisResult {
       formData.append('text_analysis', JSON.stringify(saveData.text_analysis));
 
       console.log('📤 진단 결과 저장 FormData:', formData);
-      alert('진단 결과를 저장하는 중입니다...');
+
       await apiClient.post(`/api/diagnoses/save?user_id=${clerkId}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
+      
       setIsSaved(true);
-      alert('진단 결과가 성공적으로 저장되었습니다!');
-      navigate('/');
+  
     } catch (error) {
       console.error('결과 저장 실패:', error);
       alert('결과 저장에 실패했습니다.');
@@ -460,9 +474,44 @@ interface BasicAnalysisResult {
     }
   };
 
-  const handleDownloadReport = () => {
-    alert('리포트 다운로드 기능은 추후 제공될 예정입니다.');
+  // 진단 사진 보기
+  const handleViewImage = () => {
+    // 우선 표시할 이미지가 있는지 검사
+    if (!selectedResult && uploadedFiles.length === 0) {
+      alert('표시할 이미지가 없습니다.');
+      return;
+    }
+
+    let imageUrl: string | null = null;
+
+    // 1) 파일 객체가 있으면 Blob URL 사용
+    if (selectedResult?.file) {
+      imageUrl = URL.createObjectURL(selectedResult.file);
+    } else if (uploadedFiles[0]) {
+      imageUrl = URL.createObjectURL(uploadedFiles[0]);
+    } else {
+      // 2) base64 문자열을 data URI 로 변환
+      const resultObj = selectedResult?.result as BasicAnalysisResult | undefined;
+      const base64Str = (resultObj?.data?.[0]?.image || resultObj?.image || '').trim();
+      if (base64Str) {
+        // 이미 data:image/~ 로 시작하면 그대로 사용
+        if (base64Str.startsWith('data:image')) {
+          imageUrl = base64Str;
+        } else {
+          // 파일 시그니처로 MIME 추정 (간단히 JPEG/PNG 두 가지만 고려)
+          const guessedMime = base64Str.startsWith('/9j/') ? 'jpeg' : 'png';
+          imageUrl = `data:image/${guessedMime};base64,${base64Str}`;
+        }
+      }
+    }
+
+    if (imageUrl) {
+      setModalImageUrl(imageUrl);
+    } else {
+      alert('이미지를 표시할 수 없습니다.');
+    }
   };
+
 
   const handleRestart = () => {
     navigate('/disease-analysis-step1');
@@ -480,7 +529,7 @@ interface BasicAnalysisResult {
               <MainContent>
                 <ChartPanel 
                   analysisResult={diseaseInfo} 
-                  metrics={analysisMetrics} 
+                  metrics={analysisMetrics}  
                 />
                 <DetailsPanel
                   isStreaming={isStreaming}
@@ -493,14 +542,18 @@ interface BasicAnalysisResult {
                   onSave={handleSaveResult}
                   diseaseInfo={diseaseInfo}
                   analysisMetrics={analysisMetrics}
-                  onDownload={handleDownloadReport}
                   onRestart={handleRestart}
+                  onViewImage={handleViewImage}
+                  canViewImage={canViewImage}
                 />
               </MainContent>
           </Frame>
+          {modalImageUrl && (
+          <ImageModal imageUrl={modalImageUrl} onClose={() => setModalImageUrl(null)} />
+          )}
         </ContentWrapper>
     </PageWrapper>
   );
-};
+}
 
 export default DiseaseAnalysisStep3;
