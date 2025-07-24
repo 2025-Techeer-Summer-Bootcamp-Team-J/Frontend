@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCamera, faChevronLeft, faChevronRight, faTimes, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faCamera, faTimes, faPlus } from '@fortawesome/free-solid-svg-icons';
 import {
   UploaderPanel as StyledUploaderPanel,
   UploadWrapper,
@@ -9,9 +9,8 @@ import {
   PromptText,
   HiddenFileInput,
   NextButton,
-  PrevButton,
-  NextImageButton,
-  ImageCounter,
+
+
   AddImageButton,
   RemoveImageButton,
 } from './SharedStyles';
@@ -35,27 +34,21 @@ const UploaderPanel: React.FC<UploaderPanelProps> = ({ onNext, isAnalyzing = fal
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    const newFiles = Array.from(files);
-    setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
+    // 첫 번째 파일만 허용하여 선택된 파일을 교체합니다.
+    const file = files[0];
+    setSelectedFiles([file]);
 
-    const newPreviewsPromises = newFiles.map((file) => {
-      return new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    });
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreviews([reader.result as string]);
+    };
+    reader.onerror = () => {
+      console.error("Error reading file");
+      alert("파일을 읽는 중 오류가 발생했습니다.");
+    };
+    reader.readAsDataURL(file);
 
-    Promise.all(newPreviewsPromises)
-      .then((newPreviews) => {
-        setImagePreviews((prevPreviews) => [...prevPreviews, ...newPreviews]);
-      })
-      .catch((error) => {
-        console.error("Error reading files:", error);
-        alert("파일을 읽는 중 오류가 발생했습니다.");
-      });
-
+    // 같은 파일을 다시 선택할 수 있도록 input을 초기화합니다.
     event.target.value = '';
   };
 
@@ -63,17 +56,7 @@ const UploaderPanel: React.FC<UploaderPanelProps> = ({ onNext, isAnalyzing = fal
     onNext(selectedFiles);
   };
 
-  const goToPreviousImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCurrentImageIndex((prevIndex) => Math.max(0, prevIndex - 1));
-  };
-
-  const goToNextImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCurrentImageIndex((prevIndex) =>
-      Math.min(imagePreviews.length - 1, prevIndex + 1)
-    );
-  };
+  
 
   const removeImage = (e: React.MouseEvent, indexToRemove: number) => {
     e.stopPropagation();
@@ -103,28 +86,20 @@ const UploaderPanel: React.FC<UploaderPanelProps> = ({ onNext, isAnalyzing = fal
               alt={`Uploaded skin ${currentImageIndex + 1}`}
             />
 
-            <PrevButton onClick={goToPreviousImage} disabled={currentImageIndex === 0}>
-              <FontAwesomeIcon icon={faChevronLeft} />
-            </PrevButton>
-            <NextImageButton
-              onClick={goToNextImage}
-              disabled={currentImageIndex >= imagePreviews.length - 1}
-            >
-              <FontAwesomeIcon icon={faChevronRight} />
-            </NextImageButton>
 
-            <ImageCounter>
-              {currentImageIndex + 1} / {imagePreviews.length}
-            </ImageCounter>
 
-            <AddImageButton
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                handleUploadWrapperClick();
-              }}
-            >
-              <FontAwesomeIcon icon={faPlus} />
-            </AddImageButton>
+            {/* 이미지가 1장뿐이므로 현재/총 이미지 표시는 생략 */}
+
+            {imagePreviews.length === 0 && (
+              <AddImageButton
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  handleUploadWrapperClick();
+                }}
+              >
+                <FontAwesomeIcon icon={faPlus} />
+              </AddImageButton>
+            )}
 
             <RemoveImageButton
               onClick={(e: React.MouseEvent) => removeImage(e, currentImageIndex)}
@@ -143,7 +118,6 @@ const UploaderPanel: React.FC<UploaderPanelProps> = ({ onNext, isAnalyzing = fal
           accept="image/*"
           ref={fileInputRef}
           onChange={handleFileChange}
-          multiple
         />
       </UploadWrapper>
       <NextButton onClick={handleNextButtonClick} disabled={imagePreviews.length === 0 || isAnalyzing}>
