@@ -14,6 +14,7 @@ import SkinAnalysis from './pages/SkinAnalysis';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import UserInfoPage from './pages/UserInfoPage';
 import RedirectPage from './pages/RedirectPage';
+import DiagnosisDetailPage from './pages/DiagnosisDetailPage';
 
   
 
@@ -49,6 +50,10 @@ function App() {
           <Route
             path="/dashboard"
             element={<ProtectedRoute><Dashboard /></ProtectedRoute>}
+          />
+          <Route
+            path="/diagnoses/:id"
+            element={<ProtectedRoute><DiagnosisDetailPage /></ProtectedRoute>}
           />
           <Route
             path="/skin-analysis"
