@@ -118,7 +118,7 @@ const MainSection: React.FC<MainSectionProps> = () => {
   
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>): void => {
     const target = e.currentTarget;
-    target.src = 'https://placehold.co/1200x700/667eea/ffffff?text=Image+Error';
+    target.src = 'assets/ffffff.svg';
   };
 
   return (

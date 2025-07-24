@@ -24,9 +24,9 @@ const Dashboard = () => {
             try {
                 setLoading(true);
                 // Clerk user.id 사용
-                const userId = 1; // Clerk의 고유 ID
+                const userId = user?.id; // Clerk의 string ID 그대로 사용
                 if (!userId) return;
-                const response = await api.users.getDashboard(Number(userId));
+                const response = await api.users.getDashboard(userId);
                 setDashboardData(response);
                 console.log(response);
             } catch (err) {

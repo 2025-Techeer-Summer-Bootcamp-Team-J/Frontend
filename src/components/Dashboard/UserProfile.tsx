@@ -8,12 +8,15 @@ interface Tag {
   color: 'blue' | 'red';
 }
 
+import type { MyProfile } from '../../services/types';
+
 interface UserProfileProps {
   className?: string;
-  mySkinProfile?: {
-    type_name: string;
-    concerns: string[];
-    managementTips: string[];
+  // 백엔드에서 내려오는 MyProfile 구조를 그대로 사용하되,
+  // concerns / managementTips 는 선택적으로 확장해 사용합니다.
+  mySkinProfile?: MyProfile & {
+    concerns?: string[];
+    managementTips?: string[];
   };
 }
 
@@ -107,12 +110,17 @@ const UserProfile: React.FC<UserProfileProps> = ({ className, mySkinProfile }) =
   }
 
   // 임시 데이터 (실제로는 API에서 가져와야 함)
-  const concerns: Tag[] = (mySkinProfile?.concerns || []).map((c) => ({
+  // concerns 필드가 없을 수 있으므로 안전하게 접근
+  const concernsArray = mySkinProfile?.concerns;
+
+  const concerns: Tag[] = (concernsArray || []).map((c) => ({
     text: c,
     color: concernColorMap[c] || 'blue',
   }));
 
-  const managementTips = (mySkinProfile?.managementTips || []).map((tip, index) => (
+  const tipsArray = mySkinProfile?.managementTips;
+
+  const managementTips = (tipsArray || []).map((tip, index) => (
     <li key={index}>{tip}</li>
   ));
 
@@ -185,8 +193,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ className, mySkinProfile }) =
         <div>
           <ProfileLabel style={{ marginBottom: '0.5rem' }}>주의사항 및 관리 팁</ProfileLabel>
           <TipList>
-            {mySkinProfile && mySkinProfile.managementTips && mySkinProfile.managementTips.length > 0 ? (
-              mySkinProfile.managementTips.map((tip, i) => <li key={i}>{tip}</li>)
+            {managementTips.length > 0 ? (
+              managementTips
             ) : (
               <li style={{color: '#aaa'}}>미입력</li>
             )}

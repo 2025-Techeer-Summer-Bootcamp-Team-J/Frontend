@@ -76,7 +76,7 @@ export const signup = async (userData: SignUpRequest): Promise<ApiResponse<User>
 /**
  * 유저 대시보드 조회
  */
-export const getUserDashboard = async (userId: number): Promise<DashboardData> => {
+export const getUserDashboard = async (userId: string): Promise<DashboardData> => {
   try {
     const response = await apiClient.get<DashboardResponse>(`/api/users/${userId}/dashboard`);
     return response.data.data;
