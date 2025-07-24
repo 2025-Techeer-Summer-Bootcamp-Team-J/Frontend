@@ -82,8 +82,8 @@ interface BasicAnalysisResult {
   const [diseaseStats] = useState<Array<{ name: string; percent: number }>>(navDiseaseStats);
 
   const [diseaseInfo, setDiseaseInfo] = useState<DiseaseInfo>(() => {
-    if (diseaseStats.length > 0) {
-      const top = diseaseStats.reduce((a, b) => (b.percent > a.percent ? b : a));
+    if (navDiseaseStats.length > 0) {
+      const top = navDiseaseStats[0];
       return { disease_name: top.name, confidence: top.percent };
     }
     return { disease_name: '분석 중', confidence: 0 };
@@ -180,27 +180,41 @@ interface BasicAnalysisResult {
 
   // 사진 탭에서 사용할 전체 이미지 URL 배열
   const imageUrls: string[] = React.useMemo(() => {
-    const urls: string[] = [];
-    // 분석 결과 파일
+    const urlMap = new Map<string, string>();
+
+    // 1. navAnalysisResults에서 File 객체 또는 base64 이미지 추출 (순서 유지)
     navAnalysisResults.forEach(r => {
-      const ar = r as AnalysisResult;
-      if (ar?.file) {
-        urls.push(URL.createObjectURL(ar.file));
-      } else if (ar?.result) {
-        const obj = ar.result as BasicAnalysisResult;
-        const raw = obj?.data?.[0]?.image || obj?.image;
-        if (typeof raw === 'string' && raw.trim() !== '') {
-          urls.push(raw.startsWith('data:') ? raw : `data:image/jpeg;base64,${raw}`);
+      const result = r as AnalysisResult;
+      let url: string | undefined;
+      let key: string | undefined;
+
+      if (result?.file) {
+        url = URL.createObjectURL(result.file);
+        key = `${result.file.name}-${result.file.size}`;
+      } else if (result?.result) {
+        const resultData = result.result as { image?: string; data?: Array<{ image?: string }> };
+        const base64Image = resultData.image || resultData.data?.[0]?.image;
+        if (base64Image) {
+          url = base64Image.startsWith('data:') ? base64Image : `data:image/jpeg;base64,${base64Image}`;
+          key = base64Image.substring(0, 100); // Use part of the base64 as a key
         }
       }
+
+      if (url && key && !urlMap.has(key)) {
+        urlMap.set(key, url);
+      }
     });
-    // 업로드 파일
-    if (navUploadedFiles.length > 0) {
-      urls.push(...navUploadedFiles.map(f => URL.createObjectURL(f)));
-    }
-    if (firstImageUrl) urls.unshift(firstImageUrl);
-    return Array.from(new Set(urls));
-  }, [navAnalysisResults, navUploadedFiles, firstImageUrl]);
+
+    // 2. navUploadedFiles에서 URL 생성 (중복 방지)
+    navUploadedFiles.forEach(file => {
+      const key = `${file.name}-${file.size}`;
+      if (!urlMap.has(key)) {
+        urlMap.set(key, URL.createObjectURL(file));
+      }
+    });
+
+    return Array.from(urlMap.values());
+  }, [navAnalysisResults, navUploadedFiles]);
 
 
 
@@ -451,23 +465,19 @@ interface BasicAnalysisResult {
 
     if (!user) return;
 
-    // 이미지 파일 결정: 선택된 결과의 파일이 없으면 업로드된 첫 이미지 사용
-    let imageFile = selectedResult?.file || uploadedFiles?.[0];
-    if (!imageFile) {
-      // selectedResult.result에서 base64 추출 시도
-      const resultObj = selectedResult?.result as BasicAnalysisResult | undefined;
-      const base64Str = resultObj?.data?.[0]?.image || resultObj?.image;
+    // 순서가 보장된 첫 번째 분석 결과 또는 업로드된 파일 찾기
+    const firstResult = navAnalysisResults.length > 0 ? navAnalysisResults[0] : null;
+    const firstFile = navUploadedFiles.length > 0 ? navUploadedFiles[0] : null;
 
-      if (typeof base64Str === 'string') {
+    let imageFile = firstResult?.file || firstFile;
+
+    if (!imageFile && firstResult?.result) {
+      const resultData = firstResult.result as { image?: string; data?: Array<{ image?: string }> };
+      const base64Image = resultData.image || resultData.data?.[0]?.image;
+      if (base64Image) {
         try {
-          const byteCharacters = atob(base64Str);
-          const byteNumbers = new Array(byteCharacters.length);
-          for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-          }
-          const byteArray = new Uint8Array(byteNumbers);
-          const blob = new Blob([byteArray], { type: 'image/jpeg' });
-          imageFile = new File([blob], 'analysis-image.jpg', { type: 'image/jpeg' });
+          const blob = await (await fetch(base64Image.startsWith('data:') ? base64Image : `data:image/jpeg;base64,${base64Image}`)).blob();
+          imageFile = new File([blob], 'analysis-image.jpg', { type: blob.type });
         } catch (e) {
           console.error('base64 → File 변환 실패:', e);
         }
@@ -483,7 +493,6 @@ interface BasicAnalysisResult {
     try {
       const imageBase64 = await fileToBase64(imageFile);
       
-      // API 스키마에 맞는 데이터 구조로 변환 (finalResult가 없더라도 안전하게 처리)
       const fullResult = (finalResult || {}) as Partial<FullAnalysisResult>;
       const saveData: SaveDiagnosisRequest = {
         user_id: user.id,
@@ -501,8 +510,6 @@ interface BasicAnalysisResult {
         },
       };
 
-      // FormData 구성 (multipart/form-data)
-      // Clerk 문자열 ID 그대로 사용
       const clerkId = user.id;
       const formData = new FormData();
       formData.append('image', imageFile);
@@ -533,7 +540,7 @@ interface BasicAnalysisResult {
 
     <ContentWrapper>
       <MainContent>
-        <ChartPanel />
+        <ChartPanel diseaseStats={diseaseStats} />
         <DetailsPanel
           imageUrls={imageUrls}
           diseaseInfo={diseaseInfo}
