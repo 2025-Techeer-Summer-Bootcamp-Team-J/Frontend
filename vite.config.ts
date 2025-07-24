@@ -23,7 +23,9 @@ export default defineConfig({
     strictPort: true,      // 포트가 이미 사용중이면 에러 낸 후 종료
     proxy: {
       '/api': {
+
         target: process.env.VITE_API_BASE_URL || 'http://localhost:8000', // 백엔드 URL
+
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '')
