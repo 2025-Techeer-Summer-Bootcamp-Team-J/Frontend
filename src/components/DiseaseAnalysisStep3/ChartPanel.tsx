@@ -135,3 +135,4 @@ const ChartPanel: React.FC<ChartPanelProps> = ({ diseaseStats, analysisResult, m
 };
 
 export default ChartPanel;
+
