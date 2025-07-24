@@ -10,7 +10,8 @@ export interface CareLevelData {
   color: string;
   range: string;
   summary: {
-    title: string;
+    mainTitle: string;    // h2에 사용할 주 제목
+    summaryTitle: string; // strong에 사용할 요약 제목
     description: string;
   };
   tips: Tip[];
@@ -22,11 +23,11 @@ export interface CareData {
 
 // --- 데이터 --- //
 export const careData: CareData = {
-    '낮음': { index: 1, range: '0-2', color: '#22C55E', summary: { title: '오늘은 날씨가 좋아요!', description: '대부분 안전하지만, 민감성 피부는 가벼운 자외선 차단제를 사용하는 것이 좋습니다.'}, tips: [ { icon: '☀️', title: '자외선 차단제', description: '흐린 날에도 자외선은 존재해요. SPF 15 이상의 자외선 차단제를 사용하세요.' }, { icon: '😎', title: '보호 장비', description: '특별한 보호는 필요 없지만, 민감성 피부는 선글라스를 착용하는 것이 좋습니다.' } ]},
-    '보통': { index: 4, range: '3-5', color: '#F59E0B', summary: { title: '오늘의 외출, 준비가 필요해요', description: '외출 30분 전 자외선 차단제를 바르고, 햇볕이 강한 시간대에는 그늘을 활용하세요.'}, tips: [ { icon: '🧴', title: '자외선 차단제 필수', description: 'SPF 30, PA++ 이상의 자외선 차단제를 외출 30분 전에 바르세요.' }, { icon: '👒', title: '모자 및 의류', description: '햇볕이 강한 시간대(오전 10시~오후 3시)에는 그늘을 찾고, 넓은 챙의 모자를 쓰세요.' }, { icon: '🕶️', title: '선글라스 착용', description: '눈 건강을 위해 자외선 차단 기능이 있는 선글라스를 착용하세요.' } ]},
-    '높음': { index: 7, range: '6-7', color: '#F97316', summary: { title: '오늘은 외출 시 주의가 필요해요', description: '자외선 차단제를 꼼꼼히 바르고, 2시간마다 덧발라주세요. 가능한 한 긴 소매 옷을 착용하는 것이 좋습니다.'}, tips: [ { icon: '🧴', title: '차단 지수 높은 제품 사용', description: 'SPF 50, PA+++ 이상의 강력한 자외선 차단제를 사용하고, 2시간마다 덧발라주세요.' }, { icon: '👕', title: '긴 소매 옷 착용', description: '피부 보호를 위해 긴 소매 옷, 긴 바지를 입어 노출을 최소화하세요.' }, { icon: '🏠', title: '실내 활동 권장', description: '햇볕이 가장 강한 시간에는 가급적 실내에 머무르는 것이 안전합니다.' } ]},
-    '매우 높음': { index: 9, range: '8-10', color: '#EF4444', summary: { title: '강한 자외선, 외출을 자제하세요', description: '피부가 쉽게 손상될 수 있습니다. 오전 10시부터 오후 3시까지는 실내에 머무르는 것을 강력히 권장합니다.'}, tips: [ { icon: '🚫', title: '외출 자제', description: '오전 10시부터 오후 3시까지는 외출을 삼가는 것이 가장 좋습니다.' }, { icon: '💧', title: '수분 보충', description: '피부가 쉽게 건조해지고 열을 받을 수 있으니, 물을 충분히 마셔주세요.' }, { icon: '🌿', title: '진정 케어', description: '외출 후에는 알로에 젤 등으로 피부를 진정시켜주는 것이 중요합니다.' } ]},
-    '위험': { index: 11, range: '11+', color: '#8B5CF6', summary: { title: '위험 수준! 외출은 절대 금물입니다', description: '짧은 시간의 노출에도 피부가 심각한 화상을 입을 수 있습니다. 반드시 실내에 머무르세요.'}, tips: [ { icon: '🚨', title: '외출 금지 수준', description: '햇볕에 몇 분만 노출되어도 화상을 입을 수 있습니다. 외출을 절대적으로 피하세요.' }, { icon: '🛡️', title: '완벽한 차단', description: '부득이하게 외출 시, 자외선 차단 의류, 모자, 선글라스 등 모든 수단을 동원하세요.' }, { icon: '❄️', title: '쿨링 및 진정', description: '실내에서도 시원하게 유지하고, 피부 온도를 낮추는 데 신경 써야 합니다.' } ]}
+    '낮음': { index: 1, range: '0-2', color: '#22C55E', summary: { mainTitle: ' 낮음', summaryTitle: '오늘은 날씨가 좋아요!', description: '대부분 안전하지만, 민감성 피부는 가벼운 자외선 차단제를 사용하는 것이 좋습니다.'}, tips: [ { icon: '☀️', title: '자외선 차단제', description: '흐린 날에도 자외선은 존재해요. SPF 15 이상의 자외선 차단제를 사용하세요.' }, { icon: '😎', title: '보호 장비', description: '특별한 보호는 필요 없지만, 민감성 피부는 선글라스를 착용하는 것이 좋습니다.' } ]},
+    '보통': { index: 4, range: '3-5', color: '#F59E0B', summary: { mainTitle: ' 보통', summaryTitle: '오늘의 외출, 준비가 필요해요', description: '외출 30분 전 자외선 차단제를 바르고, 햇볕이 강한 시간대에는 그늘을 활용하세요.'}, tips: [ { icon: '🧴', title: '자외선 차단제 필수', description: 'SPF 30, PA++ 이상의 자외선 차단제를 외출 30분 전에 바르세요.' }, { icon: '👒', title: '모자 및 의류', description: '햇볕이 강한 시간대(오전 10시~오후 3시)에는 그늘을 찾고, 넓은 챙의 모자를 쓰세요.' }, { icon: '🕶️', title: '선글라스 착용', description: '눈 건강을 위해 자외선 차단 기능이 있는 선글라스를 착용하세요.' } ]},
+    '높음': { index: 7, range: '6-7', color: '#F97316', summary: { mainTitle: ' 높음', summaryTitle: '오늘은 외출 시 주의가 필요해요', description: '자외선 차단제를 꼼꼼히 바르고, 2시간마다 덧발라주세요. 가능한 한 긴 소매 옷을 착용하는 것이 좋습니다.'}, tips: [ { icon: '🧴', title: '차단 지수 높은 제품 사용', description: 'SPF 50, PA+++ 이상의 강력한 자외선 차단제를 사용하고, 2시간마다 덧발라주세요.' }, { icon: '👕', title: '긴 소매 옷 착용', description: '피부 보호를 위해 긴 소매 옷, 긴 바지를 입어 노출을 최소화하세요.' }, { icon: '🏠', title: '실내 활동 권장', description: '햇볕이 가장 강한 시간에는 가급적 실내에 머무르는 것이 안전합니다.' } ]},
+    '매우 높음': { index: 9, range: '8-10', color: '#EF4444', summary: { mainTitle: ' 매우 높음', summaryTitle: '강한 자외선, 외출을 자제하세요', description: '피부가 쉽게 손상될 수 있습니다. 오전 10시부터 오후 3시까지는 실내에 머무르는 것을 강력히 권장합니다.'}, tips: [ { icon: '🚫', title: '외출 자제', description: '오전 10시부터 오후 3시까지는 외출을 삼가는 것이 가장 좋습니다.' }, { icon: '💧', title: '수분 보충', description: '피부가 쉽게 건조해지고 열을 받을 수 있으니, 물을 충분히 마셔주세요.' }, { icon: '🌿', title: '진정 케어', description: '외출 후에는 알로에 젤 등으로 피부를 진정시켜주는 것이 중요합니다.' } ]},
+    '위험': { index: 11, range: '11+', color: '#8B5CF6', summary: { mainTitle: ' 위험', summaryTitle: '위험 수준! 외출은 절대 금물입니다', description: '짧은 시간의 노출에도 피부가 심각한 화상을 입을 수 있습니다. 반드시 실내에 머무르세요.'}, tips: [ { icon: '🚨', title: '외출 금지 수준', description: '햇볕에 몇 분만 노출되어도 화상을 입을 수 있습니다. 외출을 절대적으로 피하세요.' }, { icon: '🛡️', title: '완벽한 차단', description: '부득이하게 외출 시, 자외선 차단 의류, 모자, 선글라스 등 모든 수단을 동원하세요.' }, { icon: '❄️', title: '쿨링 및 진정', description: '실내에서도 시원하게 유지하고, 피부 온도를 낮추는 데 신경 써야 합니다.' } ]}
 };
 
 // UV 지수에 따른 케어 레벨 결정 함수

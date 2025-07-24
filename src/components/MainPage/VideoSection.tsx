@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import { FaPlay, FaPause } from 'react-icons/fa';
 
 
 // Styled Components (moved from MainPage.tsx)
@@ -34,7 +33,12 @@ const VideoElement = styled.video`
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center top; /* 상단 잘림 최소화 */
   cursor: pointer;
+
+  @media (max-width: 768px) {
+    object-position: center center; /* 모바일에서는 중앙으로 */
+  }
 `;
 
 const VideoNavigation = styled.div`
@@ -67,38 +71,6 @@ const VideoIndicator = styled.button<{ $isActive: boolean }>`
   &:hover {
     background: white;
     transform: scaleY(2);
-  }
-`;
-
-const PlayControlButton = styled.button`
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
-  background: rgba(0, 0, 0, 0.6);
-  border: none;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  color: white;
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  
-  &:hover {
-    background: rgba(0, 0, 0, 0.8);
-    transform: scale(1.1);
-  }
-  
-  @media (max-width: 768px) {
-    top: 1rem;
-    right: 1rem;
-    width: 50px;
-    height: 50px;
-    font-size: 1.25rem;
   }
 `;
 
@@ -146,28 +118,16 @@ interface VideoSectionProps {
 
 const VideoSection: React.FC<VideoSectionProps> = ({ videoList }) => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.load();
-      if (isPlaying) {
-        videoRef.current.play();
-      }
+      videoRef.current.play().catch(() => {});
     }
   }, [currentVideoIndex, isPlaying]);
 
-  const handleVideoPlay = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
 
   const handleNextVideo = () => {
     setCurrentVideoIndex((prev) =>
@@ -193,11 +153,8 @@ const VideoSection: React.FC<VideoSectionProps> = ({ videoList }) => {
             onPause={() => setIsPlaying(false)}
             muted
             loop
+            autoPlay
           />
-
-          <PlayControlButton onClick={handleVideoPlay}>
-            {isPlaying ? <FaPause /> : <FaPlay />}
-          </PlayControlButton>
 
           <VideoTitle>
             <h2>PPIKA AI 피부 케어</h2>
