@@ -18,7 +18,7 @@ export const CareContainer = styled.div`
 `;
 
 export const LocationStatus = styled.p<{ $isRealTime: boolean }>`
-  display: flex;
+  display: inline-flex; /*👈 이 부분을 flex에서 inline-flex로 변경해주세요.*/
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.25rem;
@@ -68,9 +68,13 @@ export const UvInfoInnerWrapper = styled.div` // 변경: styled(ContentWrapper) 
   justify-content: space-between;
 
   @media (max-width: 768px) {
-    flex-direction: column;
+     /*flex-direction: column;
     gap: 2rem;
     text-align: center;
+     */
+    display: grid;
+    justify-content: center; // Grid '상자' 전체를 화면 가운데로 정렬
+    gap: 2rem;
   }
 `;
 
@@ -121,6 +125,10 @@ export const UvIndexText = styled.div`
     color: #1E293B;
     margin: 0.25rem 0 0 0;
   }
+
+    @media (max-width: 480px) {
+    text-align: center; /* 👈 480px 이하에서만 중앙 정렬 적용 */
+  } 
 `;
 
 export const UvSummary = styled.div`
@@ -129,7 +137,8 @@ export const UvSummary = styled.div`
 
   p {
     font-size: clamp(0.9rem, 1.5vw, 1.3rem);
-    word-break: keep-all;
+    /* word-break: keep-all; */ // 기존 코드
+    word-break: break-all;
   }
   p:first-child {
     font-weight: 600;
@@ -143,8 +152,12 @@ export const UvSummary = styled.div`
   }
 
   @media (max-width: 768px) {
+    text-align: left;  
+    /* flex-basis: 100%; */
+  }
+
+   @media (max-width: 480px) {
     text-align: center;
-    flex-basis: 100%;
   }
 `;
 
