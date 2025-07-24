@@ -4,13 +4,13 @@ import { useUser } from '@clerk/clerk-react';
 import { ContentWrapper } from '../components/Layout';
 import ChartPanel from '../components/DiseaseAnalysisStep3/ChartPanel';
 import DetailsPanel from '../components/DiseaseAnalysisStep3/DetailsPanel';
-import StepIndicator from '../components/DiseaseAnalysisStep3/StepIndicator';
 
-import { MainContent, MainTitlePanel, MainTitle, Frame } from '../components/DiseaseAnalysisStep3/SharedStyles';
+
+import { MainContent } from '../components/DiseaseAnalysisStep3/SharedStyles';
 import { api, apiClient } from '../services';
 import { fileToBase64 } from '../services/utils';
 import type { SaveDiagnosisRequest } from '../services/types';
-import { PageWrapper } from '../components/DiseaseAnalysisStep1/SharedStyles';
+
 
 // 타입 정의
 interface AnalysisResult {

@@ -33,6 +33,9 @@ interface ChartPanelProps {
 }
 
 const ChartPanel: React.FC<ChartPanelProps> = ({ diseaseStats, analysisResult, metrics, imageUrl }) => {
+
+  // 차트 레이블과 값 배열 초기화
+
   let chartLabels: string[] = [];
   let chartValues: number[] = [];
 
@@ -44,26 +47,31 @@ const ChartPanel: React.FC<ChartPanelProps> = ({ diseaseStats, analysisResult, m
     const mainDisease = analysisResult?.disease_name || '분석 중';
     const mainConfidence = analysisResult?.confidence || 0;
     const remainingConfidence = 100 - mainConfidence;
-    const otherDiseases = [
+    const otherDiseases: { name: string; percent: number }[] = [
+
       { name: '접촉성 피부염', percent: Math.round(remainingConfidence * 0.4) },
       { name: '지루성 피부염', percent: Math.round(remainingConfidence * 0.3) },
       { name: '기타', percent: remainingConfidence - Math.round(remainingConfidence * 0.4) - Math.round(remainingConfidence * 0.3) }
     ];
-    chartLabels = [mainDisease, ...otherDiseases.map(d => d.name)];
-    chartValues = [mainConfidence, ...otherDiseases.map(d => d.percent)];
+
+    chartLabels = [mainDisease, ...otherDiseases.map((d) => d.name)];
+    chartValues = [mainConfidence, ...otherDiseases.map((d) => d.percent)];
+
   }
 
   const chartData = {
     labels: chartLabels,
-    datasets: [{
 
-      data: [mainConfidence, ...otherDiseases.map(d => d.confidence)],
-      backgroundColor: ['#157FF1', '#60a5fa', '#93c5fd', '#dbeafe'],
+    datasets: [
+      {
+        data: chartValues,
+        backgroundColor: ['#157FF1', '#60a5fa', '#93c5fd', '#dbeafe'],
+        borderColor: 'white',
+        borderWidth: 4,
+        hoverOffset: 8,
+      },
+    ],
 
-      borderColor: 'white',
-      borderWidth: 4,
-      hoverOffset: 8,
-    }],
   };
 
   const chartOptions = {
@@ -127,3 +135,4 @@ const ChartPanel: React.FC<ChartPanelProps> = ({ diseaseStats, analysisResult, m
 };
 
 export default ChartPanel;
+
