@@ -85,11 +85,7 @@ interface BasicAnalysisResult {
   const [finalResult, setFinalResult] = useState<unknown>(null);
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  // 백엔드에서 반환되는 diagnosis_id 저장용 (옵셔널)
-  // 백엔드에서 반환된 diagnosis_id를 일시적으로 저장 (현재 UI에서 사용하지 않음)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [savedDiagnosisId, setSavedDiagnosisId] = useState<string | null>(null);
-  
+
   const [activeTab, setActiveTab] = useState<TabType>('summary');
   
 
@@ -462,12 +458,10 @@ interface BasicAnalysisResult {
 
       console.log('📤 진단 결과 저장 FormData:', formData);
 
-      const saveRes = await apiClient.post(`/api/diagnoses/save?user_id=${clerkId}`, formData, {
+      await apiClient.post(`/api/diagnoses/save?user_id=${clerkId}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      if (saveRes.data?.diagnosis_id) {
-        setSavedDiagnosisId(saveRes.data.diagnosis_id);
-      }
+      
       setIsSaved(true);
   
     } catch (error) {
