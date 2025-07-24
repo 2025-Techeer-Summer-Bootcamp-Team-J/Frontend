@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 
 // 타입 정의
@@ -16,12 +17,13 @@ interface RecentDiagnosisRecordsProps {
 }
 
 const RecentDiagnosisRecords: React.FC<RecentDiagnosisRecordsProps> = ({ records, className }) => {
+  const navigate = useNavigate();
   return (
     <div className={className}>
       <CardTitle>최근 진단 기록</CardTitle>
       <ListContainer>
         {records?.map((item) => (
-          <ListItem key={item.id}>
+          <ListItem key={item.id} onClick={() => navigate(`/diagnoses/${item.id}`)}>
             <div>
               <p className="font-semibold text-gray-700">{item.disease_name || 'N/A'}</p>
               <p className="text-sm text-gray-500">{new Date(item.created_at).toLocaleDateString('ko-KR')}</p>
@@ -53,6 +55,7 @@ const ListContainer = styled.div`
 `;
 
 const ListItem = styled.div`
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;

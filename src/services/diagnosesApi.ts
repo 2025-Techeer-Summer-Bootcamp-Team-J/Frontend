@@ -435,6 +435,19 @@ export const getDiagnosisAdditionalInfo = async (diagnosisId: number): Promise<D
 /**
  * 진단 작업 상태 조회
  */
+/**
+ * 진단 이미지 조회
+ */
+export const getDiagnosisImage = async (diagnosisId: number) => {
+  try {
+    const response = await apiClient.get(`/api/diagnoses/${diagnosisId}/image`);
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch diagnosis image for ${diagnosisId}:`, error);
+    throw error;
+  }
+};
+
 export const getDiagnosisTaskStatus = async (taskId: string): Promise<TaskStatusResponse> => {
   try {
     const response = await apiClient.get<TaskStatusResponse>(`/api/diagnoses/tasks/${taskId}/status`);
@@ -457,6 +470,7 @@ export const diagnosesApi = {
   getAdditionalInfo: getDiagnosisAdditionalInfo,
 
   getTaskStatus: getDiagnosisTaskStatus,
+  getDiagnosisImage,
 
 };
 

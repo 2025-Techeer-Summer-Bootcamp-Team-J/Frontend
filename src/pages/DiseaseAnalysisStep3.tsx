@@ -5,10 +5,12 @@ import { ContentWrapper } from '../components/Layout';
 import ChartPanel from '../components/DiseaseAnalysisStep3/ChartPanel';
 import DetailsPanel from '../components/DiseaseAnalysisStep3/DetailsPanel';
 
+
 import { MainContent } from '../components/DiseaseAnalysisStep3/SharedStyles';
 import { api, apiClient } from '../services';
 import { fileToBase64 } from '../services/utils';
 import type { SaveDiagnosisRequest } from '../services/types';
+
 
 // 타입 정의
 interface AnalysisResult {
@@ -21,6 +23,9 @@ interface LocationState {
   uploadedFiles: File[];
   analysisResults: AnalysisResult[];
   selectedResult: AnalysisResult;
+  // 새로 추가: 질병별 백분율 목록
+  diseaseStats?: Array<{ name: string; percent: number }>;
+  topDiseaseName?: string;
   additionalInfo?: {
     symptoms: string[];
     itchLevel: number;
@@ -57,10 +62,11 @@ export interface FullAnalysisResult {
   };
 }
 
-type TabType = 'summary' | 'description' | 'precautions' | 'management';
+type TabType = 'summary' | 'description' | 'precautions' | 'management' | 'photos';
 
 const DiseaseAnalysisStep3: React.FC = () => {
   const location = useLocation();
+  const { diseaseStats: navDiseaseStats = [], analysisResults: navAnalysisResults = [], uploadedFiles: navUploadedFiles = [] } = (location.state || {}) as Partial<LocationState>;
   const navigate = useNavigate();
   const { user, isLoaded } = useUser();
   const eventSourceRef = useRef<EventSource | null>(null);
@@ -73,6 +79,16 @@ interface BasicAnalysisResult {
   data?: Array<{ image?: string }>;
   image?: string;
 }
+  const [diseaseStats] = useState<Array<{ name: string; percent: number }>>(navDiseaseStats);
+
+  const [diseaseInfo, setDiseaseInfo] = useState<DiseaseInfo>(() => {
+    if (diseaseStats.length > 0) {
+      const top = diseaseStats.reduce((a, b) => (b.percent > a.percent ? b : a));
+      return { disease_name: top.name, confidence: top.percent };
+    }
+    return { disease_name: '분석 중', confidence: 0 };
+  });
+
   const [streamingContent, setStreamingContent] = useState<StreamingContent>({
     summary: '',
     description: '',
@@ -84,12 +100,19 @@ interface BasicAnalysisResult {
   const [finalResult, setFinalResult] = useState<unknown>(null);
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
   const [activeTab, setActiveTab] = useState<TabType>('summary');
+  
+
   const [analysisMetrics, setAnalysisMetrics] = useState<{
     skin_score?: number;
     severity?: string;
     estimated_treatment_period?: string;
   } | null>(null);
+
+  // 이미지 모달 상태
+  // 여러 장의 이미지를 모달로 보여주기 위해 배열로 관리
+  
 
   // 전체 결과(JSON)를 상태에 반영하는 헬퍼
   const processFullResult = (full: FullAnalysisResult) => {
@@ -131,13 +154,57 @@ interface BasicAnalysisResult {
   // 이전 페이지에서 전달받은 데이터
   const locationState = location.state as LocationState | null;
   const { uploadedFiles = [], selectedResult = null } = locationState || {};
+  // 이미지 보기 버튼 활성화 여부 (변수 선언 이후 계산)
+  // 업로드된(또는 분석 결과 포함) 첫 번째 이미지를 URL 또는 Base64로 추출
+  const firstImageUrl = (() => {
+    // 1) navAnalysisResults에서 File 우선
+    const fileResult = navAnalysisResults.find(r => (r as AnalysisResult)?.file) as AnalysisResult | undefined;
+    if (fileResult?.file) {
+      return URL.createObjectURL(fileResult.file);
+    }
+    // 2) navUploadedFiles 배열
+    if (navUploadedFiles.length > 0) {
+      return URL.createObjectURL(navUploadedFiles[0]);
+    }
+    // 3) base64 문자열 (selectedResult.result 또는 navAnalysisResults)
+    const srcObj: BasicAnalysisResult | undefined = (selectedResult?.result as BasicAnalysisResult) || (navAnalysisResults[0]?.result as BasicAnalysisResult);
+    const rawBase64 = srcObj?.data?.[0]?.image || srcObj?.image;
+    if (typeof rawBase64 === 'string' && rawBase64.trim() !== '') {
+      // dataURI prefix가 없으면 추가
+      if (rawBase64.startsWith('data:')) return rawBase64;
+      return `data:image/jpeg;base64,${rawBase64}`;
+    }
+    return undefined;
+  })();
 
-  // selectedResult에서 질병 정보 추출 (타입 안정성 강화)
-  const resultData = selectedResult?.result as { data?: { disease_name: string; confidence: number }[] } | null;
-  const [diseaseInfo, setDiseaseInfo] = useState<DiseaseInfo>({
-    disease_name: '분석 중...',
-    confidence: resultData?.data?.[0]?.confidence || 0,
-  });
+
+  // 사진 탭에서 사용할 전체 이미지 URL 배열
+  const imageUrls: string[] = React.useMemo(() => {
+    const urls: string[] = [];
+    // 분석 결과 파일
+    navAnalysisResults.forEach(r => {
+      const ar = r as AnalysisResult;
+      if (ar?.file) {
+        urls.push(URL.createObjectURL(ar.file));
+      } else if (ar?.result) {
+        const obj = ar.result as BasicAnalysisResult;
+        const raw = obj?.data?.[0]?.image || obj?.image;
+        if (typeof raw === 'string' && raw.trim() !== '') {
+          urls.push(raw.startsWith('data:') ? raw : `data:image/jpeg;base64,${raw}`);
+        }
+      }
+    });
+    // 업로드 파일
+    if (navUploadedFiles.length > 0) {
+      urls.push(...navUploadedFiles.map(f => URL.createObjectURL(f)));
+    }
+    if (firstImageUrl) urls.unshift(firstImageUrl);
+    return Array.from(new Set(urls));
+  }, [navAnalysisResults, navUploadedFiles, firstImageUrl]);
+
+
+
+
 
   useEffect(() => {
     if (hasInitializedRef.current) return;
@@ -443,13 +510,13 @@ interface BasicAnalysisResult {
       formData.append('text_analysis', JSON.stringify(saveData.text_analysis));
 
       console.log('📤 진단 결과 저장 FormData:', formData);
-      alert('진단 결과를 저장하는 중입니다...');
+
       await apiClient.post(`/api/diagnoses/save?user_id=${clerkId}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
+      
       setIsSaved(true);
-      alert('진단 결과가 성공적으로 저장되었습니다!');
-      navigate('/');
+  
     } catch (error) {
       console.error('결과 저장 실패:', error);
       alert('결과 저장에 실패했습니다.');
@@ -458,37 +525,32 @@ interface BasicAnalysisResult {
     }
   };
 
-  const handleDownloadReport = () => {
-    alert('리포트 다운로드 기능은 추후 제공될 예정입니다.');
-  };
-
   const handleRestart = () => {
     navigate('/disease-analysis-step1');
   };
 
   return (
+
     <ContentWrapper>
       <MainContent>
-        <ChartPanel 
-          analysisResult={diseaseInfo} 
-          metrics={analysisMetrics} 
-        />
+        <ChartPanel />
         <DetailsPanel
+          imageUrls={imageUrls}
+          diseaseInfo={diseaseInfo}
+          streamingContent={streamingContent}
+          analysisMetrics={analysisMetrics}
+          activeTab={activeTab}
           isStreaming={isStreaming}
           isComplete={isComplete}
           isSaved={isSaved}
           isSaving={isSaving}
-          activeTab={activeTab}
           setActiveTab={setActiveTab}
-          streamingContent={streamingContent}
           onSave={handleSaveResult}
-          diseaseInfo={diseaseInfo}
-          analysisMetrics={analysisMetrics}
-          onDownload={handleDownloadReport}
           onRestart={handleRestart}
         />
       </MainContent>
     </ContentWrapper>
+
   );
 };
 

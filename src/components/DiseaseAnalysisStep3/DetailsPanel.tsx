@@ -1,6 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRedo, faDownload, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faRedo, faSave, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FaCommentMedical } from 'react-icons/fa';
 import styled from 'styled-components';
 import ReactMarkdown from 'react-markdown';
@@ -44,8 +44,7 @@ import {
   TabContentContainer,
   TabContent,
   ButtonGroup,
-  StyledButton,
-  SectionTitle,
+  StyledButton
 } from './SharedStyles';
 
 // 새로운 스타일 컴포넌트들
@@ -71,7 +70,7 @@ const SummaryItem = styled.div`
   }
 
   .disease-name {
-    color: #2563eb;
+    color: #2B57E5;
     font-weight: 700;
   }
 `;
@@ -96,13 +95,13 @@ const SeverityBarInner = styled.div<{ $severity: number }>`
 
 const AIOpinionBox = styled.div`
   background: #f0f9ff;
-  border-left: 4px solid #2563eb;
-  padding: 1rem;
+  border-left: 4px solid #157FF1;
+  padding: 1rem 1rem 0.3rem 1rem;
   margin: 1rem 0;
-  border-radius: 0 0.5rem 0.5rem 0;
+  border-radius: 0 1rem 1rem 0;
 
   h4 {
-    color: #1e40af;
+    color: #2B57E5;
     font-weight: 600;
     margin-bottom: 0.5rem;
     display: flex;
@@ -132,7 +131,7 @@ const StreamingTabContent = styled(TabContent)`
 
 `;
 
-type TabType = 'summary' | 'description' | 'precautions' | 'management';
+export type TabType = 'photos' | 'summary' | 'description' | 'precautions' | 'management';
 
 interface DiseaseInfo {
   disease_name: string;
@@ -152,9 +151,8 @@ interface AnalysisMetrics {
   estimated_treatment_period?: string;
 }
 
-
-
 interface DetailsPanelProps {
+  imageUrls?: string[];
   diseaseInfo: DiseaseInfo;
   streamingContent: StreamingContent;
   analysisMetrics: AnalysisMetrics | null;
@@ -163,9 +161,8 @@ interface DetailsPanelProps {
   isComplete: boolean;
   isSaved: boolean;
   isSaving: boolean;
-  setActiveTab: (tab: TabType) => void;
+  setActiveTab: React.Dispatch<React.SetStateAction<TabType>>;
   onSave: () => void;
-  onDownload: () => void;
   onRestart: () => void;
 }
 
@@ -180,8 +177,8 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   isSaving,
   setActiveTab,
   onSave,
-  onDownload,
   onRestart,
+  imageUrls = [],
 }) => {
   // 개발 시 스트리밍 상태 확인용 (프로덕션에서 제거 가능)
   console.log('🎭 DetailsPanel 스트리밍 상태:', isStreaming);
@@ -189,10 +186,10 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   console.log('🎭 DetailsPanel activeTab:', activeTab);
   return (
     <DetailsPanelContainer>
-      <SectionTitle>AI 진단 결과</SectionTitle>
       
       <DetailsBox>
         <TabNav>
+        <TabButton $isActive={activeTab==='photos'} onClick={()=>setActiveTab('photos')}>사진</TabButton>
           <TabButton $isActive={activeTab === 'summary'} onClick={() => setActiveTab('summary')}>
             요약
           </TabButton>
@@ -208,6 +205,16 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
         </TabNav>
 
         <TabContentContainer>
+          {activeTab === 'photos' && (
+            <StreamingTabContent>
+              {imageUrls.length === 0 ? (
+                <p>이미지가 없습니다.</p>
+              ) : (
+                <PhotoCarousel imageUrls={imageUrls} />
+              )}
+            </StreamingTabContent>
+          )}
+
           {activeTab === 'summary' && (
             <StreamingTabContent>
               <SummaryItem>
@@ -300,21 +307,65 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       </DetailsBox>
 
       <ButtonGroup>
-        {isComplete && !isSaved && (
-          <StyledButton $variant="primary" onClick={onSave} disabled={isSaving}>
-            <FontAwesomeIcon icon={faSave} /> {isSaving ? '저장 중...' : isSaved ? '저장됨' : '결과 저장'}
+        {isComplete && (
+          <StyledButton 
+            $variant="primary" 
+            onClick={onSave} 
+            disabled={isSaving || isSaved}
+          >
+            {isSaving ? (
+              <FontAwesomeIcon icon={faSpinner} />
+            ) : (
+              <FontAwesomeIcon icon={faSave} />
+            )}
+            {isSaving ? '저장 중...' : isSaved ? '저장됨' : '결과 저장'}
           </StyledButton>
         )}
-        {isSaved && (
-          <StyledButton $variant="secondary" onClick={onDownload}>
-            <FontAwesomeIcon icon={faDownload} /> 결과 리포트 다운로드
-          </StyledButton>
-        )}
+
+
         <StyledButton onClick={onRestart}>
           <FontAwesomeIcon icon={faRedo} /> 다시 분석하기
         </StyledButton>
       </ButtonGroup>
     </DetailsPanelContainer>
+  );
+};
+
+// 간단한 캐러셀 컴포넌트
+const CarouselWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+const CarouselImg = styled.img`
+  max-width: 100%;
+  max-height: 60vh;
+  object-fit: contain;
+  border-radius: 0.5rem;
+`;
+const NavBtns = styled.div`
+  margin-top: 0.5rem;
+  button {
+    margin: 0 0.5rem;
+    padding: 0.25rem 0.75rem;
+  }
+`;
+const PhotoCarousel: React.FC<{imageUrls:string[]}> = ({ imageUrls }) => {
+  const [idx,setIdx]=React.useState(0);
+  if(imageUrls.length===0) return null;
+  const prev=()=>setIdx((idx-1+imageUrls.length)%imageUrls.length);
+  const next=()=>setIdx((idx+1)%imageUrls.length);
+  return (
+    <CarouselWrapper>
+      <CarouselImg src={imageUrls[idx]} alt={`photo-${idx+1}`} />
+      {imageUrls.length>1 && (
+        <NavBtns>
+          <button onClick={prev}>이전</button>
+          <span>{idx+1}/{imageUrls.length}</span>
+          <button onClick={next}>다음</button>
+        </NavBtns>
+      )}
+    </CarouselWrapper>
   );
 };
 
