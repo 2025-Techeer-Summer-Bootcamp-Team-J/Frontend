@@ -11,12 +11,12 @@ export const scan = keyframes`
 `;
 
 export const theme = {
-    primaryColor: '#0052ff',
-    lightPrimaryColor: '#e9efff',
+    primaryColor: '#00A6FD',
+    lightPrimaryColor: '#F0F9FF',
     darkPrimaryColor: '#0041cc',
     textColor: '#333',
     lightTextColor: '#666',
-    bgColor: '#f0f4ff',
+    bgColor: '#fbfdffff',
     cardBgColor: '#ffffff',
 };
 
@@ -45,9 +45,9 @@ export const PageWrapper = styled.div`
 
 export const MainContainer = styled.main`
     text-align: center;
-    padding: 0 1.25rem;
+    padding: 0 2rem; /* 👈 좌우 여백 32px로 변경 */
     width: 100%;
-    max-width: 62.5rem;
+    max-width: 76rem; /* 👈 최대 너비 1216px로 변경 */
     box-sizing: border-box;
     margin: 1.25rem auto;
 `;
@@ -90,8 +90,10 @@ export const ContentBox = styled.div`
     flex-direction: column;
     align-items: flex-end;
     width: 100%;
+    /*
     max-width: 56.25rem;
     margin: 0 auto;
+    */
     box-shadow: 0.25rem 0.25rem 0.5rem rgba(71, 69, 179, 0.2);
     text-align: left;
     gap: 2.5rem;
@@ -122,14 +124,18 @@ export const GuidelineItem = styled.div`
     padding: 1.3rem 1.5rem;
     border-radius: 1rem;
     margin-bottom: 1.5rem;
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 500;
     display: flex;
     align-items: center;
 
+    /*
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    */
+   
+    box-shadow: 0.25rem 0.25rem 0.5rem rgba(107, 203, 255, 0.2);
 
      &:last-child {
         margin-bottom: 0; /* 마지막 항목의 아래 여백만 제거 */
@@ -154,14 +160,14 @@ export const UploadArea = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #f9faff;
+    background-color: #F2F5FA;
     cursor: pointer;
     transition: all 0.3s;
     position: relative;
     overflow: hidden;
     &:hover {
         border-color: ${theme.primaryColor};
-        background-color: #f0f4ff;
+        background-color: #F0F9FF;
     }
     @media (min-width: 768px) { flex-basis: 50%; }
 `;
@@ -269,7 +275,7 @@ export const ResultCard = styled.div`
     padding: 2rem;
     box-shadow: 0.25rem 0.25rem 0.5rem rgba(71, 69, 179, 0.2);
     width: 100%;
-    max-width: 56.25rem;
+    /* max-width: 56.25rem; */
     box-sizing: border-box;
     text-align: left;
 `;
@@ -300,7 +306,7 @@ export const ResultGrid = styled.div`
     grid-template-columns: 1fr;
     gap: 1.875rem;
     width: 100%;
-    max-width: 56.25rem;
+    /* max-width: 56.25rem; */
     margin-top: 1.875rem;
     @media (min-width: 768px) {
         grid-template-columns: repeat(2, 1fr);
