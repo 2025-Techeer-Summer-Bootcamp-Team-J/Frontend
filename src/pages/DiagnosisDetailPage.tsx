@@ -56,8 +56,8 @@ const DiagnosisDetailPage: React.FC = () => {
   const streamingContent = {
     summary: detail.text_analysis.ai_opinion,
     description: detail.text_analysis.detailed_description,
-    precautions: '',
-    management: '',
+    precautions: detail.text_analysis.precautions,
+    management: detail.text_analysis.management,
   };
 
   const analysisMetrics = {
