@@ -487,6 +487,7 @@ interface BasicAnalysisResult {
       const fullResult = (finalResult || {}) as Partial<FullAnalysisResult>;
       const saveData: SaveDiagnosisRequest = {
         user_id: user.id,
+        disease_name: diseaseInfo.disease_name,
         image_base64: imageBase64,
         image_analysis: {
           disease_name: diseaseInfo.disease_name,
@@ -521,6 +522,7 @@ interface BasicAnalysisResult {
       formData.append('user_id', user.id); // 백엔드 검증을 위해 user_id도 FormData에 포함
       formData.append('image', imageFile);
       formData.append('image_analysis', JSON.stringify(saveData.image_analysis));
+      formData.append('disease_name', diseaseInfo.disease_name);
       formData.append('text_analysis', JSON.stringify(saveData.text_analysis));
 
       console.log('📤 진단 결과 저장 FormData:', formData);

@@ -163,6 +163,8 @@ export interface SaveDiagnosisRequest {
   user_id: string; // Clerk user ID는 string 타입
   /** 이미지 파일 (multipart 업로드용) */
   image?: File;
+  /** 저장될 진단명(질병명) */
+  disease_name?: string;
   /** base64(Data URL) 이미지 – image 필드 대신 사용할 수 있음 */
   image_base64?: string;
   image_analysis: {
