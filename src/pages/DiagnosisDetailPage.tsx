@@ -72,11 +72,7 @@ const DiagnosisDetailPage: React.FC = () => {
   return (
     <ContentWrapper>
       <MainContent>
-        <ChartPanel
-          imageUrl={detail.image_base64}
-          analysisResult={{ disease_name: diseaseInfo.disease_name, confidence: diseaseInfo.confidence }}
-          metrics={analysisMetrics}
-        />
+        <ChartPanel analysisResult={{ disease_name: diseaseInfo.disease_name, confidence: diseaseInfo.confidence }} />
         <DetailsPanel
         imageUrls={detail.image_base64 ? [detail.image_base64] : []}
         diseaseInfo={diseaseInfo}
