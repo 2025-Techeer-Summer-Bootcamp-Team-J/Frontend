@@ -341,9 +341,10 @@ const CarouselWrapper = styled.div`
   align-items: center;
 `;
 const CarouselImg = styled.img`
-  max-width: 100%;
-  max-height: 60vh;
-  object-fit: contain;
+  width: 100%;            /* 기본적으로 가로 폭을 가득 채움 */
+  height: auto;           /* 가로 기준으로 비율 유지 */
+  max-height: 80vh;       /* 세로가 너무 길면 화면 높이의 80%로 제한 */
+  object-fit: contain;    /* 이미지가 잘리지 않도록 */
   border-radius: 0.5rem;
 `;
 const NavBtns = styled.div`
