@@ -38,7 +38,7 @@ const DiseaseAnalysisStep1: React.FC = () => {
                     
                     const response = await api.diagnoses.create(diagnosisData);
                     analysisResults.push({
-
+                        file: file, // 원본 파일 객체 추가
                         fileName: file.name,
                         fileSize: file.size,
                         fileType: file.type,
@@ -52,7 +52,7 @@ const DiseaseAnalysisStep1: React.FC = () => {
                     console.error('이미지 분석 실패:', file.name, error);
                     // 실패한 경우에도 파일 정보는 유지
                     analysisResults.push({
-
+                        file: file, // 원본 파일 객체 추가
                         fileName: file.name,
                         fileSize: file.size,
                         fileType: file.type,

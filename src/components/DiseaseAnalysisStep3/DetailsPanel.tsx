@@ -233,7 +233,9 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
                   </SummaryItem>
                   <SummaryItem>
                     <span className="label">심각도</span>
-                    <span className="value">{analysisMetrics.severity || '중등도'}</span>
+                    <SeverityBar>
+                      <SeverityBarInner $severity={diseaseInfo.confidence} />
+                    </SeverityBar>
                   </SummaryItem>
                   <SummaryItem>
                     <span className="label">예상 치료 기간</span>

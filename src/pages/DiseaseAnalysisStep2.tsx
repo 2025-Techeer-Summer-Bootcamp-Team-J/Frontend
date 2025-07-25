@@ -36,79 +36,71 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
     const [itchLevel, setItchLevel] = useState<number>(0);
     const [selectedDuration, setSelectedDuration] = useState<string | null>(null);
     const [additionalInfo, setAdditionalInfo] = useState<string>('');
-    const [hasValidResults, setHasValidResults] = useState<boolean>(false);
     const [isAnalyzing, setIsAnalyzing] = useState<boolean>(true);
-    // 분석 완료 후 전체 결과를 저장
-    const [completedResult, setCompletedResult] = useState<AnalysisResult | null>(null);
 
-    // Step1에서 전달받은 데이터
-    const { uploadedFiles = [], analysisResults = [] } = location.state || {};
+    const { uploadedFiles = [] } = location.state || {};
+    const [analysisResults, setAnalysisResults] = useState<
+        AnalysisResult[]
+    >(
+        location.state?.analysisResults || []
+    );
 
+    const successfulTasks = analysisResults.filter(r => r.success && r.taskId);
 
-    useEffect(() => {
-        // 페이지 로드 시 분석 결과 유효성 검사
-        const checkResults = () => {
-            if (!analysisResults || analysisResults.length === 0) {
-                return false;
-            }
-            
-            // 성공한 분석 결과가 있는지 확인
-            const successfulResults = analysisResults.filter((result: AnalysisResult) => 
-                result.success === true && result.taskId
-            );
-            
-            return successfulResults.length > 0;
-        };
-        
-        const isValid = checkResults();
-        setHasValidResults(isValid);
-        
-        if (!isValid) {
-            console.warn('유효한 분석 결과가 없습니다:', analysisResults);
+    // 1. polling 시작 및 타임아웃 관리
+useEffect(() => {
+    if (successfulTasks.length === 0) {
+      setIsAnalyzing(false);
+      return;
+    }
+  
+    let isCancelled = false;
+  
+    const pollTaskStatus = async (taskId: string) => {
+      try {
+        const status = await api.diagnoses.getTaskStatus(taskId);
+        if (isCancelled) return;
+  
+        if (status.state === 'SUCCESS') {
+          setAnalysisResults(prev =>
+            prev.map(r => (r.taskId === taskId ? { ...r, result: status.result } : r))
+          );
+        } else if (status.state === 'FAILURE') {
+          setAnalysisResults(prev =>
+            prev.map(r => (r.taskId === taskId ? { ...r, errorMessage: `Task ${taskId} failed` } : r))
+          );
+        } else {
+          setTimeout(() => pollTaskStatus(taskId), 1000);
         }
-    }, [analysisResults]);
-
-    // 분석 Task 상태를 주기적으로 확인하여 완료되면 버튼을 활성화한다
-    useEffect(() => {
-        if (!hasValidResults) return;
-
-        // 첫 번째 성공한 task 선택
-        const target = (analysisResults as AnalysisResult[]).find(r => r.success === true && r.taskId);
-        if (!target?.taskId) return;
-
-        let isCancelled = false;
-
-        const pollTaskStatus = async () => {
-            try {
-                const status = await api.diagnoses.getTaskStatus(target.taskId!);
-                if (isCancelled) return;
-
-                if (status.state === 'SUCCESS') {
-                    setIsAnalyzing(false);
-                    setCompletedResult({ ...target, result: status.result || target.result });
-                    return; // stop polling
-                }
-                if (status.state === 'FAILURE') {
-                    setIsAnalyzing(false);
-                    alert('이미지 분석에 실패했습니다. 다시 시도해주세요.');
-                    return;
-                }
-                // 여전히 진행 중인 경우 1초 후 재시도
-                setTimeout(pollTaskStatus, 1000);
-            } catch (error) {
-                if (isCancelled) return;
-                console.error('❌ Task 상태 확인 실패:', error);
-                setTimeout(pollTaskStatus, 1000);
-            }
-        };
-
-        // 초기 폴링 시작
-        pollTaskStatus();
-
-        return () => {
-            isCancelled = true;
-        };
-    }, [hasValidResults, analysisResults]);
+      } catch {
+        if (isCancelled) return;
+        setTimeout(() => pollTaskStatus(taskId), 1000);
+      }
+    };
+  
+    successfulTasks.forEach(task => pollTaskStatus(task.taskId!));
+  
+    const timeoutId = setTimeout(() => {
+      if (!isCancelled) {
+        setIsAnalyzing(false);
+      }
+    }, 30000);
+  
+    return () => {
+      isCancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, []);
+  
+  // 2. 결과 변화 감지하여 완료 처리
+  useEffect(() => {
+    if (!isAnalyzing) return;
+  
+    const completedCount = analysisResults.filter(r => r.result || r.errorMessage).length;
+    if (completedCount > 0 && completedCount === successfulTasks.length) {
+      setIsAnalyzing(false);
+    }
+  }, [analysisResults, isAnalyzing, successfulTasks.length]);
 
 
     const handleSymptomToggle = (symptom: string) => {
@@ -124,22 +116,9 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
     };
 
     const handleSkipButtonClick = () => {
-
-        if (!hasValidResults) {
-            alert('분석이 아직 진행 중이거나 실패했습니다.\n\n잠시 후 다시 시도하거나 새로운 이미지로 분석을 시작해주세요.');
-            navigate('/disease-analysis-step1');
-            return;
-        }
-
-        // 성공한 분석 결과 찾기
-        const successfulResult = completedResult ?? analysisResults.find((result: AnalysisResult) => 
-            result.success === true && result.taskId
-        );
-        
+        const successfulResult = analysisResults.find(r => r.result);
         if (successfulResult) {
-            // LoadingPage로 이동 (추가 정보 없이)
             navigate('/disease-analysis-step3', {
-
                 state: {
                     uploadedFiles: uploadedFiles,
                     analysisResults: analysisResults,
@@ -153,48 +132,40 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
                 }
             });
         } else {
-
             alert('분석 결과를 사용할 수 없습니다.\n\n다시 분석을 진행해주세요.');
-
             navigate('/disease-analysis-step1');
         }
     };
 
     const handleResultViewClick = () => {
-
-        if (!hasValidResults) {
-            alert('분석이 아직 진행 중이거나 실패했습니다.\n\n잠시 후 다시 시도하거나 새로운 이미지로 분석을 시작해주세요.');
-            navigate('/disease-analysis-step1');
-            return;
-        }
-
-        // 성공한 분석 결과 찾기
-        const successfulResult = completedResult ?? analysisResults.find((result: AnalysisResult) => 
-            result.success === true && result.taskId
-        );
-        
+        const successfulResult = analysisResults.find(r => r.result);
         if (successfulResult) {
-            // 다중 결과 confidence 집계
             interface BasicResult { data?: Array<{ disease_name: string; confidence: number }>; }
-                const aggregateConfidence = (results: AnalysisResult[]) => {
-                    const map = new Map<string, number>();
-                    let total = 0;
-                    results.forEach((r) => {
-                        if (!r.result) return;
-                        const arr = (r.result as BasicResult).data ?? [];
-                        arr.forEach(({ disease_name, confidence }) => {
-                            const prev = map.get(disease_name) || 0;
-                            map.set(disease_name, prev + confidence);
-                            total += confidence;
-                        });
+            const aggregateConfidence = (results: AnalysisResult[]) => {
+                const map = new Map<string, number>();
+                let total = 0;
+                results.forEach((r) => {
+                    if (!r.result) return;
+                    const arr = (r.result as BasicResult).data ?? [];
+                    arr.forEach(({ disease_name, confidence }) => {
+                        const numericConfidence = Number(confidence) || 0;
+                        const prev = map.get(disease_name) || 0;
+                        map.set(disease_name, prev + numericConfidence);
+                        total += numericConfidence;
                     });
-                const stats = Array.from(map.entries()).map(([name, sum]) => ({ name, percent: parseFloat(((sum / total) * 100).toFixed(1)) }));
+                });
+
+                if (total === 0) return [];
+
+                const stats = Array.from(map.entries()).map(([name, sum]) => ({
+                    name,
+                    percent: parseFloat(((sum / total) * 100).toFixed(1))
+                }));
                 stats.sort((a,b)=>b.percent-a.percent);
                 return stats;
             };
 
             const diseaseStats = aggregateConfidence(analysisResults as AnalysisResult[]);
-            // LoadingPage로 이동 (추가 정보와 함께)
             navigate('/disease-analysis-step3', {
                 state: {
                     uploadedFiles: uploadedFiles,
@@ -211,12 +182,11 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
                 }
             });
         } else {
-
             alert('분석 결과를 사용할 수 없습니다.\n\n다시 분석을 진행해주세요.');
-
             navigate('/disease-analysis-step1');
         }
     };
+
 
     // 분석 결과가 없거나 모두 실패한 경우 경고 메시지 표시
     const getStatusMessage = () => {

@@ -34,30 +34,35 @@ interface ChartPanelProps {
 
 const ChartPanel: React.FC<ChartPanelProps> = ({ diseaseStats, analysisResult, metrics, imageUrl }) => {
 
-  // 차트 레이블과 값 배열 초기화
+  // 차트 데이터 처리
+  const processChartData = () => {
+    if (diseaseStats && diseaseStats.length > 0) {
+      const sortedStats = [...diseaseStats].sort((a, b) => b.percent - a.percent);
+      if (sortedStats.length > 3) {
+        const top3 = sortedStats.slice(0, 3);
+        const otherPercent = sortedStats.slice(3).reduce((acc, cur) => acc + cur.percent, 0);
+        return {
+          labels: [...top3.map(d => d.name), '기타'],
+          values: [...top3.map(d => d.percent), parseFloat(otherPercent.toFixed(1))]
+        };
+      }
+      return {
+        labels: sortedStats.map(d => d.name),
+        values: sortedStats.map(d => d.percent)
+      };
+    } else if (analysisResult) {
+      // 하위 호환 로직
+      const { disease_name, confidence } = analysisResult;
+      const remaining = 100 - confidence;
+      return {
+        labels: [disease_name, '기타'],
+        values: [confidence, remaining]
+      };
+    }
+    return { labels: ['분석 중'], values: [100] };
+  };
 
-  let chartLabels: string[] = [];
-  let chartValues: number[] = [];
-
-  if (diseaseStats && diseaseStats.length > 0) {
-    chartLabels = diseaseStats.map(d => d.name);
-    chartValues = diseaseStats.map(d => d.percent);
-  } else {
-    // 하위 호환: 단일 결과만 있을 때 기존 더미 로직 유지
-    const mainDisease = analysisResult?.disease_name || '분석 중';
-    const mainConfidence = analysisResult?.confidence || 0;
-    const remainingConfidence = 100 - mainConfidence;
-    const otherDiseases: { name: string; percent: number }[] = [
-
-      { name: '접촉성 피부염', percent: Math.round(remainingConfidence * 0.4) },
-      { name: '지루성 피부염', percent: Math.round(remainingConfidence * 0.3) },
-      { name: '기타', percent: remainingConfidence - Math.round(remainingConfidence * 0.4) - Math.round(remainingConfidence * 0.3) }
-    ];
-
-    chartLabels = [mainDisease, ...otherDiseases.map((d) => d.name)];
-    chartValues = [mainConfidence, ...otherDiseases.map((d) => d.percent)];
-
-  }
+  const { labels: chartLabels, values: chartValues } = processChartData();
 
   const chartData = {
     labels: chartLabels,
