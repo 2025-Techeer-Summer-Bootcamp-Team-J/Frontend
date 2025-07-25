@@ -2,11 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import styled from 'styled-components';
 
-// 타입 정의
-interface Tag {
-  text: string;
-  color: 'blue' | 'red';
-}
+// (삭제) 주요 고민 부위 태그 관련 인터페이스 제거
 
 import type { MyProfile } from '../../services/types';
 
@@ -20,11 +16,7 @@ interface UserProfileProps {
   };
 }
 
-const concernColorMap: Record<string, 'blue' | 'red'> = {
-  '아토피': 'blue',
-  '지루성 피부염': 'red',
-  // 필요시 추가
-};
+
 
 const UserProfile: React.FC<UserProfileProps> = ({ className, mySkinProfile }) => {
   const { user, isLoaded } = useUser();
@@ -110,19 +102,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ className, mySkinProfile }) =
   }
 
   // 임시 데이터 (실제로는 API에서 가져와야 함)
-  // concerns 필드가 없을 수 있으므로 안전하게 접근
-  const concernsArray = mySkinProfile?.concerns;
-
-  const concerns: Tag[] = (concernsArray || []).map((c) => ({
-    text: c,
-    color: concernColorMap[c] || 'blue',
-  }));
-
-  const tipsArray = mySkinProfile?.managementTips;
-
-  const managementTips = (tipsArray || []).map((tip, index) => (
-    <li key={index}>{tip}</li>
-  ));
+  // 백엔드에서 내려오는 tip_content (단일 문자열)를 사용
+  const tipContent = mySkinProfile?.tip_content || '';
 
   return (
     <div className={className}>
@@ -178,23 +159,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ className, mySkinProfile }) =
           <ProfileLabel>피부 타입</ProfileLabel>
           <ProfileValue>{mySkinProfile?.type_name || '미입력'}</ProfileValue>
         </div>
-        <div>
-          <ProfileLabel>주요 고민 부위</ProfileLabel>
-          <TagContainer>
-            {mySkinProfile && concerns.length > 0 ? (
-              concerns.map((concern, index) => (
-                <Tag key={index} color={concern.color}>{concern.text}</Tag>
-              ))
-            ) : (
-              <span style={{color: '#aaa'}}>미입력</span>
-            )}
-          </TagContainer>
-        </div>
+
         <div>
           <ProfileLabel style={{ marginBottom: '0.5rem' }}>주의사항 및 관리 팁</ProfileLabel>
           <TipList>
-            {managementTips.length > 0 ? (
-              managementTips
+            {tipContent ? (
+              <li>{tipContent}</li>
             ) : (
               <li style={{color: '#aaa'}}>미입력</li>
             )}
@@ -300,20 +270,6 @@ const CancelButton = styled.button`
   cursor: pointer;
 `;
 
-const TagContainer = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
-`;
-
-const Tag = styled.span<{ color: 'blue' | 'red' }>`
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  border-radius: 9999px;
-  background-color: ${({ color }) => (color === 'blue' ? '#dbeafe' : '#fee2e2')};
-  color: ${({ color }) => (color === 'blue' ? '#1e40af' : '#991b1b')};
-`;
 
 const TipList = styled.ul`
   list-style-type: disc;
