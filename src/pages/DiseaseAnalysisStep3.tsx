@@ -502,9 +502,10 @@ interface BasicAnalysisResult {
           precautions:
             streamingContent.precautions ||
             (Array.isArray(fullResult.text_analysis?.precautions)
-              ? fullResult.text_analysis!.precautions.join('\n')
-              : (fullResult.text_analysis as any)?.precautions) ||
-            'N/A',
+              ? (fullResult.text_analysis?.precautions ?? []).join('\n')
+              : typeof fullResult.text_analysis?.precautions === 'string'
+                ? (fullResult.text_analysis?.precautions as string)
+                : 'N/A'),
           management:
             streamingContent.management ||
             (fullResult.text_analysis?.management
