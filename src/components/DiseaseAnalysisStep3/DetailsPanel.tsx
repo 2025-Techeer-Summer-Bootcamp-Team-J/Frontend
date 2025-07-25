@@ -229,10 +229,6 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               {analysisMetrics && (
                 <>
                   <SummaryItem>
-                    <span className="label">피부 점수</span>
-                    <span className="value">{analysisMetrics.skin_score}점</span>
-                  </SummaryItem>
-                  <SummaryItem>
                     <span className="label">심각도</span>
                     <SeverityBar>
                       <SeverityBarInner $severity={diseaseInfo.confidence} />

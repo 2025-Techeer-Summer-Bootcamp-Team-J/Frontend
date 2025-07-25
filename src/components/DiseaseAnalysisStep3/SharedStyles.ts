@@ -171,7 +171,11 @@ export const TabButton = styled.button<{ $isActive: boolean }>`
   ${({ $isActive }) => $isActive && css` color: #157FF1; border-bottom-color: #157FF1; `}
 `;
 
-export const TabContentContainer = styled.div` padding: 1rem 2rem; flex-grow: 1; `;
+export const TabContentContainer = styled.div`
+  padding: 1rem 2rem;
+  flex-grow: 1;
+  min-height: 28rem; /* 요약 탭 기준으로 일정 높이 유지 */
+`;
 export const TabContent = styled.div`
   h3 { font-weight: 700; font-size: 1.125rem; color: #1e293b; margin: 0 0 0.75rem; }
   ul { list-style: disc; list-style-position: inside; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; color: #475569; line-height: 1.6; }
