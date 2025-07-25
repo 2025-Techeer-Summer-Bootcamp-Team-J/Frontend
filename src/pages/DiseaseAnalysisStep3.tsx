@@ -487,6 +487,7 @@ interface BasicAnalysisResult {
       const fullResult = (finalResult || {}) as Partial<FullAnalysisResult>;
       const saveData: SaveDiagnosisRequest = {
         user_id: user.id,
+        disease_name: diseaseInfo.disease_name,
         image_base64: imageBase64,
         image_analysis: {
           disease_name: diseaseInfo.disease_name,
@@ -496,8 +497,22 @@ interface BasicAnalysisResult {
           estimated_treatment_period: fullResult.image_analysis?.estimated_treatment_period,
         },
         text_analysis: {
-          ai_opinion: fullResult.text_analysis?.ai_opinion || '',
-          detailed_description: fullResult.text_analysis?.detailed_description || '',
+          ai_opinion: streamingContent.summary || fullResult.text_analysis?.ai_opinion || 'N/A',
+          detailed_description: streamingContent.description || fullResult.text_analysis?.detailed_description || 'N/A',
+          precautions:
+            streamingContent.precautions ||
+            (Array.isArray(fullResult.text_analysis?.precautions)
+              ? (fullResult.text_analysis?.precautions ?? []).join('\n')
+              : typeof fullResult.text_analysis?.precautions === 'string'
+                ? (fullResult.text_analysis?.precautions as string)
+                : 'N/A'),
+          management:
+            streamingContent.management ||
+            (fullResult.text_analysis?.management
+              ? typeof fullResult.text_analysis.management === 'object'
+                ? JSON.stringify(fullResult.text_analysis.management)
+                : fullResult.text_analysis.management
+              : 'N/A'),
         },
       };
 
@@ -505,15 +520,16 @@ interface BasicAnalysisResult {
       // Clerk 문자열 ID 그대로 사용
       const clerkId = user.id;
       const formData = new FormData();
+      formData.append('user_id', user.id); // 백엔드 검증을 위해 user_id도 FormData에 포함
       formData.append('image', imageFile);
       formData.append('image_analysis', JSON.stringify(saveData.image_analysis));
+      formData.append('disease_name', diseaseInfo.disease_name);
       formData.append('text_analysis', JSON.stringify(saveData.text_analysis));
 
       console.log('📤 진단 결과 저장 FormData:', formData);
 
-      await apiClient.post(`/api/diagnoses/save?user_id=${clerkId}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      // Content-Type 헤더를 명시적으로 지정하지 않으면 브라우저가 boundary를 포함해 자동 설정합니다.
+      await apiClient.post(`/api/diagnoses/save?user_id=${clerkId}`, formData);
       
       setIsSaved(true);
   
