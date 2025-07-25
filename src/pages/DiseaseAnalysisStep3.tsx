@@ -498,6 +498,19 @@ interface BasicAnalysisResult {
         text_analysis: {
           ai_opinion: streamingContent.summary || fullResult.text_analysis?.ai_opinion || 'N/A',
           detailed_description: streamingContent.description || fullResult.text_analysis?.detailed_description || 'N/A',
+          precautions:
+            streamingContent.precautions ||
+            (Array.isArray(fullResult.text_analysis?.precautions)
+              ? fullResult.text_analysis!.precautions.join('\n')
+              : (fullResult.text_analysis as any)?.precautions) ||
+            'N/A',
+          management:
+            streamingContent.management ||
+            (fullResult.text_analysis?.management
+              ? typeof fullResult.text_analysis.management === 'object'
+                ? JSON.stringify(fullResult.text_analysis.management)
+                : fullResult.text_analysis.management
+              : 'N/A'),
         },
       };
 

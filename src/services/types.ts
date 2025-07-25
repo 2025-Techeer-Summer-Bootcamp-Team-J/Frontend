@@ -140,6 +140,8 @@ export interface DiagnosisDetail {
   text_analysis: {
     ai_opinion: string;
     detailed_description: string;
+    precautions: string;
+    management: string;
   };
   additional_info?: {
     symptoms?: string[];
@@ -173,6 +175,8 @@ export interface SaveDiagnosisRequest {
   text_analysis: {
     ai_opinion: string;
     detailed_description: string;
+    precautions: string;
+    management: string;
   };
   additional_info?: {
     symptoms?: string[];
