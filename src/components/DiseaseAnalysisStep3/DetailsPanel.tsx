@@ -131,7 +131,7 @@ const StreamingTabContent = styled(TabContent)`
 
 `;
 
-export type TabType = 'photos' | 'summary' | 'description' | 'precautions' | 'management';
+export type TabType = 'summary' | 'description' | 'precautions' | 'management' | 'photos';
 
 interface DiseaseInfo {
   disease_name: string;
@@ -189,7 +189,6 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       
       <DetailsBox>
         <TabNav>
-        <TabButton $isActive={activeTab==='photos'} onClick={()=>setActiveTab('photos')}>사진</TabButton>
           <TabButton $isActive={activeTab === 'summary'} onClick={() => setActiveTab('summary')}>
             요약
           </TabButton>
@@ -202,6 +201,8 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
           <TabButton $isActive={activeTab === 'management'} onClick={() => setActiveTab('management')}>
             관리법
           </TabButton>
+          <TabButton $isActive={activeTab==='photos'} onClick={()=>setActiveTab('photos')}>사진</TabButton>
+
         </TabNav>
 
         <TabContentContainer>
@@ -227,10 +228,6 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               </SummaryItem>
               {analysisMetrics && (
                 <>
-                  <SummaryItem>
-                    <span className="label">피부 점수</span>
-                    <span className="value">{analysisMetrics.skin_score}점</span>
-                  </SummaryItem>
                   <SummaryItem>
                     <span className="label">심각도</span>
                     <SeverityBar>
@@ -340,9 +337,10 @@ const CarouselWrapper = styled.div`
   align-items: center;
 `;
 const CarouselImg = styled.img`
-  max-width: 100%;
-  max-height: 60vh;
-  object-fit: contain;
+  width: 100%;            /* 기본적으로 가로 폭을 가득 채움 */
+  height: auto;           /* 가로 기준으로 비율 유지 */
+  max-height: 80vh;       /* 세로가 너무 길면 화면 높이의 80%로 제한 */
+  object-fit: contain;    /* 이미지가 잘리지 않도록 */
   border-radius: 0.5rem;
 `;
 const NavBtns = styled.div`

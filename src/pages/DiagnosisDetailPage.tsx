@@ -5,6 +5,9 @@ import type { DiagnosisDetail } from '../services/types';
 import DetailsPanel from '../components/DiseaseAnalysisStep3/DetailsPanel';
 import type { TabType } from '../components/DiseaseAnalysisStep3/DetailsPanel';
 import styled from 'styled-components';
+import { ContentWrapper } from '../components/Layout';
+import ChartPanel from '../components/DiseaseAnalysisStep3/ChartPanel';
+import { MainContent } from '../components/DiseaseAnalysisStep3/SharedStyles';
 
 // 진단 상세 페이지 컨테이너
 const PageWrapper = styled.div`
@@ -56,8 +59,8 @@ const DiagnosisDetailPage: React.FC = () => {
   const streamingContent = {
     summary: detail.text_analysis.ai_opinion,
     description: detail.text_analysis.detailed_description,
-    precautions: '',
-    management: '',
+    precautions: detail.text_analysis.precautions,
+    management: detail.text_analysis.management,
   };
 
   const analysisMetrics = {
@@ -67,8 +70,10 @@ const DiagnosisDetailPage: React.FC = () => {
   };
 
   return (
-    <PageWrapper>
-      <DetailsPanel
+    <ContentWrapper>
+      <MainContent>
+        <ChartPanel analysisResult={{ disease_name: diseaseInfo.disease_name, confidence: diseaseInfo.confidence }} />
+        <DetailsPanel
         imageUrls={detail.image_base64 ? [detail.image_base64] : []}
         diseaseInfo={diseaseInfo}
         streamingContent={streamingContent}
@@ -82,7 +87,8 @@ const DiagnosisDetailPage: React.FC = () => {
         onSave={() => {}}
         onRestart={() => navigate('/disease-analysis-step1')}
       />
-    </PageWrapper>
+      </MainContent>
+    </ContentWrapper>
   );
 };
 
