@@ -75,10 +75,10 @@ const DiseaseAnalysisStep3: React.FC = () => {
   // 상태 관리
 
 // selectedResult.result 타입 (필요한 필드만 정의)
-interface BasicAnalysisResult {
-  data?: Array<{ image?: string }>;
-  image?: string;
-}
+// interface BasicAnalysisResult {
+//   data?: Array<{ image?: string }>;
+//   image?: string;
+// }
   const [diseaseStats] = useState<Array<{ name: string; percent: number }>>(navDiseaseStats);
 
   const [diseaseInfo, setDiseaseInfo] = useState<DiseaseInfo>(() => {
@@ -156,26 +156,26 @@ interface BasicAnalysisResult {
   const { uploadedFiles = [], selectedResult = null } = locationState || {};
   // 이미지 보기 버튼 활성화 여부 (변수 선언 이후 계산)
   // 업로드된(또는 분석 결과 포함) 첫 번째 이미지를 URL 또는 Base64로 추출
-  const firstImageUrl = (() => {
-    // 1) navAnalysisResults에서 File 우선
-    const fileResult = navAnalysisResults.find(r => (r as AnalysisResult)?.file) as AnalysisResult | undefined;
-    if (fileResult?.file) {
-      return URL.createObjectURL(fileResult.file);
-    }
-    // 2) navUploadedFiles 배열
-    if (navUploadedFiles.length > 0) {
-      return URL.createObjectURL(navUploadedFiles[0]);
-    }
-    // 3) base64 문자열 (selectedResult.result 또는 navAnalysisResults)
-    const srcObj: BasicAnalysisResult | undefined = (selectedResult?.result as BasicAnalysisResult) || (navAnalysisResults[0]?.result as BasicAnalysisResult);
-    const rawBase64 = srcObj?.data?.[0]?.image || srcObj?.image;
-    if (typeof rawBase64 === 'string' && rawBase64.trim() !== '') {
-      // dataURI prefix가 없으면 추가
-      if (rawBase64.startsWith('data:')) return rawBase64;
-      return `data:image/jpeg;base64,${rawBase64}`;
-    }
-    return undefined;
-  })();
+  // const firstImageUrl = (() => {
+  //   // 1) navAnalysisResults에서 File 우선
+  //   const fileResult = navAnalysisResults.find(r => (r as AnalysisResult)?.file) as AnalysisResult | undefined;
+  //   if (fileResult?.file) {
+  //     return URL.createObjectURL(fileResult.file);
+  //   }
+  //   // 2) navUploadedFiles 배열
+  //   if (navUploadedFiles.length > 0) {
+  //     return URL.createObjectURL(navUploadedFiles[0]);
+  //   }
+  //   // 3) base64 문자열 (selectedResult.result 또는 navAnalysisResults)
+  //   const srcObj: BasicAnalysisResult | undefined = (selectedResult?.result as BasicAnalysisResult) || (navAnalysisResults[0]?.result as BasicAnalysisResult);
+  //   const rawBase64 = srcObj?.data?.[0]?.image || srcObj?.image;
+  //   if (typeof rawBase64 === 'string' && rawBase64.trim() !== '') {
+  //     // dataURI prefix가 없으면 추가
+  //     if (rawBase64.startsWith('data:')) return rawBase64;
+  //     return `data:image/jpeg;base64,${rawBase64}`;
+  //   }
+  //   return undefined;
+  // })();
 
 
   // 사진 탭에서 사용할 전체 이미지 URL 배열

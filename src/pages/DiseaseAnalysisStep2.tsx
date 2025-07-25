@@ -47,54 +47,60 @@ const DiseaseAnalysisStep2Page: React.FC = () => {
 
     const successfulTasks = analysisResults.filter(r => r.success && r.taskId);
 
-    useEffect(() => {
-        if (successfulTasks.length === 0) {
-            setIsAnalyzing(false);
-            return;
+    // 1. polling 시작 및 타임아웃 관리
+useEffect(() => {
+    if (successfulTasks.length === 0) {
+      setIsAnalyzing(false);
+      return;
+    }
+  
+    let isCancelled = false;
+  
+    const pollTaskStatus = async (taskId: string) => {
+      try {
+        const status = await api.diagnoses.getTaskStatus(taskId);
+        if (isCancelled) return;
+  
+        if (status.state === 'SUCCESS') {
+          setAnalysisResults(prev =>
+            prev.map(r => (r.taskId === taskId ? { ...r, result: status.result } : r))
+          );
+        } else if (status.state === 'FAILURE') {
+          setAnalysisResults(prev =>
+            prev.map(r => (r.taskId === taskId ? { ...r, errorMessage: `Task ${taskId} failed` } : r))
+          );
+        } else {
+          setTimeout(() => pollTaskStatus(taskId), 1000);
         }
-
-        let isCancelled = false;
-        let pollingCount = 0;
-
-        const pollTaskStatus = async (taskId: string) => {
-            try {
-                const status = await api.diagnoses.getTaskStatus(taskId);
-                if (isCancelled) return;
-
-                if (status.state === 'SUCCESS') {
-                    setAnalysisResults(prev =>
-                        prev.map(r => (r.taskId === taskId ? { ...r, result: status.result } : r))
-                    );
-                } else if (status.state === 'FAILURE') {
-                    console.error(`Task ${taskId} failed.`);
-                } else {
-                    // Continue polling
-                    setTimeout(() => pollTaskStatus(taskId), 1000);
-                }
-            } catch (error) {
-                if (isCancelled) return;
-                console.error('❌ Task 상태 확인 실패:', error);
-                setTimeout(() => pollTaskStatus(taskId), 1000);
-            }
-        };
-
-        successfulTasks.forEach(task => pollTaskStatus(task.taskId!));
-
-        // Check if all tasks are complete
-        const interval = setInterval(() => {
-            pollingCount++;
-            const completedCount = analysisResults.filter(r => r.result || r.errorMessage).length;
-            if (completedCount === successfulTasks.length || pollingCount > 30) { // 30초 타임아웃
-                setIsAnalyzing(false);
-                clearInterval(interval);
-            }
-        }, 1000);
-
-        return () => {
-            isCancelled = true;
-            clearInterval(interval);
-        };
-    }, []); // Run only once on mount
+      } catch {
+        if (isCancelled) return;
+        setTimeout(() => pollTaskStatus(taskId), 1000);
+      }
+    };
+  
+    successfulTasks.forEach(task => pollTaskStatus(task.taskId!));
+  
+    const timeoutId = setTimeout(() => {
+      if (!isCancelled) {
+        setIsAnalyzing(false);
+      }
+    }, 30000);
+  
+    return () => {
+      isCancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, []);
+  
+  // 2. 결과 변화 감지하여 완료 처리
+  useEffect(() => {
+    if (!isAnalyzing) return;
+  
+    const completedCount = analysisResults.filter(r => r.result || r.errorMessage).length;
+    if (completedCount > 0 && completedCount === successfulTasks.length) {
+      setIsAnalyzing(false);
+    }
+  }, [analysisResults, isAnalyzing, successfulTasks.length]);
 
 
     const handleSymptomToggle = (symptom: string) => {
