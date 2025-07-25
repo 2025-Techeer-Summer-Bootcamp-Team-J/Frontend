@@ -10,15 +10,25 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 // axios 인스턴스 생성
 export const apiClient = axios.create({
   baseURL: BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  // 기본 헤더는 특별히 지정하지 않고, 요청 인터셉터에서 동적으로 설정
+  headers: {},
   timeout: 10000,
 });
 
-// 요청 인터셉터
+// 요청 인터셉터 – FormData 전송 시 content-type 자동 설정
 apiClient.interceptors.request.use(
   (config) => {
+    // FormData 인스턴스이면 content-type 헤더 제거해서 브라우저가 boundary 포함하도록 자동 설정
+    if (config.data instanceof FormData) {
+      if (config.headers) {
+        delete config.headers['Content-Type'];
+      }
+    } else {
+      // JSON 데이터일 때만 명시적으로 설정
+      if (config.headers && !config.headers['Content-Type']) {
+        config.headers['Content-Type'] = 'application/json';
+      }
+    }
     // 필요시 인증 토큰 추가
     // const token = localStorage.getItem('token');
     // if (token) {
