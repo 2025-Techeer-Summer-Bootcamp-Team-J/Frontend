@@ -131,7 +131,7 @@ const StreamingTabContent = styled(TabContent)`
 
 `;
 
-export type TabType = 'photos' | 'summary' | 'description' | 'precautions' | 'management';
+export type TabType = 'summary' | 'description' | 'precautions' | 'management' | 'photos';
 
 interface DiseaseInfo {
   disease_name: string;
@@ -189,7 +189,6 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
       
       <DetailsBox>
         <TabNav>
-        <TabButton $isActive={activeTab==='photos'} onClick={()=>setActiveTab('photos')}>사진</TabButton>
           <TabButton $isActive={activeTab === 'summary'} onClick={() => setActiveTab('summary')}>
             요약
           </TabButton>
@@ -202,6 +201,8 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
           <TabButton $isActive={activeTab === 'management'} onClick={() => setActiveTab('management')}>
             관리법
           </TabButton>
+          <TabButton $isActive={activeTab==='photos'} onClick={()=>setActiveTab('photos')}>사진</TabButton>
+
         </TabNav>
 
         <TabContentContainer>
