@@ -64,7 +64,7 @@ export default SkinKnowledgeCard;
 const CardTitle = styled.h3`
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #202123;
   margin: 0;
   margin-bottom: 1rem;
 `;
@@ -78,8 +78,8 @@ const KnowledgeContainer = styled.div`
 const InfoBox = styled.div<{ color: 'blue' | 'yellow' }>`
   padding: 1rem;
   border-radius: 0.5rem;
-  background-color: ${({ color }) => (color === 'blue' ? '#eff6ff' : '#fefce8')};
-  h4, p { color: ${({ color }) => (color === 'blue' ? '#1d4ed8' : '#a16207')}; }
+  background-color: ${({ color }) => (color === 'blue' ? '#F0F9FF' : '#FFFAE6')};
+  h4, p { color: ${({ color }) => (color === 'blue' ? '#00A6FD' : '#a17807ff')}; }
 `;
 
 const InfoTitle = styled.h4`
