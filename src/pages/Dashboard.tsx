@@ -173,10 +173,10 @@ const Sidebar = styled.div`
 `;
 
 const Card = styled.div`
-  background-color: #fff;
+  background-color: #FBFDFF;
   padding: 1.5rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  border-radius: 2.2rem;
+  box-shadow:  0.3rem 0.25rem 0.4rem rgba(71, 69, 179, 0.2);
 `;
 
 const PageTitle = styled.div`
@@ -185,7 +185,7 @@ const PageTitle = styled.div`
   h2 {
     font-size: 1.875rem;
     font-weight: 700;
-    color: #1f2937;
+    color: #17171B;
     margin: 0;
   }
   p {

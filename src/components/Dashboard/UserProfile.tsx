@@ -188,7 +188,7 @@ const CardTitleContainer = styled.div`
 const CardTitle = styled.h3`
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #202123;
   margin: 0;
 `;
 
@@ -197,7 +197,7 @@ const EditButton = styled.button`
   border: 1px solid #d1d5db;
   color: #374151;
   padding: 0.25rem 0.75rem;
-  border-radius: 0.375rem;
+  border-radius: 1rem;
   font-size: 0.875rem;
   cursor: pointer;
   &:hover {
@@ -219,7 +219,7 @@ const ProfileLabel = styled.p`
 
 const ProfileValue = styled.p`
   font-weight: 600;
-  color: #2563eb;
+  color: #00A6FD;
   margin: 0;
 `;
 
@@ -250,7 +250,7 @@ const ButtonContainer = styled.div`
 const SaveButton = styled.button`
   flex-grow: 1;
   padding: 0.5rem;
-  background-color: #2563eb;
+  background-color: #00A6FD;
   color: white;
   border: none;
   border-radius: 0.375rem;
