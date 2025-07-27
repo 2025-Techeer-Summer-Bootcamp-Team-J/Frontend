@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import main_image from '../assets/mainpage_image.png';
 import video1 from '../assets/video1.mp4';
 import video2 from '../assets/video2.mp4';
 import video3 from '../assets/video3.mp4';
 
 import VideoSection from '../components/MainPage/VideoSection';
-import MainSection from '../components/MainPage/MainSection';
 import KeyFeaturesSection from '../components/MainPage/KeyFeaturesSection';
 import DiagnosisReportSection from '../components/MainPage/DiagnosisReportSection';
 import SkinTypeAnalysisSection from '../components/MainPage/SkinTypeAnalysisSection';
@@ -20,7 +18,7 @@ import {
   SectionHeading,
   NeumorphicButton,
   ScrollToTopButton,
-  Footer,
+  Footer
 } from '../components/MainPage/SharedStyles';
 import { FaArrowUp } from 'react-icons/fa';
 
@@ -54,25 +52,24 @@ const MainPage: React.FC = () => {
     return (
       <>
         <VideoSection videoList={videoList} />
-        <MainSection mainImage={main_image} />
         <KeyFeaturesSection />
         <DiagnosisReportSection />
         <SkinTypeAnalysisSection />
         <DashboardPreviewSection />
         <TodaysCareSection />
             
-       <Section>
+       <Section bg="#F0F9FF">
         <Footer>
             <CustomContainer className="text-center">
                 <SectionHeading className="text-2xl font-bold md:text-3xl">
-                  <NotoSansBlack>지금 바로 PPIKA과 함께 건강한 피부 변화를 시작하세요.</NotoSansBlack>
+                  <NotoSansBlack>지금 바로 삐까뻔쩍과 함께 건강한 피부 변화를 시작하세요.</NotoSansBlack>
                 </SectionHeading>
                 <div style={{ marginTop: '2rem' }}>
                 <NeumorphicButton onClick={() => navigate('/disease-analysis-step1')}>
                         AI 진단 시작하기
                 </NeumorphicButton>
                 </div>
-                </CustomContainer>
+            </CustomContainer>
         </Footer>
         </Section>
 

@@ -15,21 +15,13 @@ export const CustomContainer = styled.div`
 `;
 
 export const Section = styled.section<{ bg?: string }>`
-  padding: 4rem 0;
+  padding: 6rem 0;
   background-color: ${props => props.bg || '#ffffff'};
   
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
   align-items: center;
   justify-content: center;
-
-  ${props => props.bg === '#eff6ff' && `
-    background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23dbeafe' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zm1 5v1H5zM0 0L6 6V5.923L.077 0z'/%3E%3C/g%3E%3C/svg%3E");
-  `}
-  @media (min-width: 768px) {
-    padding: 6rem 0;
-  }
 `;
 
 export const Grid = styled.div<{
@@ -49,30 +41,21 @@ export const NotoSansBlack = styled.span`
   font-weight: 600;
 `;
 
-export const GradientText = styled.span`
-  background: linear-gradient(to right, #1e40af, #2563eb);
-  font-weight: 800;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-`;
-
-export const MainHeading = styled.h1`
-  font-size: 2.25rem; font-weight: 900; line-height: 1.2; margin-bottom: 1rem; text-align: center;
-  @media (min-width: 768px) { font-size: 2.75rem; text-align: left; }
-  @media (min-width: 1024px) { font-size: 3.25rem; }
-`;
-
-export const SubHeading = styled.p`
-  font-size: 1.125rem; color: #4b5563; max-width: 42rem; margin: 0 auto 2rem; text-align: center;
-  @media (min-width: 768px)
-  { font-size: 1.25rem; margin: 0 0 2rem; text-align: left; }
-`;
-
 export const SectionHeading = styled.h2`
-  font-size: 1.875rem; font-weight: 900; margin-bottom: 1rem; text-align: center;
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-align: center;
   margin-left: auto;
   margin-right: auto;
   @media (min-width: 768px) { font-size: 2.25rem; }
+`;
+
+export const GradientText = styled.h2`
+  margin-bottom: 3rem;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 `;
 
 export const SectionSubheading = styled.p`
@@ -91,14 +74,43 @@ export const NeumorphicButton = styled.button`
   &:active { box-shadow: inset 8px 8px 16px #d1d9e6, inset -8px -8px 16px #ffffff; transform: translateY(0) scale(0.98); }
 `;
 
-export const GlassmorphismCard = styled.div`
-  min-width: 0;
-  background: rgba(255, 255, 255, 0.4); border-radius: 16px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 2rem; transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+export const FeatureBox = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+  width: 100%;
+
+  svg { 
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+`;
+
+export const GlassmorphismCard = styled.div`
+  min-width: 0;
+  background: #F0F9FF; border-radius: 32px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 1.5rem;
+  transition: transform 0.3s ease-in-out;
+  box-shadow 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+  height: 50%;
+  width: 90%;
+  box-shadow: 0.25rem 0.25rem 0.5rem rgba(71,69,179,0.2);
+  
+  justify-content: center;
+  align-items: center;
+
   @media (max-width: 768px) { padding: 1.5rem; }
   &:hover { transform: translateY(-5px); box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15); }
 `;
