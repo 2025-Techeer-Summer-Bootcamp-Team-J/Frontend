@@ -228,7 +228,7 @@ function Layout() {
 
       <FooterWrapper>
         <FooterContent>
-          <p>© 2024 BlueScope. All Rights Reserved.</p>
+          <p>© 2025 PPIKA. All Rights Reserved.</p>
         </FooterContent>
       </FooterWrapper>
     </PageWrapper>
