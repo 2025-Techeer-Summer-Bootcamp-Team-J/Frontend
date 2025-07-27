@@ -212,3 +212,24 @@ export const ReportCard = styled.div`
   padding: 2rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 `;
+
+export const InfoCard = styled.div`
+  background-color: #ffffff;
+  border-radius: 1rem; /* 16px, 둥근 모서리 */
+  padding: 1.5rem; /* 24px, 카드 내부 여백 */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9; /* 아주 옅은 테두리 */
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
+
+export const CardTitle = styled.h2`
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 1.5rem 0; /* 제목과 내용 사이의 하단 여백 */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* 아이콘과 텍스트 사이 간격 */
+`;
