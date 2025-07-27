@@ -15,9 +15,6 @@ export const GlobalStyle = createGlobalStyle`
       /* 화면 너비에 따라 폰트 크기를 유동적으로 조절합니다. */
       /* 최소 14px, 기본 16px, 최대 18px (뷰포트 너비 360px ~ 1200px 기준) */
         font-size: 100%;
-        scroll-snap-type: y mandatory;
-        scroll-behavior: smooth;
-        overflow-y: scroll;
     }
 
     body {
@@ -26,8 +23,4 @@ export const GlobalStyle = createGlobalStyle`
         min-height: 100vh;
     }
 
-    section {
-        scroll-snap-align: start;
-        min-height: 100vh;
-    }
 `;
