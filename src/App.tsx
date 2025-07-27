@@ -11,6 +11,7 @@ import MainPage from './pages/MainPage';
 import TodaysCare from './pages/TodaysCare';
 import Dashboard from './pages/Dashboard';
 import SkinAnalysis from './pages/SkinAnalysis';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import UserInfoPage from './pages/UserInfoPage';
 import RedirectPage from './pages/RedirectPage';
 import DiagnosisDetailPage from './pages/DiagnosisDetailPage';
@@ -28,35 +29,34 @@ function App() {
 
           <Route
             path="/disease-analysis-step1"
-            element={<SkinAnalysisStep1 />}
+            element={<ProtectedRoute><SkinAnalysisStep1 /></ProtectedRoute>}
           />
           <Route
             path="/disease-analysis-step2"
-            element={<DiseaseAnalysisStep2Page />}
+            element={<ProtectedRoute><DiseaseAnalysisStep2Page /></ProtectedRoute>}
           />
           <Route
             path="/disease-analysis-step3"
-            element={<AnalysisResultPage />}
-          />
+            element={<ProtectedRoute><AnalysisResultPage /></ProtectedRoute>}          />
           <Route
             path="/loading"
-            element={<LoadingPage />}
+            element={<ProtectedRoute><LoadingPage /></ProtectedRoute>}
           />
           <Route
             path="/todays-care"
-            element={<TodaysCare />}
+            element={<ProtectedRoute><TodaysCare /></ProtectedRoute>}
           />
           <Route
             path="/dashboard"
-            element={<Dashboard />}
+            element={<ProtectedRoute><Dashboard /></ProtectedRoute>}
           />
           <Route
             path="/diagnoses/:id"
-            element={<DiagnosisDetailPage />}
+            element={<ProtectedRoute><DiagnosisDetailPage /></ProtectedRoute>}
           />
           <Route
             path="/skin-analysis"
-            element={<SkinAnalysis />}
+            element={<ProtectedRoute><SkinAnalysis /></ProtectedRoute>}
           />
         </Route>
 
