@@ -37,7 +37,8 @@ function App() {
           />
           <Route
             path="/disease-analysis-step3"
-            element={<ProtectedRoute><AnalysisResultPage /></ProtectedRoute>}          />
+            element={<ProtectedRoute><AnalysisResultPage /></ProtectedRoute>}
+          />
           <Route
             path="/loading"
             element={<ProtectedRoute><LoadingPage /></ProtectedRoute>}
