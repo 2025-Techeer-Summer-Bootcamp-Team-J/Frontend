@@ -18,6 +18,7 @@ export interface SkinResult {
     description: string;
     features: string[];
     care: string[];
+    score_info?: Record<string, number>; // [추가] 점수 정보
 }
 
 // API 응답을 SkinResult로 변환하는 함수
@@ -68,6 +69,8 @@ export const convertApiResponseToSkinResult = (response: SkinTypeAnalysisRespons
         subtitle: response.data.skin_type_name,
         description: defaultInfo.description,
         features: defaultInfo.characteristics,
-        care: defaultInfo.care
+        care: defaultInfo.care,
+        // [추가] score_info가 있으면 포함
+        score_info: (response.data as any).skin_type_scores || undefined
     };
 }; 
