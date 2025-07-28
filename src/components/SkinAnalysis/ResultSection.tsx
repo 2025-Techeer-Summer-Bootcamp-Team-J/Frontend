@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 import { Radar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -21,10 +22,12 @@ import {
   ResultTitle,
   ResultSubtitle,
   ResultDescription,
-  ResultGrid,
+  ResultLeftGrid,
+  ResultRightGrid,
   ResultSectionTitle,
   ResultList,
   RestartButton,
+  ResultGridWrapper
 } from './SharedStyles';
 
 interface ResultSectionProps {
@@ -48,7 +51,6 @@ const ResultSection: React.FC<ResultSectionProps> = ({ resultData, handleRestart
     if (!resultData.score_info) return null;
     const labels = [
       '다크서클',
-      '피부타입',
       '주름',
       '유분',
       '모공',
@@ -64,10 +66,9 @@ const ResultSection: React.FC<ResultSectionProps> = ({ resultData, handleRestart
       labels,
       datasets: [
         {
-          label: '피부 점수',
+          label: '점수',
           data: [
             resultData.score_info.dark_circle_score,
-            resultData.score_info.skin_type_score,
             resultData.score_info.wrinkle_score,
             resultData.score_info.oily_intensity_score,
             resultData.score_info.pores_score,
@@ -96,12 +97,20 @@ const ResultSection: React.FC<ResultSectionProps> = ({ resultData, handleRestart
       },
     };
     return (
-      <div style={{ maxWidth: 500, margin: '2rem auto' }}>
-        <h3 style={{ textAlign: 'center', marginBottom: '1rem' }}>피부 항목별 점수 레이더 차트</h3>
+      <div style={{ maxWidth: 550, margin: 'auto' }}>
+        <h3 style={{ textAlign: 'center', marginBottom: '1rem' }}>피부 항목별 점수</h3>
         <Radar data={data} options={options} />
       </div>
     );
   };
+
+const ChartCard = styled.div`
+    border-radius: 3.2rem;
+    padding: 1rem;
+    box-shadow: 0.25rem 0.25rem 0.5rem rgba(71, 69, 179, 0.2);
+    width: 100%;
+    box-sizing: border-box;
+`;
 
   return (
     <PageSection $isFadedIn={true}>
@@ -110,29 +119,36 @@ const ResultSection: React.FC<ResultSectionProps> = ({ resultData, handleRestart
         <MainSubtitle>당신의 피부 타입과 맞춤 관리법을 확인해보세요.</MainSubtitle>
       </ResultHeader>
 
-      <ResultCard>
-        <ResultTitle>{resultData.title}</ResultTitle>
-        <ResultSubtitle>{resultData.subtitle}</ResultSubtitle>
-        <ResultDescription>{resultData.description}</ResultDescription>
-      </ResultCard>
+      <ResultGridWrapper>
+        <ResultLeftGrid>
+          <ChartCard>
+            {renderRadarChart()}
+          </ChartCard>
+        </ResultLeftGrid>
 
-      {/* 레이더 차트 */}
-      {renderRadarChart()}
+        <ResultRightGrid>
+          <ResultCard>
+            <ResultTitle>{resultData.title}</ResultTitle>
+            <ResultSubtitle>{resultData.subtitle}</ResultSubtitle>
+            <ResultDescription>{resultData.description}</ResultDescription>
+          </ResultCard>
 
-      <ResultGrid>
-        <ResultCard>
-          <ResultSectionTitle><FontAwesomeIcon icon={faListCheck} /> 주요 특징</ResultSectionTitle>
-          <ResultList>
-            {resultData.features.map((item: string, index: number) => <li key={index}>{item}</li>)}
-          </ResultList>
-        </ResultCard>
+          <ResultCard>
+              <ResultSectionTitle><FontAwesomeIcon icon={faListCheck} /> 주요 특징</ResultSectionTitle>
+              <ResultList>
+                {resultData.features.map((item: string, index: number) => <li key={index}>{item}</li>)}
+              </ResultList>
+          </ResultCard>
+        </ResultRightGrid>
+      </ResultGridWrapper>
+
         <ResultCard>
           <ResultSectionTitle><FontAwesomeIcon icon={faHandHoldingHeart} /> 추천 관리법</ResultSectionTitle>
           <ResultList>
             {resultData.care.map((item: string, index: number) => <li key={index}>{item}</li>)}
           </ResultList>
         </ResultCard>
-      </ResultGrid>
+      
 
       <RestartButton href="#upload" onClick={handleRestart}>
         <FontAwesomeIcon icon={faRedo} /> 처음부터 다시 진단하기

@@ -272,8 +272,6 @@ const SkinAnalysis: React.FC = () => {
                             resultData={resultData}
                             handleRestart={handleRestart}
                         />
-                        {/* [추가] score_info가 있으면 레이더 차트 표시 */}
-                        {resultData.score_info && <SkinRadarChart scoreInfo={resultData.score_info} />}
                     </>
                 )}
 
