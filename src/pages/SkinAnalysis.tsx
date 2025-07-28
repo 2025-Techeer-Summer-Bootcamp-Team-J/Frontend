@@ -10,8 +10,6 @@ import ResultSection from '../components/SkinAnalysis/ResultSection';
 import ErrorSection from '../components/SkinAnalysis/ErrorSection';
 import { skinCareTips, convertApiResponseToSkinResult, type SkinResult } from '../utils/skinAnalysis';
 
-// [추가] Chart.js, react-chartjs-2 Radar 차트 관련 import
-import { Radar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   RadialLinearScale,
@@ -30,66 +28,6 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-
-// [추가] 레이더 차트 컴포넌트 정의
-const SkinRadarChart = ({ scoreInfo }: { scoreInfo: any }) => {
-  if (!scoreInfo) return null;
-  const labels = [
-    '다크서클',
-    '피부타입',
-    '주름',
-    '유분',
-    '모공',
-    '블랙헤드',
-    '여드름',
-    '민감도',
-    '멜라닌',
-    '수분',
-    '거침',
-    '종합점수',
-  ];
-  const data = {
-    labels,
-    datasets: [
-      {
-        label: '피부 점수',
-        data: [
-          scoreInfo.dark_circle_score,
-          scoreInfo.skin_type_score,
-          scoreInfo.wrinkle_score,
-          scoreInfo.oily_intensity_score,
-          scoreInfo.pores_score,
-          scoreInfo.blackhead_score,
-          scoreInfo.acne_score,
-          scoreInfo.sensitivity_score,
-          scoreInfo.melanin_score,
-          scoreInfo.water_score,
-          scoreInfo.rough_score,
-          scoreInfo.total_score,
-        ],
-        backgroundColor: 'rgba(34, 202, 236, 0.2)',
-        borderColor: 'rgba(34, 202, 236, 1)',
-        borderWidth: 2,
-        pointBackgroundColor: 'rgba(34, 202, 236, 1)',
-      },
-    ],
-  };
-  const options = {
-    scales: {
-      r: {
-        min: 0,
-        max: 100,
-        ticks: { stepSize: 20 },
-      },
-    },
-  };
-  return (
-    <div style={{ maxWidth: 500, margin: '2rem auto' }}>
-      <h3 style={{ textAlign: 'center', marginBottom: '1rem' }}>피부 항목별 점수 레이더 차트</h3>
-      <Radar data={data} options={options} />
-    </div>
-  );
-};
 
 const SkinAnalysis: React.FC = () => {
     // 🔑 현재 로그인한 유저 정보 가져오기
