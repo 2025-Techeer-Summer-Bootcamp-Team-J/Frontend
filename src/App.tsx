@@ -15,12 +15,14 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import UserInfoPage from './pages/UserInfoPage';
 import RedirectPage from './pages/RedirectPage';
 import DiagnosisDetailPage from './pages/DiagnosisDetailPage';
+import ScrollToTop from './components/ScrollToTop';
 
   
 
 function App() {
   return (
     <>
+    <ScrollToTop />
       <GlobalStyle />
       <Routes>
         <Route element={<Layout />}>
