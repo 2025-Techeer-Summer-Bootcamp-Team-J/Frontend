@@ -1,20 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
-import { ContentWrapper } from '../components/Layout';
-import ChartPanel from '../components/DiseaseAnalysisStep3/ChartPanel';
 // 👇 3번 파일에서 Card 스타일들을 가져옵니다.
-import { MainContent, MainTitlePanel, MainTitle, ButtonGroup, StyledButton, InfoCard, CardTitle } from '../components/DiseaseAnalysisStep3/SharedStyles';
+import { ResultPageFrame, MainContent, MainTitlePanel, MainTitle, ButtonGroup, StyledButton, InfoCard, CardTitle } from '../components/DiseaseAnalysisStep3/SharedStyles';
 import { api, apiClient } from '../services';
 import { fileToBase64 } from '../services/utils';
 import type { SaveDiagnosisRequest } from '../services/types';
 
 // 👇 2번 파일(부품 창고)에서 모든 부품을 가져옵니다.
-import { SummaryItem, SeverityBar, SeverityBarInner, AIOpinionBox, PhotoCarousel, convertLinesToMarkdown } from '../components/DiseaseAnalysisStep3/DetailsPanel';
+import { SummaryItem,AIOpinionBox, PhotoCarousel, convertLinesToMarkdown } from '../components/DiseaseAnalysisStep3/DetailsPanel';
 import ReactMarkdown from 'react-markdown'; // 마크다운 렌더링 도구
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // 아이콘 도구
 // 👇 카드 제목에 사용할 아이콘들을 미리 다 가져옵니다.
 import { faFileMedical, faCamera, faCircleInfo, faTriangleExclamation, faBookMedical, faSpinner, faSave, faRedo } from '@fortawesome/free-solid-svg-icons';
+import {FullWidthInfoCard } from '../components/DiseaseAnalysisStep3/SharedStyles';
 
 
 // 타입 정의
@@ -84,7 +83,6 @@ const DiseaseAnalysisStep3: React.FC = () => {
 //   data?: Array<{ image?: string }>;
 //   image?: string;
 // }
-  const [diseaseStats] = useState<Array<{ name: string; percent: number }>>(navDiseaseStats);
 
   const [diseaseInfo, setDiseaseInfo] = useState<DiseaseInfo>(() => {
     if (navDiseaseStats.length > 0) {
@@ -552,16 +550,18 @@ const DiseaseAnalysisStep3: React.FC = () => {
   };
 
   return (
-    <ContentWrapper>
+    <ResultPageFrame>
         <MainTitlePanel>
             <MainTitle>AI 진단 결과</MainTitle>
         </MainTitlePanel>
         
         {/* 2단 그리드가 여기서 시작됩니다. */}
         <MainContent>
-            {/* 카드 1: 질병 의심도 */}
+
+            {/* 카드 3: 첨부 사진 */}
             <InfoCard>
-                <ChartPanel diseaseStats={diseaseStats} />
+                <CardTitle><FontAwesomeIcon icon={faCamera} /> 첨부 사진</CardTitle>
+                {imageUrls.length > 0 ? <PhotoCarousel imageUrls={imageUrls} /> : <p>첨부된 사진이 없습니다.</p>}
             </InfoCard>
 
             {/* 카드 2: 종합 요약 */}
@@ -572,14 +572,6 @@ const DiseaseAnalysisStep3: React.FC = () => {
                     <span className="value disease-name">{diseaseInfo.disease_name}</span>
                 </SummaryItem>
                 <SummaryItem>
-                    <span className="label">확률</span>
-                    <span className="value">{diseaseInfo.confidence}%</span>
-                </SummaryItem>
-                <SummaryItem>
-                    <span className="label">심각도</span>
-                    <SeverityBar><SeverityBarInner $severity={diseaseInfo.confidence} /></SeverityBar>
-                </SummaryItem>
-                <SummaryItem>
                     <span className="label">예상 치료 기간</span>
                     <span className="value">{analysisMetrics?.estimated_treatment_period || '4-6주'}</span>
                 </SummaryItem>
@@ -587,12 +579,6 @@ const DiseaseAnalysisStep3: React.FC = () => {
                     <h4><FontAwesomeIcon icon={faFileMedical} style={{ marginRight: '0.5rem' }} />AI 소견</h4>
                     {streamingContent.summary ? <ReactMarkdown>{convertLinesToMarkdown(streamingContent.summary)}</ReactMarkdown> : <p>AI가 상세 소견을 분석중입니다...</p>}
                 </AIOpinionBox>
-            </InfoCard>
-
-            {/* 카드 3: 첨부 사진 */}
-            <InfoCard>
-                <CardTitle><FontAwesomeIcon icon={faCamera} /> 첨부 사진</CardTitle>
-                {imageUrls.length > 0 ? <PhotoCarousel imageUrls={imageUrls} /> : <p>첨부된 사진이 없습니다.</p>}
             </InfoCard>
 
             {/* 카드 4: 상세 설명 */}
@@ -607,11 +593,11 @@ const DiseaseAnalysisStep3: React.FC = () => {
                 {streamingContent.precautions ? <ReactMarkdown>{convertLinesToMarkdown(streamingContent.precautions)}</ReactMarkdown> : <p>분석중입니다...</p>}
             </InfoCard>
 
-            {/* 카드 6: 아토피 피부염 관리법 */}
-            <InfoCard>
-                <CardTitle><FontAwesomeIcon icon={faBookMedical} /> 아토피 피부염 관리법</CardTitle>
+            {/* 카드 6:  관리법 */}
+            <FullWidthInfoCard>
+                <CardTitle><FontAwesomeIcon icon={faBookMedical} /> 관리법</CardTitle>
                 {streamingContent.management ? <ReactMarkdown>{convertLinesToMarkdown(streamingContent.management)}</ReactMarkdown> : <p>분석중입니다...</p>}
-            </InfoCard>
+            </FullWidthInfoCard>
         </MainContent>
 
         {/* 버튼들은 그리드 바깥에, 페이지 하단에 위치합니다. */}
@@ -630,7 +616,7 @@ const DiseaseAnalysisStep3: React.FC = () => {
                 <FontAwesomeIcon icon={faRedo} /> 다시 분석하기
             </StyledButton>
         </ButtonGroup>
-    </ContentWrapper>
+    </ResultPageFrame>
 );
 };
 

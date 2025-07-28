@@ -1,5 +1,32 @@
 import styled, { css } from 'styled-components';
 
+export const ResultPageFrame = styled.div`
+  /* 1. ContentWrapper의 핵심 스타일을 여기에 직접 추가합니다 */
+  width: 100%;
+  max-width: 80rem; /* Layout 파일에 있던 값 */
+  margin-left: auto;  /* margin: 0 auto 와 동일한 역할 */
+  margin-right: auto; /* margin: 0 auto 와 동일한 역할 */
+
+  /* 2. 우리가 원했던 '전용 월페이퍼' 디자인 */
+  background: #FBFDFF;
+  border-radius: .5rem;
+  padding: 2.3rem 2.3rem;
+  box-shadow: 0.25rem 0.25rem 0.5rem rgba(92, 90, 231, 0.2);
+
+  /* 3. 위아래 여백 */
+  margin-top: 4rem;
+  margin-bottom: 2.5rem;
+
+  /* 4. 모바일 화면 대응 */
+  @media (max-width: 768px) {
+    padding: 1.5rem 1.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 2rem;
+  }
+`;
+
+
 export const Frame = styled.div`
   display: flex;
   flex-direction: column;
@@ -50,7 +77,7 @@ export const StepLine = styled.div`
 export const MainContent = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 4rem; 
+  gap: 2rem; 
   flex-grow: 1;
   align-items: stretch;
 
@@ -69,8 +96,8 @@ export const MainTitlePanel = styled.div`
 export const MainTitle = styled.h1`
     font-size: clamp(1.75rem, 4vw, 2.25rem);
     font-weight: 700;
-    color: #1E293B;
-    margin-bottom: 0.625rem;
+    color: #17171B;
+    margin: 0 0 1rem 0;
 `;
 
 export const ChartPanel = styled.div`
@@ -137,51 +164,6 @@ export const DetailsPanelContainer = styled.div`
   flex-direction: column;
 `;
 
-export const DetailsBox = styled.div`
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #e2e8f0;
-  border-radius: 2rem;
-  background-color: #f8fafc;
-`;
-
-export const TabNav = styled.nav`
-  display: flex;
-  width: 100%;
-  padding: 0 1rem;
-  border-bottom: 1px solid #e2e8f0;
-  background-color: white;
-  border-top-left-radius: 2rem;
-  border-top-right-radius: 2rem;
-  overflow: hidden;
-`;
-
-export const TabButton = styled.button<{ $isActive: boolean }>`
-  flex: 1;
-  text-align: center;
-  padding: 0.75rem 1.5rem;
-  font-weight: 600;
-  color: #64748b;
-  border: none;
-  background: none;
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  transition: all 0.2s ease;
-  ${({ $isActive }) => $isActive && css` color: #157FF1; border-bottom-color: #157FF1; `}
-`;
-
-export const TabContentContainer = styled.div`
-  padding: 1rem 2rem;
-  flex-grow: 1;
-  min-height: 28rem; /* 요약 탭 기준으로 일정 높이 유지 */
-`;
-export const TabContent = styled.div`
-  h3 { font-weight: 700; font-size: 1.125rem; color: #1e293b; margin: 0 0 0.75rem; }
-  ul { list-style: disc; list-style-position: inside; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; color: #475569; line-height: 1.6; }
-  strong { font-weight: 700; }
-`;
-
 export const ButtonGroup = styled.div` padding-top: 2rem; display: flex; flex-direction: column; gap: 0.75rem; `;
 export const TwoButtonGrid = styled.div`
   display: grid;
@@ -215,21 +197,28 @@ export const ReportCard = styled.div`
 
 export const InfoCard = styled.div`
   background-color: #ffffff;
-  border-radius: 1rem; /* 16px, 둥근 모서리 */
-  padding: 1.5rem; /* 24px, 카드 내부 여백 */
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  border: 1px solid #f1f5f9; /* 아주 옅은 테두리 */
+  border-radius: 1.2rem; /* 16px, 둥근 모서리 */
+  padding: 2.5rem; /* 24px, 카드 내부 여백 */
+  box-shadow: 0.15rem 0.15rem 0.4rem rgba(131, 129, 235, 0.2);
+  /* border: 1px solid #f1f5f9; */ /* 아주 옅은 테두리 */
   display: flex;
   flex-direction: column;
   width: 100%;
 `;
 
 export const CardTitle = styled.h2`
-  font-size: 1.125rem; /* 18px */
+  font-size: 1.3rem; /* 18px */
   font-weight: 700;
-  color: #1e293b;
+  border-bottom: 3px solid #f0f9ff;
+  color: #05A6FD;
   margin: 0 0 1.5rem 0; /* 제목과 내용 사이의 하단 여백 */
   display: flex;
   align-items: center;
-  gap: 0.5rem; /* 아이콘과 텍스트 사이 간격 */
+  gap: 0.6rem; /* 아이콘과 텍스트 사이 간격 */
+  padding-bottom: 0.5rem; /* 8px 정도의 여백 추가 */
+`;
+
+export const FullWidthInfoCard = styled(InfoCard)`
+  /* 이 카드가 그리드의 1번 줄에서부터 끝(-1) 줄까지 모두 차지하도록 설정합니다. */
+  grid-column: 1 / -1;
 `;
