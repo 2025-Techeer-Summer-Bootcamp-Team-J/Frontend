@@ -278,6 +278,15 @@ export const ResultCard = styled.div`
     box-sizing: border-box;
 `;
 
+export const ChartCard = styled.div`
+    background: ${theme.cardBgColor};
+    border-radius: 3.2rem;
+    padding: 1rem;
+    box-shadow: 0.25rem 0.25rem 0.5rem rgba(71, 69, 179, 0.2);
+    width: 100%;
+    box-sizing: border-box;
+`;
+
 export const ResultTitle = styled.h2`
     font-size: clamp(1.5rem, 4vw, 1.8rem);
     font-weight: 700;
