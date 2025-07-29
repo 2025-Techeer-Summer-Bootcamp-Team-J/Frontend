@@ -134,7 +134,7 @@ export interface DiagnosisDetail {
     disease_name: string;
     confidence: number;
     skin_score?: number;
-    severity?: string;
+    severity: string;
     estimated_treatment_period?: string;
   };
   text_analysis: {
@@ -142,6 +142,7 @@ export interface DiagnosisDetail {
     detailed_description: string;
     precautions: string;
     management: string;
+    references?: string;
   };
   additional_info?: {
     symptoms?: string[];
@@ -179,6 +180,7 @@ export interface SaveDiagnosisRequest {
     detailed_description: string;
     precautions: string;
     management: string;
+    references?: string;
   };
   additional_info?: {
     symptoms?: string[];

@@ -9,7 +9,8 @@ import { fileToBase64 } from '../services/utils';
 import type { SaveDiagnosisRequest } from '../services/types';
 
 // 👇 2번 파일(부품 창고)에서 모든 부품을 가져옵니다.
-import { SummaryItem, AIOpinionBox, PhotoCarousel } from '../components/DiseaseAnalysisStep3/DetailsPanel';
+import { SummaryItem, PhotoCarousel } from '../components/DiseaseAnalysisStep3/DetailsPanel';
+import { AIOpinionBox } from '../components/DiseaseAnalysisStep3/SharedStyles';
 import { convertLinesToMarkdown } from '../components/DiseaseAnalysisStep3/markdownUtils';
 import ReactMarkdown from 'react-markdown'; // 마크다운 렌더링 도구
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // 아이콘 도구
@@ -533,8 +534,18 @@ const DiseaseAnalysisStep3: React.FC = () => {
       const base64Image = resultData.image || resultData.data?.[0]?.image;
       if (base64Image) {
         try {
-          const blob = await (await fetch(base64Image.startsWith('data:') ? base64Image : `data:image/jpeg;base64,${base64Image}`)).blob();
-          imageFile = new File([blob], 'analysis-image.jpg', { type: blob.type });
+          // base64를 Blob으로 변환
+          const byteCharacters = atob(base64Image);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: 'image/jpeg' });
+          
+          // Blob을 File로 변환
+          imageFile = new File([blob], 'analysis-image.jpg', { type: 'image/jpeg' });
+          
         } catch (e) {
           console.error('base64 → File 변환 실패:', e);
         }
@@ -551,17 +562,34 @@ const DiseaseAnalysisStep3: React.FC = () => {
       const imageBase64 = await fileToBase64(imageFile);
       
       const fullResult = (finalResult || {}) as Partial<FullAnalysisResult>;
+      // image_analysis 객체를 타입에 맞게 동적으로 구성 (undefined 값은 필드 자체를 생략)
+      const imageAnalysis: SaveDiagnosisRequest['image_analysis'] = {
+        disease_name: diseaseInfo.disease_name,
+        confidence: diseaseInfo.confidence,
+      };
+      const { skin_score, severity, estimated_treatment_period } =
+        analysisMetrics ?? {};
+      if (skin_score !== undefined) {
+        imageAnalysis.skin_score = skin_score;
+      } else if (fullResult.image_analysis?.skin_score !== undefined) {
+        imageAnalysis.skin_score = fullResult.image_analysis.skin_score;
+      }
+      if (severity) {
+        imageAnalysis.severity = severity;
+      } else if (fullResult.image_analysis?.severity) {
+        imageAnalysis.severity = fullResult.image_analysis.severity;
+      }
+      if (estimated_treatment_period) {
+        imageAnalysis.estimated_treatment_period = estimated_treatment_period;
+      } else if (fullResult.image_analysis?.estimated_treatment_period) {
+        imageAnalysis.estimated_treatment_period = fullResult.image_analysis.estimated_treatment_period;
+      }
+
       const saveData: SaveDiagnosisRequest = {
         user_id: user.id,
         disease_name: diseaseInfo.disease_name,
         image_base64: imageBase64,
-        image_analysis: {
-          disease_name: diseaseInfo.disease_name,
-          confidence: diseaseInfo.confidence,
-          skin_score: fullResult.image_analysis?.skin_score,
-          severity: fullResult.image_analysis?.severity,
-          estimated_treatment_period: fullResult.image_analysis?.estimated_treatment_period,
-        },
+        image_analysis: imageAnalysis,
         text_analysis: {
           ai_opinion: streamingContent.summary || fullResult.text_analysis?.ai_opinion || 'N/A',
           detailed_description: streamingContent.description || fullResult.text_analysis?.detailed_description || 'N/A',
@@ -582,18 +610,24 @@ const DiseaseAnalysisStep3: React.FC = () => {
         },
       };
 
-      const clerkId = user.id;
+      
       const formData = new FormData();
       formData.append('user_id', user.id); // 백엔드 검증을 위해 user_id도 FormData에 포함
       formData.append('image', imageFile);
-      formData.append('image_analysis', JSON.stringify(saveData.image_analysis));
       formData.append('disease_name', diseaseInfo.disease_name);
+      formData.append('confidence', String(diseaseInfo.confidence));
+      formData.append('skin_score', String(analysisMetrics?.skin_score ?? fullResult.image_analysis?.skin_score ?? ''));
+      formData.append('estimated_treatment_period', String(analysisMetrics?.estimated_treatment_period ?? fullResult.image_analysis?.estimated_treatment_period ?? ''));
+      formData.append('image_analysis', JSON.stringify(saveData.image_analysis));
       formData.append('text_analysis', JSON.stringify(saveData.text_analysis));
 
       console.log('📤 진단 결과 저장 FormData:', formData);
 
       // Content-Type 헤더를 명시적으로 지정하지 않으면 브라우저가 boundary를 포함해 자동 설정합니다.
-      await apiClient.post(`/api/diagnoses/save?user_id=${clerkId}`, formData);
+      await apiClient.post('/api/diagnoses/save', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        params: { user_id: user.id }
+      });
       
       setIsSaved(true);
   
@@ -640,7 +674,7 @@ const DiseaseAnalysisStep3: React.FC = () => {
                     <span className="value">{analysisMetrics?.estimated_treatment_period || '분석중'}</span>
                 </SummaryItem>
                 <AIOpinionBox>
-                    <h4><FontAwesomeIcon icon={faFileMedical} style={{ marginRight: '0.5rem' }} />AI 소견</h4>
+                    <CardTitle as="h3"><FontAwesomeIcon icon={faFileMedical} /> AI 소견</CardTitle>
                     {streamingContent.summary ? <ReactMarkdown>{convertLinesToMarkdown(streamingContent.summary)}</ReactMarkdown> : <p>AI가 상세 소견을 분석중입니다...</p>}
                 </AIOpinionBox>
             </InfoCard>

@@ -9,10 +9,10 @@ import {
   SectionSubheading,
   NotoSansBlack,
   ReportItem,
-  AIOpinionBox,
   SeverityBar,
   SeverityBarInner,
 } from './SharedStyles';
+import { AIOpinionBox } from '../DiseaseAnalysisStep3/SharedStyles';
 import { ContentWrapper } from '../../components/Layout';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
