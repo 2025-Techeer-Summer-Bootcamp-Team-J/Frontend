@@ -36,6 +36,7 @@ apiClient.interceptors.request.use(
     //   config.headers.Authorization = `Bearer ${token}`;
     // }
     // API 키를 자동으로 헤더에 추가
+
     const apiKey = import.meta.env.VITE_API_KEY;
 
     if (apiKey) {
