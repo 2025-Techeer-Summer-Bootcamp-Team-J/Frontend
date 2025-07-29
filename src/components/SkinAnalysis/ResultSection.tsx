@@ -27,7 +27,8 @@ import {
   ResultSectionTitle,
   ResultList,
   RestartButton,
-  ResultGridWrapper
+  ResultGridWrapper,
+  ChartCard
 } from './SharedStyles';
 
 interface ResultSectionProps {
@@ -59,8 +60,7 @@ const ResultSection: React.FC<ResultSectionProps> = ({ resultData, handleRestart
       '민감도',
       '멜라닌',
       '수분',
-      '거침',
-      '종합점수',
+      '거침'
     ];
     const data = {
       labels,
@@ -77,8 +77,7 @@ const ResultSection: React.FC<ResultSectionProps> = ({ resultData, handleRestart
             resultData.score_info.sensitivity_score,
             resultData.score_info.melanin_score,
             resultData.score_info.water_score,
-            resultData.score_info.rough_score,
-            resultData.score_info.total_score,
+            resultData.score_info.rough_score
           ],
           backgroundColor: 'rgba(34, 202, 236, 0.2)',
           borderColor: 'rgba(34, 202, 236, 1)',
@@ -96,21 +95,52 @@ const ResultSection: React.FC<ResultSectionProps> = ({ resultData, handleRestart
         },
       },
     };
-    return (
-      <div style={{ maxWidth: 550, margin: 'auto' }}>
-        <h3 style={{ textAlign: 'center', marginBottom: '1rem' }}>피부 항목별 점수</h3>
-        <Radar data={data} options={options} />
-      </div>
-    );
-  };
 
-const ChartCard = styled.div`
-    border-radius: 3.2rem;
-    padding: 1rem;
-    box-shadow: 0.25rem 0.25rem 0.5rem rgba(71, 69, 179, 0.2);
-    width: 100%;
-    box-sizing: border-box;
-`;
+    const Wrapper = styled.div`
+      margin: auto;
+    `;
+
+    const Title = styled.h3`
+      text-align: center;
+    `;
+
+    const BlueDivider = styled.div`
+      width: 100%;
+      height: 1.5px;
+      background-color: #c7f7ffff;
+      margin: 0.8rem auto;
+      border-radius: 9999px;
+    `;
+
+    const ChartWrapper = styled.div`
+      max-width: 550px;
+      margin: auto;
+    `;
+
+    const TotalScore = styled.div`
+      position: absolute;
+      left: 590px;
+      text-align: right;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #00A6FD;
+      background-color: #F0F9FF;
+      border-radius: 9999px;
+      padding: 0.2rem 1rem;
+      margin: 0 1rem; 
+    `;
+
+   return (
+    <Wrapper>
+      <Title>피부 항목별 점수</Title>
+      <BlueDivider />
+      <ChartWrapper>
+      <TotalScore>종합 점수 : { resultData.score_info.total_score }</TotalScore>
+        <Radar data={data} options={options} />
+      </ChartWrapper>
+    </Wrapper>
+  );
+}
 
   return (
     <PageSection $isFadedIn={true}>
