@@ -106,9 +106,10 @@ interface DetailsPanelProps {
   imageUrls: string[];
   diseaseInfo: { disease_name?: string; confidence?: number };
   streamingContent: { summary?: string; description?: string; precautions?: string; management?: string; };
-  analysisMetrics: { estimated_treatment_period?: string };
-  // 👇 부모로부터 추가로 받아올 데이터 타입을 여기에 모두 적어줍니다.
+  analysisMetrics: { skin_score?: number; estimated_treatment_period?: string };
+  // 분석 실시간 여부
   isStreaming: boolean;
+  // 👇 부모로부터 추가로 받아올 데이터 타입을 여기에 모두 적어줍니다.
   isComplete: boolean;
   isSaved: boolean;
   isSaving: boolean;
@@ -122,6 +123,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   diseaseInfo,
   streamingContent,
   analysisMetrics,
+  isStreaming
 }) => {
   return (
     <> 
@@ -142,8 +144,12 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
               <SeverityBar><SeverityBarInner $severity={diseaseInfo.confidence || 0} /></SeverityBar>
           </SummaryItem>
           <SummaryItem>
+              <span className="label">피부 점수</span>
+              <span className="value">{isStreaming ? '분석중입니다.' : (analysisMetrics?.skin_score ?? '-')}</span>
+          </SummaryItem>
+          <SummaryItem>
               <span className="label">예상 치료 기간</span>
-              <span className="value">{analysisMetrics?.estimated_treatment_period || 'N/A'}</span>
+              <span className="value">{isStreaming ? '분석중입니다.' : (analysisMetrics?.estimated_treatment_period ?? '-') }</span>
           </SummaryItem>
           <AIOpinionBox>
               <h4>AI 소견</h4>

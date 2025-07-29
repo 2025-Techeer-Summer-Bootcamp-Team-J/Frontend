@@ -9,8 +9,10 @@
  */
 export const convertLinesToMarkdown = (text?: string): string => {
   if (!text) return '';
+  // 먼저 파이프(|) 구분자를 줄바꿈으로 변환해 분리
+  const withPipes = text.replace(/\|/g, '\n');
   // '정의:', '특징:' 등의 키가 나오기 전에 줄바꿈을 삽입
-  const preSection = text.replace(/\s*(?=(정의|특징|원인|증상)\s*[:：])/g, '\n');
+  const preSection = withPipes.replace(/\s*(?=(정의|특징|원인|증상)\s*[:：])/g, '\n');
   // 문장 단위 줄바꿈 처리
   const preProcessed = preSection.replace(/([.!?])\s+/g, '$1\n');
   // 빈 줄 제거 후 배열로 분리

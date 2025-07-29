@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
@@ -13,7 +14,7 @@ import { convertLinesToMarkdown } from '../components/DiseaseAnalysisStep3/markd
 import ReactMarkdown from 'react-markdown'; // 마크다운 렌더링 도구
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // 아이콘 도구
 // 👇 카드 제목에 사용할 아이콘들을 미리 다 가져옵니다.
-import { faFileMedical, faCamera, faCircleInfo, faTriangleExclamation, faBookMedical, faSpinner, faSave, faRedo } from '@fortawesome/free-solid-svg-icons';
+import { faFileMedical, faCamera, faCircleInfo, faTriangleExclamation, faBookMedical, faSpinner, faSave, faRedo, faLink } from '@fortawesome/free-solid-svg-icons';
 import {FullWidthInfoCard } from '../components/DiseaseAnalysisStep3/SharedStyles';
 
 
@@ -99,6 +100,7 @@ const DiseaseAnalysisStep3: React.FC = () => {
     precautions: '',
     management: ''
   });
+
   const [isStreaming, setIsStreaming] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [finalResult, setFinalResult] = useState<unknown>(null);
@@ -112,6 +114,9 @@ const DiseaseAnalysisStep3: React.FC = () => {
     severity?: string;
     estimated_treatment_period?: string;
   } | null>(null);
+
+  // 출처(References) 상태
+  const [references, setReferences] = useState<string>('');
 
   // 이미지 모달 상태
   // 여러 장의 이미지를 모달로 보여주기 위해 배열로 관리
@@ -253,7 +258,10 @@ const DiseaseAnalysisStep3: React.FC = () => {
     // 즉시 상태 변경으로 중복 호출 차단
     setIsStreaming(true);
     setIsComplete(false);
+  // 이전 결과 초기화하여 플레이스홀더 표시
+  setDiseaseInfo({ disease_name: '', confidence: 0 });
     setFinalResult(null);
+  setAnalysisMetrics({ skin_score: undefined, estimated_treatment_period: undefined, severity: undefined });
     setIsSaved(false);
     
     // 스트리밍 내용 완전 초기화
@@ -263,6 +271,8 @@ const DiseaseAnalysisStep3: React.FC = () => {
       precautions: '',
       management: ''
     });
+    setReferences('');
+    setAnalysisMetrics(null);
 
     try {
       // 분석 결과에서 질병명 추출
@@ -330,6 +340,36 @@ const DiseaseAnalysisStep3: React.FC = () => {
             }));
           }
           
+          // image_analysis 이벤트 처리 (skin_score 등 메트릭)
+          if ((event as any).type === 'image_analysis' && (event as any).data) {
+            const imgMetrics = (event as any).data as {
+              skin_score?: string | number;
+              severity?: string;
+              estimated_treatment_period?: string;
+            };
+            const scoreNum = imgMetrics.skin_score !== undefined ? Number(imgMetrics.skin_score) : undefined;
+            setAnalysisMetrics(prev => ({
+              skin_score: scoreNum ?? prev?.skin_score,
+              severity: imgMetrics.severity ?? prev?.severity,
+              estimated_treatment_period: imgMetrics.estimated_treatment_period ?? prev?.estimated_treatment_period,
+            }));
+          }
+
+          // skin_score 실시간 파싱
+          if (event.data && event.data.includes('skin_score')) {
+            const match = event.data.match(/"?skin_score"?\s*:\s*"?(\d+)/);
+            if (match) {
+              const score = Number(match[1]);
+              if (!Number.isNaN(score)) {
+                setAnalysisMetrics(prev => ({
+                  skin_score: score,
+                  severity: prev?.severity,
+                  estimated_treatment_period: prev?.estimated_treatment_period,
+                }));
+              }
+            }
+          }
+
           // AI 의견 (요약) 스트리밍
           if (event.type === 'ai_opinion_start') {
             console.log('📝 AI 의견 시작 - summary 탭으로 전환');
@@ -374,7 +414,26 @@ const DiseaseAnalysisStep3: React.FC = () => {
             });
           }
           
-          // 주의사항 스트리밍
+          // 출처 스트리밍
+        else if ((event as any).type === '출처_item_start') {
+          // 항목 시작 시 줄바꿈으로 구분
+          setReferences(prev => prev + '\n');
+        } else if ((event as any).type === '출처_chunk') {
+          // 기관명(Author)만 추출해서 저장 – 괄호, 콤마, 하이픈 등 구분 기호 이전 부분 사용
+          const raw = (event.data ?? '').trim();
+          // URL 형태는 무시하고 기관명만 사용
+          if (/^https?:\/\//i.test(raw)) {
+            return;
+          }
+          const institution = raw.split(/[(),-]/)[0].trim();
+          if (institution) {
+            setReferences(prev => prev + institution + '\n');
+          }
+        } else if ((event as any).type === '출처_item_end') {
+          // 항목 종료 시 줄바꿈
+          setReferences(prev => prev + '\n');
+        }
+        // 주의사항 스트리밍
           else if (event.type === 'precautions_start') {
             setStreamingContent(prev => ({ ...prev, precautions: '' }));
           } else if (event.type === 'precautions_chunk') {
@@ -573,8 +632,12 @@ const DiseaseAnalysisStep3: React.FC = () => {
                     <span className="value disease-name">{diseaseInfo.disease_name}</span>
                 </SummaryItem>
                 <SummaryItem>
+                    <span className="label">피부 점수</span>
+                    <span className="value">{analysisMetrics?.skin_score ?? 'N/A'}</span>
+                </SummaryItem>
+                <SummaryItem>
                     <span className="label">예상 치료 기간</span>
-                    <span className="value">{analysisMetrics?.estimated_treatment_period || '4-6주'}</span>
+                    <span className="value">{analysisMetrics?.estimated_treatment_period || '분석중'}</span>
                 </SummaryItem>
                 <AIOpinionBox>
                     <h4><FontAwesomeIcon icon={faFileMedical} style={{ marginRight: '0.5rem' }} />AI 소견</h4>
@@ -599,6 +662,13 @@ const DiseaseAnalysisStep3: React.FC = () => {
                 <CardTitle><FontAwesomeIcon icon={faBookMedical} /> 관리법</CardTitle>
                 {streamingContent.management ? <ReactMarkdown>{convertLinesToMarkdown(streamingContent.management)}</ReactMarkdown> : <p>분석중입니다...</p>}
             </FullWidthInfoCard>
+
+            {(isStreaming || references) && (
+              <FullWidthInfoCard>
+                <CardTitle><FontAwesomeIcon icon={faLink} /> 출처</CardTitle>
+                <ReactMarkdown>{convertLinesToMarkdown(references)}</ReactMarkdown>
+              </FullWidthInfoCard>
+            )}
         </MainContent>
 
         {/* 버튼들은 그리드 바깥에, 페이지 하단에 위치합니다. */}

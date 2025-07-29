@@ -121,15 +121,15 @@ const ChartPanel: React.FC<ChartPanelProps> = ({ diseaseStats, analysisResult, m
           <SectionTitle>AI 분석 지표</SectionTitle>
           <div style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center', marginTop: '1rem' }}>
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2563eb' }}>{metrics.skin_score ?? 'N/A'}</div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2563eb' }}>{metrics.skin_score ?? '분석중입니다.'}</div>
               <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>피부 점수</div>
             </div>
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2563eb' }}>{metrics.severity ?? 'N/A'}</div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2563eb' }}>{metrics.severity ?? '분석중입니다.'}</div>
               <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>심각도</div>
             </div>
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2563eb' }}>{metrics.estimated_treatment_period ?? 'N/A'}</div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2563eb' }}>{metrics.estimated_treatment_period ?? '분석중입니다.'}</div>
               <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>예상 기간</div>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Line } from 'react-chartjs-2';
+import type { ScriptableContext } from 'chart.js';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import {
   Section,
@@ -41,7 +42,7 @@ const skinScoreChartData = {
       label: '피부 점수',
       data: [62, 68, 72, 71, 77, 79, 82, 80, 79, 84, 86, 88, 89, 90, 91],
       fill: true,
-      backgroundColor: (context: any) => {
+      backgroundColor: (context: ScriptableContext<'line'>) => {
         const chart = context.chart;
         const {
           ctx,
