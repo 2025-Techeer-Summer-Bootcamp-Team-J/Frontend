@@ -134,7 +134,7 @@ export interface DiagnosisDetail {
     disease_name: string;
     confidence: number;
     skin_score?: number;
-    severity?: string;
+    severity: string;
     estimated_treatment_period?: string;
   };
   text_analysis: {
@@ -142,6 +142,7 @@ export interface DiagnosisDetail {
     detailed_description: string;
     precautions: string;
     management: string;
+    references?: string;
   };
   additional_info?: {
     symptoms?: string[];
@@ -179,6 +180,7 @@ export interface SaveDiagnosisRequest {
     detailed_description: string;
     precautions: string;
     management: string;
+    references?: string;
   };
   additional_info?: {
     symptoms?: string[];
@@ -208,7 +210,7 @@ export interface StreamEvent {
     | 'ai_opinion_start' | 'ai_opinion_chunk' | 'ai_opinion_end'
     | 'detailed_description_start' | 'detailed_description_chunk' | 'detailed_description_end'
     | 'precautions_start' | 'precautions_chunk' | 'precautions_item_start' | 'precautions_item_end' | 'precautions_end'
-    | 'management_start' | 'management_chunk' | 'management_item_start' | 'management_item_end' | 'management_end';
+    | 'management_start' | 'management_chunk' | 'management_item_start' | 'management_item_end' | 'management_end' | '출처_item_start' | '출처_chunk' | '출처_item_end';
   message?: string;
   content?: string;
   data?: string; // 백엔드에서 사용하는 data 필드

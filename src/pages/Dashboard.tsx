@@ -176,7 +176,7 @@ const Card = styled.div`
   background-color: #FBFDFF;
   padding: 1.5rem;
   border-radius: 2.2rem;
-  box-shadow:  0.3rem 0.25rem 0.4rem rgba(71, 69, 179, 0.2);
+  box-shadow: 0.3rem 0.25rem 0.4rem rgba(71, 69, 179, 0.2);
 `;
 
 const PageTitle = styled.div`

@@ -3,9 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { diagnosesApi } from '../services';
 import type { DiagnosisDetail } from '../services/types';
 import DetailsPanel from '../components/DiseaseAnalysisStep3/DetailsPanel';
+
 import styled from 'styled-components';
-import { ContentWrapper } from '../components/Layout';
-import { MainContent } from '../components/DiseaseAnalysisStep3/SharedStyles';
+import { ResultPageFrame, MainContent, MainTitlePanel, MainTitle } from '../components/DiseaseAnalysisStep3/SharedStyles';
+
+
+
+
 
 // 진단 상세 페이지 컨테이너
 const PageWrapper = styled.div`
@@ -67,10 +71,16 @@ const DiagnosisDetailPage: React.FC = () => {
   };
 
   return (
-    <ContentWrapper>
+    <ResultPageFrame>
+      <MainTitlePanel>
+        <MainTitle>AI 진단 결과</MainTitle>
+      </MainTitlePanel>
       <MainContent>
+
         <DetailsPanel
         imageUrls={detail.image_base64 ? [detail.image_base64] : []}
+        showImageCard={true}
+        showProbabilitySeverity={false}
         diseaseInfo={diseaseInfo}
         streamingContent={streamingContent}
         analysisMetrics={analysisMetrics}
@@ -78,11 +88,14 @@ const DiagnosisDetailPage: React.FC = () => {
         isComplete={true}
         isSaved={true}
         isSaving={false}
+        references={detail.text_analysis?.references}
         onSave={() => {}}
         onRestart={() => navigate('/disease-analysis-step1')}
       />
+        
+         
       </MainContent>
-    </ContentWrapper>
+    </ResultPageFrame>
   );
 };
 

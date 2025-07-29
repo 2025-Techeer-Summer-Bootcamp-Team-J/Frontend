@@ -218,6 +218,25 @@ export const CardTitle = styled.h2`
   padding-bottom: 0.5rem; /* 8px 정도의 여백 추가 */
 `;
 
+export const AIOpinionBox = styled.div`
+  background: #f0f9ff;
+  border-left: 4px solid #05A6FD;
+  padding: 1rem 1rem 0.3rem 1rem;
+  margin: 1rem 0 0rem 0;
+  border-radius: 0 1rem 1rem 0;
+
+  h3 {
+    color: #05A6FD;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.1rem; /* AI 소견 제목 폰트 크기 조정 */
+  }
+
+  p { margin: 0 0 0.75rem 0; }
+`;
+
 export const FullWidthInfoCard = styled(InfoCard)`
   /* 이 카드가 그리드의 1번 줄에서부터 끝(-1) 줄까지 모두 차지하도록 설정합니다. */
   grid-column: 1 / -1;
