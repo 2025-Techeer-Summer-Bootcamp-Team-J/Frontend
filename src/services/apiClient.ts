@@ -36,7 +36,7 @@ apiClient.interceptors.request.use(
     //   config.headers.Authorization = `Bearer ${token}`;
     // }
     // API 키를 자동으로 헤더에 추가
-    const apiKey = import.meta.env.API_KEY;
+    const apiKey = import.meta.env.VITE_API_KEY;
     if (apiKey) {
       if (!config.headers) {
         // AxiosRequestHeaders 타입으로 캐스팅하여 타입 오류 방지
