@@ -43,6 +43,13 @@ const Card = styled.div`
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s ease-in-out;
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(31, 38, 135, 0.4);
+  }
 `;
 
 const CardTitle = styled.h2`
