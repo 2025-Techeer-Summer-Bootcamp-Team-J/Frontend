@@ -95,7 +95,8 @@ export const FeatureBox = styled.div`
 
 export const GlassmorphismCard = styled.div`
   min-width: 0;
-  background: #F0F9FF; border-radius: 32px;
+  background: #FFFFFF;
+  border-radius: 32px;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3);
   padding: 1.5rem;
@@ -106,7 +107,7 @@ export const GlassmorphismCard = styled.div`
   margin-top: 1rem;
   height: 50%;
   width: 90%;
-  box-shadow: 0.25rem 0.25rem 0.5rem rgba(71,69,179,0.2);
+  box-shadow: 0.25rem 0.25rem 0.5rem rgba(71, 69, 179, 0.2);
   
   justify-content: center;
   align-items: center;

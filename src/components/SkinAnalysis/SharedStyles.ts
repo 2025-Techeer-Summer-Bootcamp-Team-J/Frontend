@@ -79,7 +79,7 @@ export const MainTitle = styled.h1`
 export const MainSubtitle = styled.p`
     font-size: clamp(0.9rem, 2vw, 1.1rem);
     color: ${theme.lightTextColor};
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.5rem;
 `;
 
 export const ContentBox = styled.div`
@@ -265,7 +265,7 @@ export const AnalyzingStatus = styled.p`
 
 export const ResultHeader = styled.div`
     text-align: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 0.5rem;
     width: 100%;
 `;
 
@@ -275,9 +275,7 @@ export const ResultCard = styled.div`
     padding: 2rem;
     box-shadow: 0.25rem 0.25rem 0.5rem rgba(71, 69, 179, 0.2);
     width: 100%;
-    /* max-width: 56.25rem; */
     box-sizing: border-box;
-    text-align: left;
 `;
 
 export const ResultTitle = styled.h2`
@@ -301,16 +299,36 @@ export const ResultDescription = styled.p`
     margin: 0;
 `;
 
-export const ResultGrid = styled.div`
+export const ResultGridWrapper = styled.div`
+  display: flex;
+  flex-direction: row;         
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  flex-wrap: wrap;            
+  gap: 1.875rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;    
+  }
+`;
+
+export const ResultLeftGrid = styled.div`
+    flex: 2;
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.875rem;
     width: 100%;
-    /* max-width: 56.25rem; */
-    margin-top: 1.875rem;
-    @media (min-width: 768px) {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    margin-bottom: 2rem;
+`;
+
+export const ResultRightGrid = styled.div`
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.875rem;
+    width: 100%;
+    margin-bottom: 2rem;
 `;
 
 export const ResultSectionTitle = styled.h4`
@@ -333,7 +351,7 @@ export const ResultList = styled.ul`
     padding: 0;
     margin: 0;
     li {
-        background-color: #f9faff;
+        background-color: #F0F9FF;
         padding: 1rem;
         border-radius: 0.5rem;
         margin-bottom: 0.625rem;
