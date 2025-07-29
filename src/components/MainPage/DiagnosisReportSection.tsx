@@ -13,7 +13,7 @@ import {
   SeverityBarInner,
 } from './SharedStyles';
 import { AIOpinionBox } from '../DiseaseAnalysisStep3/SharedStyles';
-import { ContentWrapper } from '../../components/Layout';
+import { ContentWrapper as LayoutContentWrapper } from '../../components/Layout';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -232,7 +232,7 @@ const DiagnosisReportSection: React.FC = () => {
 
   return (
     <Section id="diagnosis-result" bg="#F0F9FF">
-      <ContentWrapper>
+      <LayoutContentWrapper>
         <SectionHeading>
           <NotoSansBlack>AI 피부 질환 진단</NotoSansBlack>
         </SectionHeading>
@@ -285,7 +285,7 @@ const DiagnosisReportSection: React.FC = () => {
             </RightPanel>
           </DiagnosisGrid>
         </ReportContainer>
-      </ContentWrapper>
+      </LayoutContentWrapper>
     </Section>
   );
 };
