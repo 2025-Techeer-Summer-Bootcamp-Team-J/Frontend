@@ -8,7 +8,8 @@ import { fileToBase64 } from '../services/utils';
 import type { SaveDiagnosisRequest } from '../services/types';
 
 // 👇 2번 파일(부품 창고)에서 모든 부품을 가져옵니다.
-import { SummaryItem,AIOpinionBox, PhotoCarousel, convertLinesToMarkdown } from '../components/DiseaseAnalysisStep3/DetailsPanel';
+import { SummaryItem, AIOpinionBox, PhotoCarousel } from '../components/DiseaseAnalysisStep3/DetailsPanel';
+import { convertLinesToMarkdown } from '../components/DiseaseAnalysisStep3/markdownUtils';
 import ReactMarkdown from 'react-markdown'; // 마크다운 렌더링 도구
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // 아이콘 도구
 // 👇 카드 제목에 사용할 아이콘들을 미리 다 가져옵니다.

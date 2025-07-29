@@ -6,30 +6,7 @@ import styled from 'styled-components';
 // 1. 재사용할 부품들 앞에 export를 붙여줍니다.
 
 // 이 함수는 1번 파일에서 마크다운 변환을 위해 계속 사용합니다.
-export const convertLinesToMarkdown = (text?: string): string => {
-  if (!text) return '';
-  const preSection = text.replace(/\s*(?=(정의|특징|원인|증상)\s*[:：])/g, '\n');
-  const preProcessed = preSection.replace(/([.!?])\s+/g, '$1\n');
-  const lines = preProcessed.split('\n').filter(l => l.trim() !== '');
-  return lines
-    .map((line) => {
-      const trimmed = line.trim();
-      if (/^(\d+\.|[①②③④⑤⑥⑦⑧⑨⑩])/.test(trimmed)) {
-        return trimmed;
-      }
-      if (trimmed.includes(':')) {
-        const splitIndex = trimmed.indexOf(':');
-        const key = trimmed.slice(0, splitIndex).trim();
-        const value = trimmed.slice(splitIndex + 1).trim();
-        if (!value) {
-          return `- **${key}**`;
-        }
-        return `- **${key}**:\n  ${value}`;
-      }
-      return `- ${trimmed}`;
-    })
-    .join('\n');
-};
+/* convertLinesToMarkdown 함수를 markdownUtils.ts로 이동했습니다. */
 
 // 아래의 모든 스타일 컴포넌트들은 1번 파일에서 UI를 조립할 때 사용합니다.
 export const SummaryItem = styled.div`
