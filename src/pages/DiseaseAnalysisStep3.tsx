@@ -1,15 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
-import { ContentWrapper } from '../components/Layout';
-import ChartPanel from '../components/DiseaseAnalysisStep3/ChartPanel';
-import DetailsPanel from '../components/DiseaseAnalysisStep3/DetailsPanel';
-
-
-import { MainContent } from '../components/DiseaseAnalysisStep3/SharedStyles';
+// 👇 3번 파일에서 Card 스타일들을 가져옵니다.
+import { ResultPageFrame, MainContent, MainTitlePanel, MainTitle, ButtonGroup, StyledButton, InfoCard, CardTitle } from '../components/DiseaseAnalysisStep3/SharedStyles';
 import { api, apiClient } from '../services';
 import { fileToBase64 } from '../services/utils';
 import type { SaveDiagnosisRequest } from '../services/types';
+
+// 👇 2번 파일(부품 창고)에서 모든 부품을 가져옵니다.
+import { SummaryItem,AIOpinionBox, PhotoCarousel, convertLinesToMarkdown } from '../components/DiseaseAnalysisStep3/DetailsPanel';
+import ReactMarkdown from 'react-markdown'; // 마크다운 렌더링 도구
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // 아이콘 도구
+// 👇 카드 제목에 사용할 아이콘들을 미리 다 가져옵니다.
+import { faFileMedical, faCamera, faCircleInfo, faTriangleExclamation, faBookMedical, faSpinner, faSave, faRedo } from '@fortawesome/free-solid-svg-icons';
+import {FullWidthInfoCard } from '../components/DiseaseAnalysisStep3/SharedStyles';
 
 
 // 타입 정의
@@ -79,7 +83,6 @@ const DiseaseAnalysisStep3: React.FC = () => {
 //   data?: Array<{ image?: string }>;
 //   image?: string;
 // }
-  const [diseaseStats] = useState<Array<{ name: string; percent: number }>>(navDiseaseStats);
 
   const [diseaseInfo, setDiseaseInfo] = useState<DiseaseInfo>(() => {
     if (navDiseaseStats.length > 0) {
@@ -101,7 +104,6 @@ const DiseaseAnalysisStep3: React.FC = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<TabType>('summary');
   
 
   const [analysisMetrics, setAnalysisMetrics] = useState<{
@@ -260,7 +262,6 @@ const DiseaseAnalysisStep3: React.FC = () => {
       precautions: '',
       management: ''
     });
-    setActiveTab('summary'); // 스트리밍 시작시 summary 탭으로 이동
 
     try {
       // 분석 결과에서 질병명 추출
@@ -331,7 +332,6 @@ const DiseaseAnalysisStep3: React.FC = () => {
           // AI 의견 (요약) 스트리밍
           if (event.type === 'ai_opinion_start') {
             console.log('📝 AI 의견 시작 - summary 탭으로 전환');
-            setActiveTab('summary');
             setStreamingContent(prev => ({ ...prev, summary: '' }));
           } else if (event.type === 'ai_opinion_chunk') {
             console.log('📝 AI 의견 chunk 추가:', event.data);
@@ -347,7 +347,6 @@ const DiseaseAnalysisStep3: React.FC = () => {
           
           // 상세 설명 스트리밍
           else if (event.type === 'detailed_description_start') {
-            setActiveTab('description');
             setStreamingContent(prev => ({ ...prev, description: '' }));
           } else if (event.type === 'detailed_description_chunk') {
             setStreamingContent(prev => {
@@ -376,7 +375,6 @@ const DiseaseAnalysisStep3: React.FC = () => {
           
           // 주의사항 스트리밍
           else if (event.type === 'precautions_start') {
-            setActiveTab('precautions');
             setStreamingContent(prev => ({ ...prev, precautions: '' }));
           } else if (event.type === 'precautions_chunk') {
             setStreamingContent(prev => ({
@@ -404,7 +402,6 @@ const DiseaseAnalysisStep3: React.FC = () => {
           
           // 관리방법 스트리밍
           else if (event.type === 'management_start') {
-            setActiveTab('management');
             setStreamingContent(prev => ({ ...prev, management: '' }));
           } else if (event.type === 'management_chunk') {
             setStreamingContent(prev => ({
@@ -553,28 +550,74 @@ const DiseaseAnalysisStep3: React.FC = () => {
   };
 
   return (
+    <ResultPageFrame>
+        <MainTitlePanel>
+            <MainTitle>AI 진단 결과</MainTitle>
+        </MainTitlePanel>
+        
+        {/* 2단 그리드가 여기서 시작됩니다. */}
+        <MainContent>
 
-    <ContentWrapper>
-      <MainContent>
-        <ChartPanel diseaseStats={diseaseStats} />
-        <DetailsPanel
-          imageUrls={imageUrls}
-          diseaseInfo={diseaseInfo}
-          streamingContent={streamingContent}
-          analysisMetrics={analysisMetrics}
-          activeTab={activeTab}
-          isStreaming={isStreaming}
-          isComplete={isComplete}
-          isSaved={isSaved}
-          isSaving={isSaving}
-          setActiveTab={setActiveTab}
-          onSave={handleSaveResult}
-          onRestart={handleRestart}
-        />
-      </MainContent>
-    </ContentWrapper>
+            {/* 카드 3: 첨부 사진 */}
+            <InfoCard>
+                <CardTitle><FontAwesomeIcon icon={faCamera} /> 첨부 사진</CardTitle>
+                {imageUrls.length > 0 ? <PhotoCarousel imageUrls={imageUrls} /> : <p>첨부된 사진이 없습니다.</p>}
+            </InfoCard>
 
-  );
+            {/* 카드 2: 종합 요약 */}
+            <InfoCard>
+                <CardTitle><FontAwesomeIcon icon={faFileMedical} /> 종합 요약</CardTitle>
+                <SummaryItem>
+                    <span className="label">의심 질환</span>
+                    <span className="value disease-name">{diseaseInfo.disease_name}</span>
+                </SummaryItem>
+                <SummaryItem>
+                    <span className="label">예상 치료 기간</span>
+                    <span className="value">{analysisMetrics?.estimated_treatment_period || '4-6주'}</span>
+                </SummaryItem>
+                <AIOpinionBox>
+                    <h4><FontAwesomeIcon icon={faFileMedical} style={{ marginRight: '0.5rem' }} />AI 소견</h4>
+                    {streamingContent.summary ? <ReactMarkdown>{convertLinesToMarkdown(streamingContent.summary)}</ReactMarkdown> : <p>AI가 상세 소견을 분석중입니다...</p>}
+                </AIOpinionBox>
+            </InfoCard>
+
+            {/* 카드 4: 상세 설명 */}
+            <InfoCard>
+                <CardTitle><FontAwesomeIcon icon={faCircleInfo} /> 상세 설명</CardTitle>
+                {streamingContent.description ? <ReactMarkdown>{convertLinesToMarkdown(streamingContent.description)}</ReactMarkdown> : <p>분석중입니다...</p>}
+            </InfoCard>
+
+            {/* 카드 5: 주의사항 */}
+            <InfoCard>
+                <CardTitle><FontAwesomeIcon icon={faTriangleExclamation} /> 주의사항</CardTitle>
+                {streamingContent.precautions ? <ReactMarkdown>{convertLinesToMarkdown(streamingContent.precautions)}</ReactMarkdown> : <p>분석중입니다...</p>}
+            </InfoCard>
+
+            {/* 카드 6:  관리법 */}
+            <FullWidthInfoCard>
+                <CardTitle><FontAwesomeIcon icon={faBookMedical} /> 관리법</CardTitle>
+                {streamingContent.management ? <ReactMarkdown>{convertLinesToMarkdown(streamingContent.management)}</ReactMarkdown> : <p>분석중입니다...</p>}
+            </FullWidthInfoCard>
+        </MainContent>
+
+        {/* 버튼들은 그리드 바깥에, 페이지 하단에 위치합니다. */}
+        <ButtonGroup>
+            {isComplete && (
+                <StyledButton 
+                    $variant="primary" 
+                    onClick={handleSaveResult} 
+                    disabled={isSaving || isSaved}
+                >
+                    {isSaving ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faSave} />}
+                    {isSaving ? ' 저장 중...' : isSaved ? ' 저장됨' : ' 결과 저장'}
+                </StyledButton>
+            )}
+            <StyledButton onClick={handleRestart}>
+                <FontAwesomeIcon icon={faRedo} /> 다시 분석하기
+            </StyledButton>
+        </ButtonGroup>
+    </ResultPageFrame>
+);
 };
 
 export default DiseaseAnalysisStep3;
