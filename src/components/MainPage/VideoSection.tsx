@@ -157,7 +157,7 @@ const VideoSection: React.FC<VideoSectionProps> = ({ videoList }) => {
           />
 
           <VideoTitle>
-            <h2>PPIKA AI 피부 케어</h2>
+            <h2>삐까뻔쩍 AI 피부 케어</h2>
             <p>전문적인 피부 관리의 모든 것을 경험해보세요</p>
           </VideoTitle>
 
