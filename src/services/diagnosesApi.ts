@@ -1,4 +1,5 @@
 import apiClient from './apiClient';
+import { fetchWithApiKey } from './fetchWithApiKey';
 import type { 
   DiagnosisRequest, 
   AsyncDiagnosisResponse,
@@ -190,11 +191,12 @@ export const generateDiagnosisStream = (
     try {
       console.log('📡 POST 요청 전송 중...');
       
-      const response = await fetch(`${cleanBaseUrl}/api/diagnoses/generate-stream`, {
+      const response = await fetchWithApiKey(`${cleanBaseUrl}/api/diagnoses/generate-stream`, {
         method: 'POST',
         body: formData,
         headers: {
           'Accept': 'text/event-stream',
+        'X-API-KEY': import.meta.env.VITE_API_KEY as string,
           'Cache-Control': 'no-cache'
         }
       });

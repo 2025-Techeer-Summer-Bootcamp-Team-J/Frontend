@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { AxiosRequestHeaders, AxiosHeaders } from 'axios';
 
 // 개발 환경에서는 프록시 사용, 프로덕션에서는 실제 API URL 사용
 // 기본 BASE_URL 설정
@@ -34,6 +35,23 @@ apiClient.interceptors.request.use(
     // if (token) {
     //   config.headers.Authorization = `Bearer ${token}`;
     // }
+    // API 키를 자동으로 헤더에 추가
+
+    const apiKey = import.meta.env.VITE_API_KEY;
+
+    if (apiKey) {
+      if (!config.headers) {
+        // AxiosRequestHeaders 타입으로 캐스팅하여 타입 오류 방지
+        config.headers = {} as AxiosRequestHeaders;
+      }
+      // Authorization 대신 X-API-KEY 사용
+      const headers = config.headers as AxiosRequestHeaders | AxiosHeaders;
+      if (typeof (headers as AxiosHeaders).set === 'function') {
+        (headers as AxiosHeaders).set('X-API-KEY', apiKey);
+      } else {
+        (headers as AxiosRequestHeaders)['X-API-KEY'] = apiKey;
+      }
+    }
     console.log('API Request:', config.method?.toUpperCase(), config.url);
     return config;
   },

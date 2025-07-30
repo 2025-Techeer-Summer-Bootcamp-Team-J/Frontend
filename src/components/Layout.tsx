@@ -2,6 +2,7 @@ import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/clerk-reac
 import { NavLink, Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 import { GlobalStyle } from '../styles/GlobalStyle';
+import logoImage from '../assets/삐까로고가로형.png';
 
 const PageWrapper = styled.div`
   display: flex;
@@ -80,15 +81,19 @@ const HeaderSection = styled.div`
   }
 `;
 
-const Logo = styled(NavLink)`
-  font-size: clamp(1.1rem, 2vw, 2.25rem);
-  font-weight: 800;
+// 2. 텍스트 로고 대신 이미지를 감싸는 링크와 이미지 스타일을 정의합니다.
+const LogoLink = styled(NavLink)`
+  display: flex;
+  align-items: center;
   text-decoration: none;
-  color: #1f2937;
-  margin: 0;
+`;
+
+const LogoImage = styled.img`
+  height: 2.0rem; /* 원하는 로고 높이로 조절하세요 */
+  width: auto;
 
   @media (max-width: 768px) {
-    font-size: 1.1rem;
+    height: 1.5rem; /* 모바일 화면에서의 로고 높이 */
   }
 `;
 
@@ -195,7 +200,9 @@ function Layout() {
       <HeaderWrapper>
         <HeaderContent>
           <HeaderSection>
-            <Logo to="/">PPIKA</Logo>
+            <LogoLink to="/">
+             <LogoImage src={logoImage} alt="PPIKA 로고" />
+            </LogoLink>
           </HeaderSection>
           <HeaderSection>
             <Nav>

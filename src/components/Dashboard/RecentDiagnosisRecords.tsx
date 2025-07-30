@@ -1,9 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import styled, { css } from 'styled-components';
-
-// 타입 정의
-type DiagnosisStatus = '개선' | '유지' | '악화';
+import styled from 'styled-components';
 
 interface DiagnosisRecord {
   id: number;
@@ -28,8 +25,6 @@ const RecentDiagnosisRecords: React.FC<RecentDiagnosisRecordsProps> = ({ records
               <p className="font-semibold text-gray-700">{item.disease_name || 'N/A'}</p>
               <p className="text-sm text-gray-500">{new Date(item.created_at).toLocaleDateString('ko-KR')}</p>
             </div>
-            {/* Backend does not provide status, using a placeholder */}
-            <StatusBadge status={'유지'}>유지</StatusBadge>
           </ListItem>
         ))}
       </ListContainer>
@@ -68,17 +63,3 @@ const ListItem = styled.div`
   .text-sm { font-size: 0.875rem; }
   .text-gray-500 { color: #6b7280; }
 `;
-
-const statusStyles = {
-  개선: css` background-color: #d1fae5; color: #065f46; `,
-  유지: css` background-color: #fef3c7; color: #92400e; `,
-  악화: css` background-color: #fee2e2; color: #991b1b; `,
-};
-
-const StatusBadge = styled.span<{ status: DiagnosisStatus }>`
-  padding: 0.25rem 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-radius: 9999px;
-  ${({ status }) => statusStyles[status]}
-`; 

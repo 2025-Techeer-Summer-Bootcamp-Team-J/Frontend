@@ -1,5 +1,22 @@
 import React from 'react';
 import styled from 'styled-components';
+<<<<<<< HEAD
+=======
+import { Doughnut } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, type TooltipItem } from 'chart.js';
+import { FaCommentMedical, FaArrowLeft, FaRedo, FaDownload } from 'react-icons/fa';
+import {
+  Section,
+  SectionHeading,
+  SectionSubheading,
+  NotoSansBlack,
+  ReportItem,
+  SeverityBar,
+  SeverityBarInner,
+} from './SharedStyles';
+import { AIOpinionBox } from '../DiseaseAnalysisStep3/SharedStyles';
+import { ContentWrapper as LayoutContentWrapper } from '../../components/Layout';
+>>>>>>> origin/develop
 
 import mainSkinPhoto from '../../assets/AI 피부 진단 메인 사진.jpeg';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -206,6 +223,7 @@ const DiagnosisReportSection: React.FC = () => {
   };
 
   return (
+<<<<<<< HEAD
     <PageContainer>
       <ContentWrapper>
         <MainGrid>
@@ -272,6 +290,64 @@ const DiagnosisReportSection: React.FC = () => {
         </MainGrid>
       </ContentWrapper>
     </PageContainer>
+=======
+    <Section id="diagnosis-result" bg="#F0F9FF">
+      <LayoutContentWrapper>
+        <SectionHeading>
+          <NotoSansBlack>AI 피부 질환 진단</NotoSansBlack>
+        </SectionHeading>
+        <SectionSubheading>
+          사진 한 장으로 AI가 질환을 예측하고, 상세한 리포트를 제공합니다.
+        </SectionSubheading>
+        <ReportContainer>
+          <DiagnosisGrid>
+            {/* 왼쪽 패널 */}
+            <LeftPanel>
+              <h2 className="section-title">예상 질환 통계</h2>
+              <NewChartWrapper>
+                <Doughnut data={diagnosisChartData} options={diagnosisChartOptions} />
+              </NewChartWrapper>
+              <NewLegendContainer>
+                {diagnosisChartData.labels.map((label, index) => (
+                  <NewLegendItem key={label}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <NewLegendColorBox color={diagnosisChartData.datasets[0].backgroundColor[index] as string} />
+                      <span style={{ color: '#334155' }}>{label}</span>
+                    </div>
+                    <span style={{ fontWeight: 'bold', color: '#1e293b' }}>{diagnosisChartData.datasets[0].data[index]}%</span>
+                  </NewLegendItem>
+                ))}
+              </NewLegendContainer>
+            </LeftPanel>
+
+            {/* 오른쪽 패널 */}
+            <RightPanel>
+              <FullReportCard>
+                <FullTabNav>
+                  <FullTabButton onClick={() => setActiveTab('summary')} $isActive={activeTab === 'summary'}>요약</FullTabButton>
+                  <FullTabButton onClick={() => setActiveTab('description')} $isActive={activeTab === 'description'}>상세 설명</FullTabButton>
+                  <FullTabButton onClick={() => setActiveTab('precautions')} $isActive={activeTab === 'precautions'}>주의사항</FullTabButton>
+                  <FullTabButton onClick={() => setActiveTab('management')} $isActive={activeTab === 'management'}>관리법</FullTabButton>
+                </FullTabNav>
+                <FullTabContentContainer>
+                  {tabContent[activeTab]}
+                </FullTabContentContainer>
+              </FullReportCard>
+              <FullActionsContainer>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <ActionButton><FaArrowLeft /><span>이전</span></ActionButton>
+                  <ActionButton><FaRedo /><span>다시 분석</span></ActionButton>
+                </div>
+                <ActionButton primary fullWidth onClick={handleDownloadReport}>
+                  <FaDownload /><span>리포트 내려받기</span>
+                </ActionButton>
+              </FullActionsContainer>
+            </RightPanel>
+          </DiagnosisGrid>
+        </ReportContainer>
+      </LayoutContentWrapper>
+    </Section>
+>>>>>>> origin/develop
   );
 };
 

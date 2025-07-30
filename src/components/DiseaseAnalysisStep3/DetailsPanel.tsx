@@ -6,30 +6,7 @@ import styled from 'styled-components';
 // 1. 재사용할 부품들 앞에 export를 붙여줍니다.
 
 // 이 함수는 1번 파일에서 마크다운 변환을 위해 계속 사용합니다.
-export const convertLinesToMarkdown = (text?: string): string => {
-  if (!text) return '';
-  const preSection = text.replace(/\s*(?=(정의|특징|원인|증상)\s*[:：])/g, '\n');
-  const preProcessed = preSection.replace(/([.!?])\s+/g, '$1\n');
-  const lines = preProcessed.split('\n').filter(l => l.trim() !== '');
-  return lines
-    .map((line) => {
-      const trimmed = line.trim();
-      if (/^(\d+\.|[①②③④⑤⑥⑦⑧⑨⑩])/.test(trimmed)) {
-        return trimmed;
-      }
-      if (trimmed.includes(':')) {
-        const splitIndex = trimmed.indexOf(':');
-        const key = trimmed.slice(0, splitIndex).trim();
-        const value = trimmed.slice(splitIndex + 1).trim();
-        if (!value) {
-          return `- **${key}**`;
-        }
-        return `- **${key}**:\n  ${value}`;
-      }
-      return `- ${trimmed}`;
-    })
-    .join('\n');
-};
+/* convertLinesToMarkdown 함수를 markdownUtils.ts로 이동했습니다. */
 
 // 아래의 모든 스타일 컴포넌트들은 1번 파일에서 UI를 조립할 때 사용합니다.
 export const SummaryItem = styled.div`
@@ -66,24 +43,9 @@ export const SeverityBarInner = styled.div<{ $severity: number }>`
   transition: width 0.3s ease;
 `;
 
-export const AIOpinionBox = styled.div`
-  background: #f0f9ff;
-  border-left: 4px solid #05A6FD;
-  padding: 1rem 1rem 0.3rem 1rem;
-  margin: 1rem 0 0rem 0;
-  border-radius: 0 1rem 1rem 0;
 
-  h4 {
-    color: #05A6FD;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-  }
 
-  p { color: #05A6FD; margin: 0; 
-    margin-bottom: 0.5rem;}
-`;
+
 
 const CarouselWrapper = styled.div`
   display: flex;
@@ -121,17 +83,27 @@ export const PhotoCarousel: React.FC<{imageUrls:string[]}> = ({ imageUrls }) => 
 };
 
 /* export default {}; */
-import { CardTitle, InfoCard } from './SharedStyles';
+import { CardTitle, InfoCard, FullWidthInfoCard, AIOpinionBox } from './SharedStyles';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCamera, faFileMedical, faCircleInfo, faTriangleExclamation, faBookMedical, faLink } from '@fortawesome/free-solid-svg-icons';
+import ReactMarkdown from 'react-markdown';
+import { convertLinesToMarkdown } from './markdownUtils';
 
 // DetailsPanel 컴포넌트가 부모로부터 받을 데이터의 타입을 정의합니다.
 // DiagnosisDetailPage에서 보내주는 props와 일치해야 합니다.
 interface DetailsPanelProps {
+  /** 출처 문자열(줄바꿈 \n 구분) – 존재하면 하단 카드 렌더링 */
+  references?: string;
+  showProbabilitySeverity?: boolean;
   imageUrls: string[];
+  /** 첨부 사진 카드 표시 여부 (기본 true) */
+  showImageCard?: boolean;
   diseaseInfo: { disease_name?: string; confidence?: number };
   streamingContent: { summary?: string; description?: string; precautions?: string; management?: string; };
-  analysisMetrics: { estimated_treatment_period?: string };
-  // 👇 부모로부터 추가로 받아올 데이터 타입을 여기에 모두 적어줍니다.
+  analysisMetrics: { skin_score?: number; estimated_treatment_period?: string };
+  // 분석 실시간 여부
   isStreaming: boolean;
+  // 👇 부모로부터 추가로 받아올 데이터 타입을 여기에 모두 적어줍니다.
   isComplete: boolean;
   isSaved: boolean;
   isSaving: boolean;
@@ -145,58 +117,87 @@ const DetailsPanel: React.FC<DetailsPanelProps> = ({
   diseaseInfo,
   streamingContent,
   analysisMetrics,
+  isStreaming,
+  showImageCard = true,
+  showProbabilitySeverity = true,
+  references,
 }) => {
   return (
-    <> 
+    <>
       
-      {/* 종합 요약 카드 */}
+      {/* 상단 2열: 첨부 사진 | 종합 요약 (부모 MainContent 그리드 2열 활용) */}
+      {showImageCard && (
+        <InfoCard>
+          <CardTitle><FontAwesomeIcon icon={faCamera} /> 첨부 사진</CardTitle>
+          {imageUrls.length > 0 ? <PhotoCarousel imageUrls={imageUrls} /> : <p>첨부된 사진이 없습니다.</p>}
+        </InfoCard>
+      )}
       <InfoCard>
-          <CardTitle>종합 요약</CardTitle>
+          <CardTitle><FontAwesomeIcon icon={faFileMedical} /> 종합 요약</CardTitle>
           <SummaryItem>
               <span className="label">의심 질환</span>
               <span className="value disease-name">{diseaseInfo.disease_name}</span>
           </SummaryItem>
+          {showProbabilitySeverity && (
+            <>
+           <SummaryItem>
+               <span className="label">확률</span>
+               <span className="value">{diseaseInfo.confidence}%</span>
+           </SummaryItem>
+           <SummaryItem>
+               <span className="label">심각도</span>
+               <SeverityBar><SeverityBarInner $severity={diseaseInfo.confidence || 0} /></SeverityBar>
+           </SummaryItem>
+           </>
+          )}
           <SummaryItem>
-              <span className="label">확률</span>
-              <span className="value">{diseaseInfo.confidence}%</span>
-          </SummaryItem>
-          <SummaryItem>
-              <span className="label">심각도</span>
-              <SeverityBar><SeverityBarInner $severity={diseaseInfo.confidence || 0} /></SeverityBar>
+              <span className="label">피부 점수</span>
+              <span className="value">{isStreaming ? '분석중입니다.' : (analysisMetrics?.skin_score ?? '-')}</span>
           </SummaryItem>
           <SummaryItem>
               <span className="label">예상 치료 기간</span>
-              <span className="value">{analysisMetrics?.estimated_treatment_period || 'N/A'}</span>
+              <span className="value">{isStreaming ? '분석중입니다.' : (analysisMetrics?.estimated_treatment_period ?? '-') }</span>
           </SummaryItem>
           <AIOpinionBox>
-              <h4>AI 소견</h4>
-              <p>{streamingContent.summary || '상세 소견 분석 중입니다...'}</p>
+              <CardTitle as="h3"><FontAwesomeIcon icon={faFileMedical} /> AI 소견</CardTitle>
+              {streamingContent.summary ? (
+                <ReactMarkdown>{convertLinesToMarkdown(streamingContent.summary)}</ReactMarkdown>
+              ) : (
+                <p>상세 소견 분석 중입니다...</p>
+              )}
           </AIOpinionBox>
       </InfoCard>
-
-      {/* 첨부 사진 카드 */}
       <InfoCard>
-          <CardTitle>첨부 사진</CardTitle>
-          {imageUrls.length > 0 ? <PhotoCarousel imageUrls={imageUrls} /> : <p>첨부된 사진이 없습니다.</p>}
+          <CardTitle><FontAwesomeIcon icon={faCircleInfo} /> 상세 설명</CardTitle>
+          {streamingContent.description ? (
+            <ReactMarkdown>{convertLinesToMarkdown(streamingContent.description)}</ReactMarkdown>
+          ) : (
+            <p>상세 설명이 없습니다.</p>
+          )}
       </InfoCard>
-
-      {/* 상세 설명 카드 */}
       <InfoCard>
-          <CardTitle>상세 설명</CardTitle>
-          <p>{streamingContent.description || '상세 설명이 없습니다.'}</p>
+          <CardTitle><FontAwesomeIcon icon={faTriangleExclamation} /> 주의사항</CardTitle>
+          {streamingContent.precautions ? (
+            <ReactMarkdown>{convertLinesToMarkdown(streamingContent.precautions)}</ReactMarkdown>
+          ) : (
+            <p>주의사항이 없습니다.</p>
+          )}
       </InfoCard>
+      <FullWidthInfoCard>
+          <CardTitle><FontAwesomeIcon icon={faBookMedical} /> 관리법</CardTitle>
+          {streamingContent.management ? (
+            <ReactMarkdown>{convertLinesToMarkdown(streamingContent.management)}</ReactMarkdown>
+          ) : (
+            <p>관리법 정보가 없습니다.</p>
+          )}
+      </FullWidthInfoCard>
 
-      {/* 주의사항 카드 */}
-      <InfoCard>
-          <CardTitle>주의사항</CardTitle>
-          <p>{streamingContent.precautions || '주의사항이 없습니다.'}</p>
-      </InfoCard>
-
-      {/* 관리법 카드 */}
-      <InfoCard>
-          <CardTitle>관리법</CardTitle>
-          <p>{streamingContent.management || '관리법 정보가 없습니다.'}</p>
-      </InfoCard>
+      {references && (
+        <FullWidthInfoCard>
+          <CardTitle><FontAwesomeIcon icon={faLink} /> 출처</CardTitle>
+          <ReactMarkdown>{convertLinesToMarkdown(references)}</ReactMarkdown>
+        </FullWidthInfoCard>
+      )}
     </>
   );
 };
