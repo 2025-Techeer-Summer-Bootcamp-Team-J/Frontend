@@ -39,6 +39,7 @@ apiClient.interceptors.request.use(
 
     const apiKey = import.meta.env.VITE_API_KEY;
 
+    
     if (apiKey) {
       if (!config.headers) {
         // AxiosRequestHeaders 타입으로 캐스팅하여 타입 오류 방지
